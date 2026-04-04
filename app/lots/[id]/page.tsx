@@ -1,9 +1,10 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
+import { useEffect, useState, use } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { supabaseAdmin, Lot } from "@/lib/supabase";
+import { supabaseClient, Lot } from "@/lib/supabase";
 import ProgressBar from "@/components/ProgressBar";
 import ParticipationForm from "@/components/ParticipationForm";
 
@@ -11,25 +12,37 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-async function getLot(id: string): Promise<Lot | null> {
-  const supabase = supabaseAdmin();
-  const { data, error } = await supabase
-    .from("lots")
-    .select("*")
-    .eq("id", id)
-    .single();
+export default function LotDetailPage({ params }: Props) {
+  const { id } = use(params);
+  const [lot, setLot] = useState<Lot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundState, setNotFoundState] = useState(false);
 
-  if (error || !data) return null;
-  return data;
-}
+  useEffect(() => {
+    supabaseClient()
+      .from("lots")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data, error }) => {
+        if (error || !data) {
+          setNotFoundState(true);
+        } else {
+          setLot(data);
+        }
+        setLoading(false);
+      });
+  }, [id]);
 
-export default async function LotDetailPage({ params }: Props) {
-  const { id } = await params;
-  const lot = await getLot(id);
-
-  if (!lot) {
-    notFound();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
+
+  if (notFoundState || !lot) return notFound();
 
   const remaining = lot.total_tickets - lot.tickets_vendus;
   const isSoldOut = remaining <= 0;
@@ -37,7 +50,6 @@ export default async function LotDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-gray-700 transition-colors">
           Lots
@@ -49,38 +61,19 @@ export default async function LotDetailPage({ params }: Props) {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Left: lot info */}
         <div className="space-y-6">
-          {/* Image */}
           <div className="relative h-72 sm:h-96 rounded-2xl overflow-hidden bg-gradient-to-br from-primary-100 to-primary-200">
             {lot.image_url ? (
-              <Image
-                src={lot.image_url}
-                alt={lot.nom}
-                fill
-                className="object-cover"
-                priority
-              />
+              <Image src={lot.image_url} alt={lot.nom} fill className="object-cover" priority />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <svg
-                  className="w-28 h-28 text-primary-300"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
-                  />
+                <svg className="w-28 h-28 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                 </svg>
               </div>
             )}
           </div>
 
-          {/* Lot info */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-2xl font-bold text-gray-900">{lot.nom}</h1>
@@ -100,10 +93,7 @@ export default async function LotDetailPage({ params }: Props) {
                 </svg>
                 Tirage le{" "}
                 {new Date(lot.date_fin).toLocaleDateString("fr-FR", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
+                  weekday: "long", day: "numeric", month: "long", year: "numeric",
                 })}
               </div>
             )}
@@ -129,7 +119,6 @@ export default async function LotDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Right: participation form */}
         <div>
           {isArchived ? (
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
@@ -138,15 +127,9 @@ export default async function LotDetailPage({ params }: Props) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Ce tirage est terminé
-              </h3>
-              <p className="text-gray-500 text-sm mb-6">
-                La période de participation est clôturée.
-              </p>
-              <Link href="/" className="btn-primary inline-block">
-                Voir les autres lots
-              </Link>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Ce tirage est terminé</h3>
+              <p className="text-gray-500 text-sm mb-6">La période de participation est clôturée.</p>
+              <Link href="/" className="btn-primary inline-block">Voir les autres lots</Link>
             </div>
           ) : isSoldOut ? (
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
@@ -155,21 +138,13 @@ export default async function LotDetailPage({ params }: Props) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Complet
-              </h3>
-              <p className="text-gray-500 text-sm mb-6">
-                Tous les tickets ont été vendus.
-              </p>
-              <Link href="/" className="btn-primary inline-block">
-                Voir les autres lots
-              </Link>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Complet</h3>
+              <p className="text-gray-500 text-sm mb-6">Tous les tickets ont été vendus.</p>
+              <Link href="/" className="btn-primary inline-block">Voir les autres lots</Link>
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Choisissez vos tickets
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Choisissez vos tickets</h2>
               <ParticipationForm
                 lotId={lot.id}
                 lotNom={lot.nom}
