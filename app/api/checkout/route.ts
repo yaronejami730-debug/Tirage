@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
     const totalAmount = Math.round(Number(lot.prix_ticket) * quantite * 100); // in cents
 
     // Create Stripe Checkout session first to get session ID
+    const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",

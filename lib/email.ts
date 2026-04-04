@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 interface SendConfirmationEmailParams {
   to: string;
@@ -163,7 +163,7 @@ L'équipe Tirage
   `;
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: "Tirage <noreply@tirage.fr>",
       to,
       subject,
