@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import LotGrid from "@/components/LotGrid";
 import { Lot } from "@/lib/supabase";
 
-export const revalidate = 60; // Revalidate every minute
+export const dynamic = 'force-dynamic';
 
 async function getLots(): Promise<Lot[]> {
   const supabase = supabaseAdmin();
