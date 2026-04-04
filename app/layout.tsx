@@ -9,52 +9,63 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className="min-h-screen" style={{ background: "#f8f7ff" }}>
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-purple-100 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <a href="/" className="flex items-center gap-3 group">
-                <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-md shadow-primary-200 group-hover:scale-105 transition-transform">
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                  </svg>
-                </div>
-                <span className="text-xl font-extrabold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
-                  Tirage
-                </span>
-              </a>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      </head>
+      <body style={{ fontFamily: "'Inter', sans-serif", background: "#FAFAFA", minHeight: "100vh" }}>
 
-              <nav className="flex items-center gap-2">
-                <a href="/" className="text-sm font-medium text-gray-600 hover:text-primary-600 px-3 py-1.5 rounded-lg hover:bg-primary-50 transition-all">
-                  Lots
-                </a>
-                <a href="/admin" className="text-sm font-medium text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-all">
-                  Admin
-                </a>
-              </nav>
-            </div>
+        {/* Header */}
+        <header style={{
+          position: "sticky", top: 0, zIndex: 50,
+          background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(124,58,237,0.1)",
+          boxShadow: "0 1px 20px rgba(0,0,0,0.06)"
+        }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 12,
+                background: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(124,58,237,0.4)"
+              }}>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+              </div>
+              <span style={{ fontSize: 20, fontWeight: 900, background: "linear-gradient(135deg, #7c3aed, #4c1d95)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                Tirage
+              </span>
+            </a>
+            <nav style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <a href="/" style={{ fontSize: 14, fontWeight: 600, color: "#6d28d9", textDecoration: "none", padding: "6px 14px", borderRadius: 10, background: "rgba(124,58,237,0.08)" }}>
+                Lots
+              </a>
+              <a href="/admin" style={{ fontSize: 14, fontWeight: 500, color: "#9ca3af", textDecoration: "none", padding: "6px 14px", borderRadius: 10 }}>
+                Admin
+              </a>
+            </nav>
           </div>
         </header>
 
         <main>{children}</main>
 
         {/* Footer */}
-        <footer className="mt-20 bg-white border-t border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                  </svg>
-                </div>
-                <span className="font-bold text-gray-800">Tirage</span>
+        <footer style={{ marginTop: 80, background: "#111", padding: "40px 24px" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #7c3aed, #4c1d95)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
               </div>
-              <p className="text-xs text-gray-400 text-center">
-                Le tirage est effectué par un organisme externe indépendant · &copy; {new Date().getFullYear()} Tirage
-              </p>
+              <span style={{ color: "white", fontWeight: 800, fontSize: 16 }}>Tirage</span>
             </div>
+            <p style={{ color: "#6b7280", fontSize: 12, textAlign: "center" }}>
+              Tirages certifiés par huissier indépendant · Paiement sécurisé · © {new Date().getFullYear()} Tirage
+            </p>
           </div>
         </footer>
       </body>

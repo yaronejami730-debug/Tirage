@@ -26,94 +26,127 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 py-20 px-4">
-        {/* Decorative circles */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+      {/* HERO */}
+      <div style={{
+        background: "linear-gradient(135deg, #1e0a3c 0%, #2d1258 40%, #1a1035 100%)",
+        padding: "72px 24px 80px",
+        position: "relative",
+        overflow: "hidden"
+      }}>
+        {/* decorative blobs */}
+        <div style={{ position: "absolute", top: -100, left: -100, width: 400, height: 400, borderRadius: "50%", background: "rgba(124,58,237,0.25)", filter: "blur(80px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -80, right: -80, width: 350, height: 350, borderRadius: "50%", background: "rgba(79,70,229,0.2)", filter: "blur(80px)", pointerEvents: "none" }} />
 
-        <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white/90 text-sm font-medium px-4 py-2 rounded-full mb-6 border border-white/20">
-            🎉 Tirages équitables · Résultats certifiés huissier
+        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", position: "relative" }}>
+
+          {/* Pill badge */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 999, padding: "6px 16px", marginBottom: 28,
+            color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
+            Tirages certifiés · Résultats par huissier indépendant
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-black text-white mb-5 leading-tight">
-            Tentez votre chance &<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-amber-300">
-              gagnez des lots incroyables
+          <h1 style={{
+            color: "white", fontWeight: 900, fontSize: "clamp(36px, 6vw, 62px)",
+            lineHeight: 1.1, marginBottom: 20, letterSpacing: -1
+          }}>
+            Gagnez des lots{" "}
+            <span style={{
+              background: "linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
+            }}>
+              incroyables
             </span>
           </h1>
 
-          <p className="text-lg text-white/70 max-w-xl mx-auto mb-10">
-            Achetez vos tickets, suivez le tirage en direct et remportez des prix exceptionnels. Simple, transparent, certifié.
+          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 17, lineHeight: 1.6, marginBottom: 40, maxWidth: 480, margin: "0 auto 40px" }}>
+            Choisissez vos tickets, participez au tirage et tentez de remporter des prix d'exception. Simple, rapide, sécurisé.
           </p>
 
           {/* Stats */}
-          {!loading && lots.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-3 text-center">
-                <div className="text-3xl font-black text-white">{lots.length}</div>
-                <div className="text-xs text-white/60 mt-0.5">Lots actifs</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-3 text-center">
-                <div className="text-3xl font-black text-gold-400">{totalTickets}</div>
-                <div className="text-xs text-white/60 mt-0.5">Tickets au total</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-3 text-center">
-                <div className="text-3xl font-black text-green-400">{ticketsRestants}</div>
-                <div className="text-xs text-white/60 mt-0.5">Places restantes</div>
-              </div>
+          {!loading && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+              {[
+                { val: lots.length, label: "Lots actifs", color: "#a78bfa" },
+                { val: totalTickets, label: "Tickets disponibles", color: "#fbbf24" },
+                { val: ticketsRestants, label: "Places restantes", color: "#4ade80" },
+              ].map(s => (
+                <div key={s.label} style={{
+                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 18, padding: "16px 28px", textAlign: "center", minWidth: 110
+                }}>
+                  <div style={{ fontSize: 30, fontWeight: 900, color: s.color }}>{s.val}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{s.label}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Lots */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      {/* LOTS */}
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 24px" }}>
         {loading ? (
-          <div className="flex items-center justify-center py-24">
-            <div className="w-10 h-10 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+          <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
+            <div style={{ width: 40, height: 40, border: "3px solid #7c3aed", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
           </div>
         ) : lots.length === 0 ? (
-          <div className="text-center py-24">
-            <div className="text-6xl mb-4">🎟️</div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-2">Aucun lot en cours</h2>
-            <p className="text-gray-500">Revenez bientôt pour découvrir nos prochains tirages !</p>
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <div style={{ fontSize: 64, marginBottom: 16 }}>🎟️</div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: "#374151", marginBottom: 8 }}>Aucun lot en cours</h2>
+            <p style={{ color: "#9ca3af" }}>Revenez bientôt pour nos prochains tirages !</p>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-extrabold text-gray-900 mb-8">
-              Lots en cours
-              <span className="ml-3 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+              <h2 style={{ fontSize: 26, fontWeight: 900, color: "#111" }}>Lots en cours</h2>
+              <span style={{
+                background: "rgba(124,58,237,0.1)", color: "#7c3aed",
+                fontWeight: 700, fontSize: 13, padding: "3px 12px", borderRadius: 999
+              }}>
                 {lots.length} actif{lots.length > 1 ? "s" : ""}
               </span>
-            </h2>
+            </div>
             <LotGrid lots={lots} />
           </>
         )}
       </div>
 
-      {/* How it works */}
-      <div className="bg-white border-t border-gray-100 py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-10">Comment ça marche ?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+      {/* HOW IT WORKS */}
+      <div style={{ background: "white", borderTop: "1px solid #f3f4f6", padding: "64px 24px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h2 style={{ textAlign: "center", fontSize: 26, fontWeight: 900, color: "#111", marginBottom: 48 }}>
+            Comment ça marche ?
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 32 }}>
             {[
-              { icon: "🎟️", title: "Achetez vos tickets", desc: "Choisissez un lot et achetez le nombre de tickets souhaité en toute sécurité." },
-              { icon: "⏳", title: "Attendez le tirage", desc: "Le tirage est réalisé par un huissier indépendant à la clôture du lot." },
-              { icon: "🏆", title: "Réclamez votre lot", desc: "Le gagnant est contacté par email et reçoit son lot rapidement." },
-            ].map((step) => (
-              <div key={step.title} className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center text-3xl">
-                  {step.icon}
-                </div>
-                <h3 className="font-bold text-gray-900">{step.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+              { emoji: "🎟️", title: "1. Achetez vos tickets", desc: "Choisissez un lot, sélectionnez le nombre de tickets et payez en toute sécurité via Stripe." },
+              { emoji: "⏳", title: "2. Attendez le tirage", desc: "À la clôture du lot, un tirage est effectué par un huissier de justice indépendant." },
+              { emoji: "🏆", title: "3. Réclamez votre gain", desc: "Le gagnant est notifié par email et reçoit son lot dans les meilleurs délais." },
+            ].map(step => (
+              <div key={step.title} style={{ textAlign: "center" }}>
+                <div style={{
+                  width: 64, height: 64, borderRadius: 20,
+                  background: "linear-gradient(135deg, #f5f3ff, #ede9fe)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 28, margin: "0 auto 16px"
+                }}>{step.emoji}</div>
+                <h3 style={{ fontWeight: 800, fontSize: 16, color: "#111", marginBottom: 8 }}>{step.title}</h3>
+                <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.6; } }
+      `}</style>
     </div>
   );
 }
