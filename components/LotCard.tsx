@@ -158,12 +158,11 @@ export default function LotCard({ lot }: LotCardProps) {
             </div>
             {isNew && !isProgramme && (
               <div style={{
-                background: "linear-gradient(135deg, #00B894, #00cba6)",
+                background: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
                 color: "white", fontFamily: "'Nunito', sans-serif",
                 fontWeight: 900, fontSize: 10, padding: "4px 10px",
                 borderRadius: 20, letterSpacing: "0.5px", textTransform: "uppercase",
-                boxShadow: "0 4px 12px rgba(0,184,148,0.4)",
-                animation: "pulse 2s infinite",
+                boxShadow: "0 4px 12px rgba(108,92,231,0.4)",
               }}>
                 ✨ Nouveau
               </div>
@@ -198,10 +197,10 @@ export default function LotCard({ lot }: LotCardProps) {
         ) : (
           <Link href={`/lots/${lot.id}`} style={{
             display: "block", textAlign: "center", textDecoration: "none",
-            background: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
+            background: "linear-gradient(135deg, #FF7043, #FF8C42)",
             color: "white", fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 15,
             padding: "13px", borderRadius: 16,
-            boxShadow: "0 6px 20px rgba(108,92,231,0.35)",
+            boxShadow: "0 6px 20px rgba(255,112,67,0.4)",
             transition: "all .2s ease"
           }}>
             JE TENTE MA CHANCE

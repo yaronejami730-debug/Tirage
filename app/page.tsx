@@ -110,28 +110,9 @@ export default function HomePage() {
             {" "}Simple, rapide, et certifié huissier. 🏆
           </p>
 
-          {/* Prochain tirage — URGENCE */}
+          {/* Prochain tirage */}
           {prochainTirage && (
             <div style={{ marginTop: 32 }}>
-              {/* Badge urgence */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12 }}>
-                <span style={{ fontSize: 22, animation: "flicker 0.9s ease-in-out infinite alternate" }}>🔥</span>
-                <span style={{
-                  fontFamily: "'Fredoka One', cursive",
-                  fontSize: "clamp(13px, 3vw, 16px)",
-                  fontWeight: 900,
-                  color: "#FF7043",
-                  textTransform: "uppercase",
-                  letterSpacing: "2px",
-                  textShadow: "0 0 20px rgba(255,112,67,0.8)",
-                  animation: "urgentPulse 1.2s ease-in-out infinite",
-                }}>
-                  PROCHAIN TIRAGE
-                </span>
-                <span style={{ fontSize: 22, animation: "flicker 0.9s ease-in-out infinite alternate" }}>🔥</span>
-              </div>
-
-              {/* Card principale */}
               <Link href={`/lots/${prochainTirage.id}`} style={{ textDecoration: "none", display: "block" }}>
                 <div style={{
                   background: "rgba(255,255,255,0.12)",
@@ -146,13 +127,12 @@ export default function HomePage() {
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1.02)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 50px rgba(0,0,0,0.3)"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 40px rgba(0,0,0,0.2)"; }}
                 >
-                  {/* En-tête PROCHAIN TIRAGE dans la card */}
+                  {/* En-tête */}
                   <div style={{
                     padding: "12px 20px 10px",
                     borderBottom: "1px solid rgba(255,255,255,0.2)",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <span style={{ fontSize: 18, animation: "flicker 0.8s ease-in-out infinite alternate" }}>🔥</span>
                     <span style={{
                       fontFamily: "'Fredoka One', cursive",
                       fontSize: "clamp(15px, 3.5vw, 19px)",
@@ -161,9 +141,8 @@ export default function HomePage() {
                       textTransform: "uppercase",
                       textShadow: "0 2px 12px rgba(0,0,0,0.4)",
                     }}>
-                      PROCHAIN TIRAGE
+                      Prochain tirage
                     </span>
-                    <span style={{ fontSize: 18, animation: "flicker 1s ease-in-out infinite alternate" }}>🔥</span>
                   </div>
 
                   {/* Photo du lot */}
@@ -177,8 +156,6 @@ export default function HomePage() {
                           style={{ objectFit: "contain", filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.45))" }}
                         />
                       </div>
-                      <span style={{ position: "absolute", left: 16, bottom: 8, fontSize: 28, animation: "flicker 0.8s ease-in-out infinite alternate" }}>🔥</span>
-                      <span style={{ position: "absolute", right: 16, bottom: 8, fontSize: 28, animation: "flicker 1s ease-in-out infinite alternate" }}>🔥</span>
                     </div>
                   )}
 
@@ -188,26 +165,25 @@ export default function HomePage() {
                       {prochainTirage.nom}
                     </div>
 
-                    {/* Countdown légèrement plus grand */}
                     <div style={{ marginBottom: 18, transform: "scale(1.1)", transformOrigin: "center" }}>
                       <CountdownTimer dateFin={prochainTirage.date_fin!} variant="hero" />
                     </div>
 
-                    {/* Gros bouton CTA — gradient du hero */}
+                    {/* Bouton CTA */}
                     <div style={{
                       width: "100%",
-                      padding: "16px",
-                      background: "linear-gradient(135deg, #6C5CE7 0%, #FD79A8 55%, #FDCB6E 100%)",
+                      padding: "14px",
+                      background: "rgba(255,255,255,0.18)",
                       color: "white",
-                      fontFamily: "'Fredoka One', cursive",
-                      fontSize: "clamp(16px, 4vw, 20px)",
+                      fontFamily: "'Nunito', sans-serif",
+                      fontWeight: 800,
+                      fontSize: "clamp(14px, 3.5vw, 17px)",
                       textAlign: "center",
-                      borderRadius: 18,
-                      boxShadow: "0 6px 24px rgba(108,92,231,0.4)",
-                      letterSpacing: "0.5px",
-                      animation: "ctaPulse 2s ease-in-out infinite",
+                      borderRadius: 16,
+                      border: "1.5px solid rgba(255,255,255,0.4)",
+                      letterSpacing: "0.3px",
                     }}>
-                      🎯 JE TENTE MA CHANCE !
+                      Voir le lot →
                     </div>
                   </div>
                 </div>
@@ -262,8 +238,6 @@ export default function HomePage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
         @keyframes flicker { 0% { transform: scale(1) rotate(-3deg); } 100% { transform: scale(1.15) rotate(3deg); } }
-        @keyframes urgentPulse { 0%,100% { opacity: 1; text-shadow: 0 0 20px rgba(255,112,67,0.8); } 50% { opacity: 0.75; text-shadow: 0 0 40px rgba(255,112,67,1); } }
-        @keyframes ctaPulse { 0%,100% { transform: scale(1); box-shadow: 0 6px 24px rgba(108,92,231,0.55); } 50% { transform: scale(1.02); box-shadow: 0 10px 36px rgba(108,92,231,0.8); } }
       `}</style>
     </div>
   );

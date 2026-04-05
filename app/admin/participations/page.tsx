@@ -44,18 +44,18 @@ export default function AdminParticipationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Participations</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {participations.length} participation{participations.length > 1 ? "s" : ""} au total •{" "}
+            {participations.length} participation{participations.length > 1 ? "s" : ""} •{" "}
             {confirmed.length} confirmée{confirmed.length > 1 ? "s" : ""}
           </p>
         </div>
         <ExportButton participations={participations} />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
         <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
           <p className="text-xs text-gray-500">Confirmées</p>
           <p className="text-xl font-bold text-green-600">{confirmed.length}</p>

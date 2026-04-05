@@ -143,7 +143,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
       </div>
 
       {/* Catégorie + valeur */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label style={labelStyle}>Catégorie *</label>
           <select name="categorie" value={form.categorie} onChange={handleChange} style={inputStyle}>
@@ -242,7 +242,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
       </div>
 
       {/* Prix + tickets */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label style={labelStyle}>Prix / ticket (€) *</label>
           <input name="prix_ticket" type="number" step="0.01" min="0.01" value={form.prix_ticket} onChange={handleChange} placeholder="5.00" style={inputStyle} required />
@@ -254,7 +254,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
       </div>
 
       {/* Ref + dates */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
             <label style={{ ...labelStyle, marginBottom: 0 }}>Référence *</label>
