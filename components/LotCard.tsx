@@ -6,9 +6,9 @@ import { Lot } from "@/lib/supabase";
 import { CATEGORY_MAP } from "@/lib/categories";
 import CountdownTimer from "./CountdownTimer";
 
-interface LotCardProps { lot: Lot; }
+interface LotCardProps { lot: Lot; isProchain?: boolean; }
 
-export default function LotCard({ lot }: LotCardProps) {
+export default function LotCard({ lot, isProchain = false }: LotCardProps) {
   const remaining = lot.total_tickets - lot.tickets_vendus;
   const isSoldOut = remaining <= 0;
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
@@ -22,11 +22,8 @@ export default function LotCard({ lot }: LotCardProps) {
     ? Date.now() - new Date(lot.created_at).getTime() < 48 * 60 * 60 * 1000
     : false;
 
-  return (
-    <div
-      className="lot-card flex flex-col group"
-      style={undefined}
-    >
+  const cardInner = (
+    <div className="lot-card flex flex-col group" style={isProchain ? { position: "relative", zIndex: 1 } : undefined}>
       {/* IMAGE */}
       <div style={{ position: "relative", height: 300, overflow: "hidden", background: `linear-gradient(135deg, ${catColor}33, ${catColor}11)` }}>
 
@@ -57,19 +54,31 @@ export default function LotCard({ lot }: LotCardProps) {
         {/* PROCHAINEMENT overlay */}
         {isProgramme && (
           <div style={{
-            position: "absolute", inset: 0, background: "rgba(45,52,54,0.65)", backdropFilter: "blur(3px)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10
+            position: "absolute", inset: 0, background: "rgba(45,52,54,0.7)", backdropFilter: "blur(3px)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
+            padding: "16px",
           }}>
             <span style={{
               background: "#6C5CE7", color: "white",
               fontFamily: "'Fredoka One', cursive", fontSize: 22,
-              padding: "8px 24px", borderRadius: 16, boxShadow: "0 8px 30px rgba(108,92,231,0.5)"
+              padding: "8px 24px", borderRadius: 16, boxShadow: "0 8px 30px rgba(108,92,231,0.5)",
+              marginBottom: 4,
             }}>🔜 Prochainement</span>
             {lot.date_ouverture && (
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, marginBottom: 6 }}>OUVERTURE DANS</div>
                 <CountdownTimer dateFin={lot.date_ouverture} />
               </div>
+            )}
+            {lot.description && (
+              <p style={{
+                fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.55,
+                margin: "6px 0 0", fontFamily: "'Nunito', sans-serif", fontWeight: 600,
+                textAlign: "center", maxHeight: 48, overflow: "hidden",
+                display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as any,
+              }}>
+                {lot.description}
+              </p>
             )}
           </div>
         )}
@@ -137,9 +146,8 @@ export default function LotCard({ lot }: LotCardProps) {
           </div>
         </div>
 
-        {/* 6. Catégorie + NOUVEAU + numéro de lot — section bas */}
+        {/* 6. Catégorie + NOUVEAU + numéro de lot */}
         <div style={{ marginTop: "auto", borderTop: "1px solid #f0eeff", paddingTop: 12, marginBottom: 14 }}>
-          {/* Catégorie et badge NOUVEAU */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <div style={{
               background: `${catColor}18`, color: catColor,
@@ -161,7 +169,6 @@ export default function LotCard({ lot }: LotCardProps) {
             )}
           </div>
 
-          {/* Numéro de lot + valeur */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ position: "relative", width: 18, height: 18, borderRadius: 5, overflow: "hidden", background: "white", padding: 2, border: "1px solid #f0eeff", flexShrink: 0 }}>
               <img src="/images/logo-gowingo.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
@@ -202,7 +209,45 @@ export default function LotCard({ lot }: LotCardProps) {
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        @keyframes rotateBorder { to { transform: rotate(360deg); } }
+        @keyframes badgeFloat { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-5px)} }
       `}</style>
+    </div>
+  );
+
+  if (!isProchain) return cardInner;
+
+  return (
+    <div style={{ position: "relative", marginTop: 18 }}>
+      {/* Badge flottant — en dehors du overflow:hidden */}
+      <div style={{
+        position: "absolute", top: -16, left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 30,
+        background: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
+        color: "white", fontFamily: "'Fredoka One', cursive",
+        fontSize: 13, padding: "5px 18px", borderRadius: 999,
+        boxShadow: "0 4px 16px rgba(108,92,231,0.5)",
+        whiteSpace: "nowrap", letterSpacing: "0.5px",
+        animation: "badgeFloat 2s ease-in-out infinite",
+        pointerEvents: "none",
+      }}>
+        🎯 Prochain tirage
+      </div>
+
+      {/* Conteneur du liseré rotatif */}
+      <div style={{ padding: 3, borderRadius: 27, overflow: "hidden", position: "relative" }}>
+        {/* Gradient rotatif — semi-transparent */}
+        <div style={{
+          position: "absolute",
+          inset: "-100%",
+          background: "conic-gradient(from 0deg, #6C5CE7, #A29BFE, #FD79A8, #FDCB6E, #00B894, #6C5CE7)",
+          animation: "rotateBorder 3s linear infinite",
+          opacity: 0.55,
+        }} />
+        {/* La carte elle-même */}
+        {cardInner}
+      </div>
     </div>
   );
 }

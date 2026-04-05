@@ -3,9 +3,10 @@ import LotCard from "./LotCard";
 
 interface LotGridProps {
   lots: Lot[];
+  prochainTirageId?: string;
 }
 
-export default function LotGrid({ lots }: LotGridProps) {
+export default function LotGrid({ lots, prochainTirageId }: LotGridProps) {
   if (lots.length === 0) {
     return (
       <div className="text-center py-24">
@@ -37,7 +38,7 @@ export default function LotGrid({ lots }: LotGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {lots.map((lot) => (
-        <LotCard key={lot.id} lot={lot} />
+        <LotCard key={lot.id} lot={lot} isProchain={lot.id === prochainTirageId} />
       ))}
     </div>
   );

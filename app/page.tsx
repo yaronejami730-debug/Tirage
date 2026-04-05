@@ -2,11 +2,9 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { supabaseClient, Lot } from "@/lib/supabase";
-import { CATEGORIES, CATEGORY_MAP } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
 import LotGrid from "@/components/LotGrid";
-import CountdownTimer from "@/components/CountdownTimer";
 
 const FLOATING_ITEMS = [
   { emoji: "📱", size: 52, top: 5,  left: 2  },
@@ -73,6 +71,12 @@ export default function HomePage() {
       .sort((a, b) => new Date(a.date_fin!).getTime() - new Date(b.date_fin!).getTime())[0] ?? null;
   }, [lots]);
 
+  // Lots triés : prochain tirage toujours en premier
+  const lotsSorted = useMemo(() => {
+    if (!prochainTirage) return lots;
+    return [prochainTirage, ...lots.filter(l => l.id !== prochainTirage.id)];
+  }, [lots, prochainTirage]);
+
   return (
     <div>
       {/* HERO */}
@@ -115,87 +119,6 @@ export default function HomePage() {
             {" "}Simple, rapide, et certifié huissier. 🏆
           </p>
 
-          {/* Prochain tirage */}
-          {prochainTirage && (
-            <div style={{ marginTop: 32 }}>
-              <Link href={`/lots/${prochainTirage.id}`} style={{ textDecoration: "none", display: "block" }}>
-                <div style={{
-                  background: "rgba(255,255,255,0.12)",
-                  backdropFilter: "blur(20px)",
-                  border: "1.5px solid rgba(255,255,255,0.35)",
-                  borderRadius: 24,
-                  overflow: "hidden",
-                  boxShadow: "0 8px 40px rgba(0,0,0,0.2)",
-                  cursor: "pointer",
-                  transition: "transform .2s, box-shadow .2s",
-                }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1.02)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 50px rgba(0,0,0,0.3)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 40px rgba(0,0,0,0.2)"; }}
-                >
-                  {/* En-tête */}
-                  <div style={{
-                    padding: "12px 20px 10px",
-                    borderBottom: "1px solid rgba(255,255,255,0.2)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <span style={{
-                      fontFamily: "'Fredoka One', cursive",
-                      fontSize: "clamp(15px, 3.5vw, 19px)",
-                      color: "white",
-                      letterSpacing: "2px",
-                      textTransform: "uppercase",
-                      textShadow: "0 2px 12px rgba(0,0,0,0.4)",
-                    }}>
-                      Prochain tirage
-                    </span>
-                  </div>
-
-                  {/* Photo du lot */}
-                  {prochainTirage.image_url && (
-                    <div style={{ position: "relative", height: 200, background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <div style={{ position: "relative", width: 160, height: 180 }}>
-                        <Image
-                          src={prochainTirage.image_url}
-                          alt={prochainTirage.nom}
-                          fill
-                          style={{ objectFit: "contain", filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.45))" }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Infos + countdown */}
-                  <div style={{ padding: "14px 20px 20px" }}>
-                    <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: "clamp(18px, 4vw, 24px)", color: "white", textAlign: "center", marginBottom: 14, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-                      {prochainTirage.nom}
-                    </div>
-
-                    <div style={{ marginBottom: 18, transform: "scale(1.1)", transformOrigin: "center" }}>
-                      <CountdownTimer dateFin={prochainTirage.date_fin!} variant="hero" />
-                    </div>
-
-                    {/* Bouton CTA */}
-                    <div style={{
-                      width: "100%",
-                      padding: "14px",
-                      background: "linear-gradient(135deg, rgba(108,92,231,0.75), rgba(253,121,168,0.65))",
-                      color: "white",
-                      fontFamily: "'Nunito', sans-serif",
-                      fontWeight: 800,
-                      fontSize: "clamp(14px, 3.5vw, 17px)",
-                      textAlign: "center",
-                      borderRadius: 16,
-                      border: "1px solid rgba(255,255,255,0.25)",
-                      backdropFilter: "blur(8px)",
-                      letterSpacing: "0.3px",
-                    }}>
-                      Participer →
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
 
         </div>
       </div>
@@ -273,7 +196,7 @@ export default function HomePage() {
               );
             })()}
 
-            <LotGrid lots={activeCategory ? lots.filter(l => l.categorie === activeCategory) : lots} />
+            <LotGrid lots={activeCategory ? lotsSorted.filter(l => l.categorie === activeCategory) : lotsSorted} prochainTirageId={prochainTirage?.id} />
           </>
         )}
       </div>
