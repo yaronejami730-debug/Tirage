@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -119,6 +119,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [constraintNames, setConstraintNames] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [preview, setPreview] = useState<string>(lot?.image_url || "");

@@ -9,16 +9,32 @@ export async function GET() {
   }
 
   const supabase = supabaseAdmin();
+
+  // Try via information_schema (PostgREST may expose it)
   const { data, error } = await supabase
     .from("information_schema.table_constraints" as any)
     .select("constraint_name")
     .eq("table_name", "lots")
     .eq("constraint_type", "CHECK");
 
-  if (error) {
-    // Fallback via rpc si la requête directe échoue
-    return NextResponse.json({ constraints: [], error: error.message });
+  if (!error && data && data.length > 0) {
+    return NextResponse.json({
+      constraints: (data as Array<{ constraint_name: string }>).map((r) => r.constraint_name),
+    });
   }
 
-  return NextResponse.json({ constraints: data?.map((r: any) => r.constraint_name) ?? [] });
+  // Fallback: try via RPC with a simple SQL function call
+  const { data: rpcData, error: rpcError } = await (supabase as any).rpc(
+    "get_lots_check_constraints"
+  );
+
+  if (!rpcError && rpcData) {
+    return NextResponse.json({ constraints: rpcData as string[] });
+  }
+
+  // Final fallback: return empty with error info so the client can show the DO $$ block
+  return NextResponse.json({
+    constraints: [],
+    error: error?.message ?? rpcError?.message ?? "Unable to query constraints",
+  });
 }
