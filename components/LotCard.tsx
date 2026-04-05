@@ -52,8 +52,21 @@ export default function LotCard({ lot }: LotCardProps) {
           {CATEGORY_LABELS[cat]}
         </div>
 
-        {/* Urgency — top right */}
-        {isUrgent && !isSoldOut && (
+        {/* Countdown — top right */}
+        {lot.date_fin && !isSoldOut && (
+          <div style={{
+            position: "absolute", top: 12, right: 12,
+            background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
+            borderRadius: 12, padding: "5px 10px", border: "1px solid rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", gap: 5
+          }}>
+            <span style={{ fontSize: 11 }}>⏰</span>
+            <CountdownTimer dateFin={lot.date_fin} />
+          </div>
+        )}
+
+        {/* Urgency — top right (below countdown if no date) */}
+        {isUrgent && !isSoldOut && !lot.date_fin && (
           <div style={{
             position: "absolute", top: 12, right: 12,
             background: "#E17055", color: "white",
@@ -73,19 +86,6 @@ export default function LotCard({ lot }: LotCardProps) {
         }}>
           {Number(lot.prix_ticket).toFixed(2)} € / ticket
         </div>
-
-        {/* Countdown — bottom right */}
-        {lot.date_fin && !isSoldOut && (
-          <div style={{
-            position: "absolute", bottom: 12, right: 12,
-            background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
-            borderRadius: 12, padding: "5px 10px", border: "1px solid rgba(255,255,255,0.15)",
-            display: "flex", alignItems: "center", gap: 5
-          }}>
-            <span style={{ fontSize: 11 }}>⏰</span>
-            <CountdownTimer dateFin={lot.date_fin} />
-          </div>
-        )}
 
         {/* SOLD OUT */}
         {isSoldOut && (
