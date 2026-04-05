@@ -249,7 +249,16 @@ export default function LotForm({ lot, mode }: LotFormProps) {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setError(null); setLoading(true);
+    e.preventDefault(); setError(null);
+
+    if (form.date_ouverture && form.date_fin) {
+      if (new Date(form.date_ouverture) >= new Date(form.date_fin)) {
+        setError("La date d'ouverture doit être avant la date de fin du tirage.");
+        return;
+      }
+    }
+
+    setLoading(true);
     try {
       const url = mode === "create" ? "/api/admin/lots" : `/api/admin/lots/${lot!.id}`;
       const res = await fetch(url, {

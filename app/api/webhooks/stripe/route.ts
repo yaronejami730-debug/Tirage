@@ -106,15 +106,19 @@ export async function POST(req: NextRequest) {
       newTickets.push(maxTicket + i);
     }
 
-    // Update participation with ticket numbers and confirm it
-    const { error: updateParticipationError } = await supabase
+    // Update participation with ticket numbers and confirm it.
+    // The .eq("statut", "en_attente") acts as an optimistic lock:
+    // if two webhooks race, only one will update a row — the other gets count=0 and exits.
+    const { data: updatedRows, error: updateParticipationError } = await supabase
       .from("participations")
       .update({
         ticket_numbers: newTickets,
         stripe_payment_id: session.payment_intent as string || null,
         statut: "confirme",
       })
-      .eq("id", participation.id);
+      .eq("id", participation.id)
+      .eq("statut", "en_attente")
+      .select("id");
 
     if (updateParticipationError) {
       console.error("Error updating participation:", updateParticipationError);
@@ -122,6 +126,12 @@ export async function POST(req: NextRequest) {
         { error: "Error updating participation" },
         { status: 500 }
       );
+    }
+
+    // Another webhook already processed this participation (race condition guard)
+    if (!updatedRows || updatedRows.length === 0) {
+      console.log(`Participation ${participation.id} already confirmed by another webhook.`);
+      return NextResponse.json({ received: true });
     }
 
     // Update lot tickets_vendus

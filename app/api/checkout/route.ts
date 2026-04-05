@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const totalAmount = Math.round(Number(lot.prix_ticket) * quantite * 100); // in cents
+    const unitAmountCents = Math.round(Number(lot.prix_ticket) * 100); // price per ticket in cents
 
     // Create Stripe Checkout session first to get session ID
     const stripe = getStripe();
@@ -62,12 +62,12 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: "eur",
             product_data: {
-              name: `${lot.nom} — ${quantite} ticket${quantite > 1 ? "s" : ""}`,
+              name: lot.nom,
               description: `Participation au tirage • Référence: ${lot.reference_lot}`,
             },
-            unit_amount: totalAmount,
+            unit_amount: unitAmountCents,
           },
-          quantity: 1,
+          quantity: quantite,
         },
       ],
       customer_email: email,

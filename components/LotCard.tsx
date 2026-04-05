@@ -23,6 +23,7 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
     : false;
 
   const cardInner = (
+    <Link href={`/lots/${lot.id}`} style={{ textDecoration: "none", display: "block" }}>
     <div className="lot-card flex flex-col group" style={isProchain ? { position: "relative", zIndex: 1 } : undefined}>
       {/* IMAGE */}
       <div style={{ position: "relative", height: 300, overflow: "hidden", background: `linear-gradient(135deg, ${catColor}33, ${catColor}11)` }}>
