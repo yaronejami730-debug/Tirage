@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         date_fin: date_fin || null,
         date_ouverture: date_ouverture || null,
         medias: medias || [],
-        statut: date_ouverture ? "programme" : (body.statut || "actif"),
+        statut: body.statut && body.statut !== "programme" ? body.statut : "actif",
         categorie: body.categorie || "autre",
         valeur_estimee: body.valeur_estimee || null,
       })
@@ -68,10 +68,10 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       if (error.code === "23505") {
-        return NextResponse.json(
-          { error: "Cette référence de lot existe déjà." },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Cette référence de lot existe déjà." }, { status: 400 });
+      }
+      if (error.code === "23514") {
+        return NextResponse.json({ error: "CONSTRAINT_ERROR", detail: error.message }, { status: 422 });
       }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

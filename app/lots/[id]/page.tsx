@@ -36,7 +36,7 @@ export default function LotDetailPage({ params }: Props) {
 
   const remaining = lot.total_tickets - lot.tickets_vendus;
   const isSoldOut = remaining <= 0;
-  const isProgramme = lot.statut === "programme";
+  const isProgramme = !!(lot.date_ouverture && new Date(lot.date_ouverture) > new Date());
   const isArchived = lot.statut !== "actif" && lot.statut !== "programme";
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
   const barColor = pct >= 90 ? "#E17055" : pct >= 70 ? "#FDCB6E" : "#00B894";
@@ -119,41 +119,65 @@ export default function LotDetailPage({ params }: Props) {
 
           {/* Info card */}
           <div style={{ background: "white", borderRadius: 24, padding: 24, border: "2px solid #f0eeff", boxShadow: "0 4px 20px rgba(108,92,231,0.08)" }}>
-            <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 26, color: "#2D3436", marginBottom: 8, lineHeight: 1.2 }}>
+            <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 26, color: "#2D3436", marginBottom: 10, lineHeight: 1.2 }}>
               {lot.nom}
             </h1>
             {lot.description && (
-              <p style={{ color: "#636E72", lineHeight: 1.7, fontSize: 14, marginBottom: 20 }}>{lot.description}</p>
+              <p style={{ fontFamily: "'Nunito', sans-serif", color: "#636E72", lineHeight: 1.75, fontSize: 15, marginBottom: 20, fontWeight: 600 }}>
+                {lot.description}
+              </p>
             )}
 
             {/* Stats grid */}
             <div className="stats-grid-3">
               {[
-                { label: "💰 Prix/ticket", val: `${Number(lot.prix_ticket).toFixed(2)} €`, bg: "#fff9e6", color: "#e6b455" },
-                { label: "🎫 Restants", val: remaining > 0 ? remaining : "Complet", bg: remaining <= 10 ? "#fff3f0" : "#f0fff8", color: remaining <= 10 ? "#E17055" : "#00B894" },
-                { label: "📊 Total", val: lot.total_tickets, bg: "#f0eeff", color: "#6C5CE7" },
+                {
+                  label: "Prix / ticket",
+                  val: `${Number(lot.prix_ticket).toFixed(2)} €`,
+                  bg: "linear-gradient(135deg, #fff9e6, #fffbee)",
+                  color: "#e6a817",
+                  border: "#FDCB6E",
+                  icon: "💰",
+                },
+                {
+                  label: remaining <= 0 ? "Complet" : "Tickets restants",
+                  val: remaining > 0 ? remaining : "—",
+                  bg: remaining <= 10 ? "linear-gradient(135deg, #fff3f0, #fff8f6)" : "linear-gradient(135deg, #f0fff8, #eafff4)",
+                  color: remaining <= 10 ? "#E17055" : "#00B894",
+                  border: remaining <= 10 ? "#E17055" : "#00B894",
+                  icon: "🎫",
+                },
+                {
+                  label: "Total tickets",
+                  val: lot.total_tickets,
+                  bg: "linear-gradient(135deg, #f0eeff, #f5f0ff)",
+                  color: "#6C5CE7",
+                  border: "#A29BFE",
+                  icon: "📊",
+                },
               ].map(s => (
-                <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: "12px 10px", textAlign: "center", border: `2px solid ${s.color}22` }}>
-                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: s.color }}>{s.val}</div>
-                  <div style={{ fontSize: 11, color: "#636E72", fontWeight: 700, marginTop: 2 }}>{s.label}</div>
+                <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: "14px 10px", textAlign: "center", border: `2px solid ${s.border}33` }}>
+                  <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
+                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: s.color, lineHeight: 1 }}>{s.val}</div>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: "#636E72", fontWeight: 700, marginTop: 4 }}>{s.label}</div>
                 </div>
               ))}
             </div>
 
             {/* Valeur estimée */}
             {lot.valeur_estimee && (
-              <div style={{ background: "linear-gradient(135deg, #fff9e6, #fffbee)", borderRadius: 16, padding: "12px 16px", marginBottom: 16, border: "2px solid #FDCB6E44", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 20 }}>💎</span>
+              <div style={{ background: "linear-gradient(135deg, #fff9e6, #fffbee)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, border: "2px solid #FDCB6E55", display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 24, flexShrink: 0 }}>💎</span>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 14, color: "#2D3436" }}>Valeur estimée du lot</div>
-                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: "#e6b455" }}>{Number(lot.valeur_estimee).toFixed(0)} €</div>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: 12, color: "#b2bec3", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>Valeur estimée du lot</div>
+                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#e6a817" }}>{Number(lot.valeur_estimee).toFixed(0)} €</div>
                 </div>
               </div>
             )}
 
             {/* Progress */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 700, color: "#636E72", marginBottom: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Nunito', sans-serif", fontSize: 12, fontWeight: 800, color: "#636E72", marginBottom: 8 }}>
                 <span>{lot.tickets_vendus} vendus</span>
                 <span style={{ color: barColor }}>{Math.round(pct)}% rempli</span>
               </div>

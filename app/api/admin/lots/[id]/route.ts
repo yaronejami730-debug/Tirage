@@ -56,7 +56,7 @@ export async function PUT(
         date_fin: date_fin || null,
         date_ouverture: date_ouverture || null,
         medias: medias || [],
-        statut,
+        statut: statut === "programme" ? "actif" : statut,
         categorie: categorie || "autre",
         valeur_estimee: valeur_estimee || null,
       })
@@ -66,10 +66,10 @@ export async function PUT(
 
     if (error) {
       if (error.code === "23505") {
-        return NextResponse.json(
-          { error: "Cette référence de lot est déjà utilisée." },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Cette référence de lot est déjà utilisée." }, { status: 400 });
+      }
+      if (error.code === "23514") {
+        return NextResponse.json({ error: "CONSTRAINT_ERROR", detail: error.message }, { status: 422 });
       }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

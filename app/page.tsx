@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { supabaseClient, Lot } from "@/lib/supabase";
+import { CATEGORIES, CATEGORY_MAP } from "@/lib/categories";
 import LotGrid from "@/components/LotGrid";
 import CountdownTimer from "@/components/CountdownTimer";
 
@@ -53,9 +54,10 @@ const FLOATING_ITEMS = [
 export default function HomePage() {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    supabaseClient().from("lots").select("*").in("statut", ["actif", "programme"])
+    supabaseClient().from("lots").select("*").eq("statut", "actif")
       .order("created_at", { ascending: false })
       .then(({ data }) => { setLots(data || []); setLoading(false); });
   }, []);
@@ -64,7 +66,10 @@ export default function HomePage() {
   const prochainTirage = useMemo(() => {
     const now = Date.now();
     return lots
-      .filter(l => l.statut === "actif" && l.date_fin && new Date(l.date_fin).getTime() > now)
+      .filter(l => {
+        const isProgramme = !!(l.date_ouverture && new Date(l.date_ouverture) > new Date());
+        return !isProgramme && l.date_fin && new Date(l.date_fin).getTime() > now;
+      })
       .sort((a, b) => new Date(a.date_fin!).getTime() - new Date(b.date_fin!).getTime())[0] ?? null;
   }, [lots]);
 
@@ -173,17 +178,18 @@ export default function HomePage() {
                     <div style={{
                       width: "100%",
                       padding: "14px",
-                      background: "rgba(255,255,255,0.18)",
+                      background: "linear-gradient(135deg, rgba(108,92,231,0.75), rgba(253,121,168,0.65))",
                       color: "white",
                       fontFamily: "'Nunito', sans-serif",
                       fontWeight: 800,
                       fontSize: "clamp(14px, 3.5vw, 17px)",
                       textAlign: "center",
                       borderRadius: 16,
-                      border: "1.5px solid rgba(255,255,255,0.4)",
+                      border: "1px solid rgba(255,255,255,0.25)",
+                      backdropFilter: "blur(8px)",
                       letterSpacing: "0.3px",
                     }}>
-                      Voir le lot →
+                      Participer →
                     </div>
                   </div>
                 </div>
@@ -191,21 +197,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Stats */}
-          {!loading && lots.length > 0 && (
-            <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 40, flexWrap: "wrap" }}>
-              {[
-                { val: lots.length, label: "Lots actifs", bg: "rgba(255,255,255,0.15)" },
-                { val: lots.reduce((a, l) => a + l.total_tickets, 0), label: "Tickets dispo", bg: "rgba(255,255,255,0.15)" },
-                { val: lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0), label: "Places restantes", bg: "rgba(255,255,255,0.15)" },
-              ].map(s => (
-                <div key={s.label} style={{ background: s.bg, borderRadius: 18, padding: "14px 22px", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(8px)" }}>
-                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "white" }}>{s.val}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -223,13 +214,66 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
               <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "#2D3436" }}>🎁 Lots à gagner</h2>
               <span style={{ background: "#f0eeff", color: "#6C5CE7", fontWeight: 800, fontSize: 13, padding: "4px 14px", borderRadius: 999 }}>
                 {lots.length} actif{lots.length > 1 ? "s" : ""}
               </span>
+              <span style={{ background: "#fff3e0", color: "#FF7043", fontWeight: 800, fontSize: 13, padding: "4px 14px", borderRadius: 999 }}>
+                🎫 {lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0)} tickets dispo
+              </span>
             </div>
-            <LotGrid lots={lots} />
+
+            {/* Filtres catégories — seulement les catégories présentes dans les lots */}
+            {(() => {
+              const presentCats = Array.from(new Set(lots.map(l => l.categorie)));
+              const filteredCats = CATEGORIES.filter(c => presentCats.includes(c.val as Lot["categorie"]));
+              if (filteredCats.length < 2) return null;
+              return (
+                <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 8, marginBottom: 28, WebkitOverflowScrolling: "touch" as any }}>
+                  {/* Bouton Tous */}
+                  <button
+                    onClick={() => setActiveCategory(null)}
+                    style={{
+                      flexShrink: 0, padding: "8px 18px", borderRadius: 999,
+                      fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13,
+                      cursor: "pointer", border: "2px solid",
+                      borderColor: activeCategory === null ? "#6C5CE7" : "#e0d9ff",
+                      background: activeCategory === null ? "#6C5CE7" : "white",
+                      color: activeCategory === null ? "white" : "#636E72",
+                      transition: "all .15s",
+                    }}
+                  >
+                    Tous
+                  </button>
+                  {filteredCats.map(cat => {
+                    const active = activeCategory === cat.val;
+                    return (
+                      <button
+                        key={cat.val}
+                        onClick={() => setActiveCategory(active ? null : cat.val)}
+                        style={{
+                          flexShrink: 0, padding: "8px 16px", borderRadius: 999,
+                          fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13,
+                          cursor: "pointer", border: "2px solid",
+                          borderColor: active ? cat.color : "#e0d9ff",
+                          background: active ? cat.color : "white",
+                          color: active ? "white" : "#636E72",
+                          transition: "all .15s",
+                          display: "flex", alignItems: "center", gap: 5,
+                        }}
+                      >
+                        <span>{cat.icon}</span>
+                        <span>{cat.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            <LotGrid lots={activeCategory ? lots.filter(l => l.categorie === activeCategory) : lots} />
           </>
         )}
       </div>

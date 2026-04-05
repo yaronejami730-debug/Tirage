@@ -7,12 +7,20 @@ import DrawButton from "./DrawButton";
 import LotParticipantsModal from "./LotParticipantsModal";
 import { Lot } from "@/lib/supabase";
 
-const statutBadge = {
+const statutBadge: Record<string, string> = {
   actif: "bg-green-100 text-green-700",
   termine: "bg-gray-100 text-gray-600",
   archive: "bg-yellow-100 text-yellow-700",
   programme: "bg-blue-100 text-blue-700",
 };
+
+function getStatutDisplay(lot: Lot) {
+  const isProgramme = !!(lot.date_ouverture && new Date(lot.date_ouverture) > new Date());
+  if (isProgramme) return { key: "programme", label: "Programmé" };
+  if (lot.statut === "actif") return { key: "actif", label: "Actif" };
+  if (lot.statut === "termine") return { key: "termine", label: "Terminé" };
+  return { key: "archive", label: "Archivé" };
+}
 
 export default function AdminLotsPage() {
   const [lots, setLots] = useState<Lot[]>([]);
@@ -88,9 +96,7 @@ export default function AdminLotsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${statutBadge[lot.statut]}`}>
-                          {lot.statut}
-                        </span>
+                        {(() => { const s = getStatutDisplay(lot); return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statutBadge[s.key]}`}>{s.label}</span>; })()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -119,9 +125,7 @@ export default function AdminLotsPage() {
                         <p className="text-xs text-gray-400 font-mono mt-0.5">{lot.reference_lot}</p>
                       </button>
                     </div>
-                    <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${statutBadge[lot.statut]}`}>
-                      {lot.statut}
-                    </span>
+                    {(() => { const s = getStatutDisplay(lot); return <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statutBadge[s.key]}`}>{s.label}</span>; })()}
                   </div>
 
                   <div className="flex items-center gap-4 mb-3">

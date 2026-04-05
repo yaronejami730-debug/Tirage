@@ -11,7 +11,7 @@ export type Lot = {
   reference_lot: string;
   date_fin: string | null;
   statut: "actif" | "termine" | "archive" | "programme";
-  categorie: "tech" | "mode" | "gaming" | "maison" | "luxe" | "autre";
+  categorie: "smartphone" | "tech" | "gaming" | "audio" | "photo" | "tv" | "maison" | "electromenager" | "mode" | "bijoux" | "montres" | "sacs" | "chaussures" | "parfum" | "sport" | "voiture" | "moto" | "voyage" | "gastronomie" | "art" | "luxe" | "enfants" | "culture" | "crypto" | "autre";
   valeur_estimee: number | null;
   winner_participation_id: string | null;
   drawn_at: string | null;

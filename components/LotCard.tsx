@@ -3,17 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Lot } from "@/lib/supabase";
+import { CATEGORY_MAP } from "@/lib/categories";
 import CountdownTimer from "./CountdownTimer";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  tech: "Tech 📱", mode: "Mode 👜", gaming: "Gaming 🎮",
-  maison: "Maison 🏠", luxe: "Luxe 💎", autre: "Autre 🎁",
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  tech: "#6C5CE7", mode: "#FD79A8", gaming: "#00B894",
-  maison: "#FDCB6E", luxe: "#E17055", autre: "#A29BFE",
-};
 
 interface LotCardProps { lot: Lot; }
 
@@ -23,8 +14,9 @@ export default function LotCard({ lot }: LotCardProps) {
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
   const isUrgent = remaining <= 15 && remaining > 0;
   const cat = lot.categorie || "autre";
-  const catColor = CATEGORY_COLORS[cat] || "#A29BFE";
-  const isProgramme = lot.statut === "programme";
+  const catInfo = CATEGORY_MAP[cat as keyof typeof CATEGORY_MAP] ?? CATEGORY_MAP["autre"];
+  const catColor = catInfo.color;
+  const isProgramme = !!(lot.date_ouverture && new Date(lot.date_ouverture) > new Date());
   const barColor = pct >= 90 ? "#E17055" : pct >= 70 ? "#FDCB6E" : "#00B894";
   const isNew = lot.created_at
     ? Date.now() - new Date(lot.created_at).getTime() < 48 * 60 * 60 * 1000
@@ -42,7 +34,7 @@ export default function LotCard({ lot }: LotCardProps) {
           <Image src={lot.image_url} alt={lot.nom} fill style={{ objectFit: "contain", padding: "8px" }} className="group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56 }}>
-            {cat === "tech" ? "📱" : cat === "mode" ? "👜" : cat === "gaming" ? "🎮" : cat === "maison" ? "🏠" : cat === "luxe" ? "💎" : "🎁"}
+            {catInfo.icon}
           </div>
         )}
 
@@ -154,7 +146,7 @@ export default function LotCard({ lot }: LotCardProps) {
               fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 10,
               padding: "4px 10px", borderRadius: 20, letterSpacing: "0.5px", textTransform: "uppercase"
             }}>
-              {CATEGORY_LABELS[cat]}
+              {catInfo.icon} {catInfo.label}
             </div>
             {isNew && !isProgramme && (
               <div style={{

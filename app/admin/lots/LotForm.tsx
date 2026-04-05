@@ -1,25 +1,115 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { fr } from "date-fns/locale/fr";
 import "react-datepicker/dist/react-datepicker.css";
 import { Lot } from "@/lib/supabase";
+import { CATEGORIES } from "@/lib/categories";
+import { searchProducts, type ProductSuggestion } from "@/lib/product-suggestions";
 
 registerLocale("fr", fr);
 
-const CATEGORIES = [
-  { val: "tech", label: "Tech 📱" },
-  { val: "mode", label: "Mode 👜" },
-  { val: "gaming", label: "Gaming 🎮" },
-  { val: "maison", label: "Maison 🏠" },
-  { val: "luxe", label: "Luxe 💎" },
-  { val: "autre", label: "Autre 🎁" },
-];
-
 interface LotFormProps { lot?: Lot; mode: "create" | "edit"; }
+
+// ── Stripe EU : 1.5% + 0.25€/transaction ──
+function calcStripe(revenue: number, nbTransactions: number) {
+  return revenue * 0.015 + 0.25 * nbTransactions;
+}
+
+function SimulationPanel({
+  prixTicket, totalTickets, valeurLot,
+}: { prixTicket: number; totalTickets: number; valeurLot: number }) {
+  if (!prixTicket || !totalTickets) return null;
+
+  const revenue = prixTicket * totalTickets;
+  // Hypothèse : en moyenne 2 tickets par participant
+  const estimatedTransactions = Math.ceil(totalTickets / 2);
+  const stripeFees = calcStripe(revenue, estimatedTransactions);
+  const coutLot = valeurLot || 0;
+  const margeNette = revenue - coutLot - stripeFees;
+  const tauxMarge = revenue > 0 ? (margeNette / revenue) * 100 : 0;
+  const seuilTickets = coutLot > 0 && prixTicket > 0
+    ? Math.ceil(coutLot / prixTicket)
+    : null;
+  const seuilPct = seuilTickets ? Math.round((seuilTickets / totalTickets) * 100) : null;
+
+  const isRentable = margeNette >= 0;
+  const accent = isRentable ? "#00B894" : "#E17055";
+  const bgAccent = isRentable ? "#f0fff8" : "#fff3f0";
+
+  const row = (label: string, val: string, sub?: string, bold?: boolean, color?: string) => (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "1px solid #f0eeff" }}>
+      <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: "#636E72", fontWeight: bold ? 800 : 600 }}>{label}</span>
+      <div style={{ textAlign: "right" }}>
+        <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 15, color: color || "#2D3436" }}>{val}</span>
+        {sub && <div style={{ fontSize: 10, color: "#b2bec3", fontFamily: "'Nunito', sans-serif" }}>{sub}</div>}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ background: "#fafafe", border: "2px solid #e0d9ff", borderRadius: 18, padding: "18px 20px", display: "flex", flexDirection: "column", gap: 0 }}>
+      {/* Titre */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <span style={{ fontSize: 18 }}>📊</span>
+        <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 17, color: "#6C5CE7" }}>Simulation financière</span>
+        <span style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: "#b2bec3", fontWeight: 700, marginLeft: 4 }}>(indicatif)</span>
+      </div>
+
+      {row("🎟 Revenus bruts (100% vendus)", `${revenue.toFixed(2)} €`, `${totalTickets} tickets × ${prixTicket.toFixed(2)} €`)}
+      {coutLot > 0 && row("🏷 Coût du lot", `− ${coutLot.toFixed(2)} €`, "valeur estimée renseignée", false, "#E17055")}
+      {row(
+        "💳 Frais Stripe estimés",
+        `− ${stripeFees.toFixed(2)} €`,
+        `1.5 % + 0.25 €/transaction · ~${estimatedTransactions} transactions estimées`,
+        false, "#E17055"
+      )}
+
+      {/* Marge nette */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, padding: "10px 14px", background: bgAccent, borderRadius: 12, border: `2px solid ${accent}33` }}>
+        <span style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 14, color: "#2D3436" }}>
+          {isRentable ? "✅" : "⚠️"} Marge nette estimée
+        </span>
+        <div style={{ textAlign: "right" }}>
+          <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: accent }}>
+            {margeNette >= 0 ? "+" : ""}{margeNette.toFixed(2)} €
+          </span>
+          <div style={{ fontSize: 11, color: accent, fontWeight: 700, fontFamily: "'Nunito', sans-serif" }}>
+            {tauxMarge.toFixed(1)} % du chiffre d&apos;affaires
+          </div>
+        </div>
+      </div>
+
+      {/* Seuil de rentabilité */}
+      {seuilTickets !== null && seuilPct !== null && (
+        <div style={{ marginTop: 10, padding: "8px 14px", background: "#f8f7ff", borderRadius: 10, border: "1px solid #e0d9ff" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: "#6C5CE7", fontWeight: 700 }}>
+              ⚖️ Seuil de rentabilité
+            </span>
+            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 14, color: "#6C5CE7" }}>
+              {seuilTickets} tickets vendus ({seuilPct}%)
+            </span>
+          </div>
+          {/* Mini barre */}
+          <div style={{ height: 6, background: "#e0d9ff", borderRadius: 999, overflow: "hidden", marginTop: 6 }}>
+            <div style={{ height: "100%", width: `${Math.min(seuilPct, 100)}%`, background: "linear-gradient(90deg, #6C5CE7, #A29BFE)", borderRadius: 999 }} />
+          </div>
+          <div style={{ fontSize: 10, color: "#b2bec3", fontFamily: "'Nunito', sans-serif", marginTop: 4 }}>
+            Il faut vendre au moins {seuilTickets} ticket{seuilTickets > 1 ? "s" : ""} pour couvrir la valeur du lot
+          </div>
+        </div>
+      )}
+
+      <p style={{ fontSize: 10, color: "#b2bec3", fontFamily: "'Nunito', sans-serif", marginTop: 10, textAlign: "center" }}>
+        Calcul basé sur 100 % des tickets vendus · Stripe EU 1.5% + 0.25€/transaction · ~2 tickets/participant
+      </p>
+    </div>
+  );
+}
 
 function isVideo(url: string) {
   return /\.(mp4|webm|mov|avi)(\?|$)/i.test(url);
@@ -33,8 +123,22 @@ export default function LotForm({ lot, mode }: LotFormProps) {
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [preview, setPreview] = useState<string>(lot?.image_url || "");
   const [medias, setMedias] = useState<string[]>(lot?.medias || []);
+  const [suggestions, setSuggestions] = useState<ProductSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const mediaRef = useRef<HTMLInputElement>(null);
+
+  // Fermer dropdown si clic extérieur
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const generateRef = async () => {
     const res = await fetch("/api/admin/lots");
@@ -61,6 +165,37 @@ export default function LotForm({ lot, mode }: LotFormProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleNomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setForm(prev => ({ ...prev, nom: val }));
+    const results = searchProducts(val);
+    setSuggestions(results);
+    setShowSuggestions(results.length > 0);
+  };
+
+  const applySuggestion = (s: ProductSuggestion) => {
+    setForm(prev => ({
+      ...prev,
+      nom: s.nom,
+      categorie: s.categorie,
+      ...(s.valeur ? { valeur_estimee: String(s.valeur) } : {}),
+    }));
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  // Calcule le nombre de tickets selon une marge cible
+  const calcTickets = (marginPct: number) => {
+    const prix = parseFloat(form.prix_ticket);
+    const valeur = parseFloat(form.valeur_estimee);
+    if (!prix || !valeur) return;
+    // revenue = valeur / (1 - margin) pour avoir (rev - valeur) / rev = margin
+    // tickets = ceil(revenue / prix)
+    const revenue = marginPct >= 1 ? valeur * 10 : valeur / (1 - marginPct);
+    const tickets = Math.ceil(revenue / prix);
+    setForm(prev => ({ ...prev, total_tickets: String(tickets) }));
   };
 
   const uploadFile = async (file: File): Promise<string | null> => {
@@ -118,6 +253,10 @@ export default function LotForm({ lot, mode }: LotFormProps) {
         }),
       });
       const data = await res.json();
+      if (res.status === 422 && data.error === "CONSTRAINT_ERROR") {
+        setError("CONSTRAINT");
+        return;
+      }
       if (!res.ok) { setError(data.error || "Erreur."); return; }
       router.push("/admin/lots"); router.refresh();
     } catch { setError("Erreur de connexion."); }
@@ -130,10 +269,47 @@ export default function LotForm({ lot, mode }: LotFormProps) {
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-      {/* Nom */}
-      <div>
+      {/* Nom avec autocomplétion */}
+      <div style={{ position: "relative" }} ref={suggestionsRef}>
         <label style={labelStyle}>Nom du lot *</label>
-        <input name="nom" type="text" value={form.nom} onChange={handleChange} placeholder="iPhone 16 Pro Max 256Go" style={inputStyle} required />
+        <input
+          name="nom" type="text" value={form.nom}
+          onChange={handleNomChange}
+          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+          placeholder="iPhone 16 Pro Max, Porsche 911, Rolex..."
+          style={inputStyle} required
+          autoComplete="off"
+        />
+        {showSuggestions && suggestions.length > 0 && (
+          <div style={{
+            position: "absolute", top: "100%", left: 0, right: 0, zIndex: 100,
+            background: "white", borderRadius: 14, border: "1.5px solid #e0d9ff",
+            boxShadow: "0 8px 32px rgba(108,92,231,0.15)", overflow: "hidden", marginTop: 4,
+          }}>
+            {suggestions.map((s, i) => {
+              const cat = CATEGORIES.find(c => c.val === s.categorie);
+              return (
+                <button
+                  key={i} type="button" onClick={() => applySuggestion(s)}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", gap: 10,
+                    padding: "10px 14px", background: "none", border: "none",
+                    borderBottom: i < suggestions.length - 1 ? "1px solid #f0eeff" : "none",
+                    cursor: "pointer", textAlign: "left",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "#f8f7ff")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "none")}
+                >
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{cat?.icon ?? "🎁"}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: 13, color: "#2D3436", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.nom}</div>
+                    <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: "#b2bec3" }}>{cat?.label}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Description */}
@@ -147,7 +323,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
         <div>
           <label style={labelStyle}>Catégorie *</label>
           <select name="categorie" value={form.categorie} onChange={handleChange} style={inputStyle}>
-            {CATEGORIES.map(c => <option key={c.val} value={c.val}>{c.label}</option>)}
+            {CATEGORIES.map(c => <option key={c.val} value={c.val}>{c.icon} {c.label}</option>)}
           </select>
         </div>
         <div>
@@ -253,6 +429,43 @@ export default function LotForm({ lot, mode }: LotFormProps) {
         </div>
       </div>
 
+      {/* Calculateur de tickets */}
+      {parseFloat(form.prix_ticket) > 0 && parseFloat(form.valeur_estimee) > 0 && (
+        <div style={{ background: "#f8f7ff", borderRadius: 14, padding: "14px 16px", border: "1.5px dashed #A29BFE" }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 12, color: "#6C5CE7", marginBottom: 10 }}>
+            ⚡ Calculer le nombre de tickets automatiquement
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {[
+              { label: "À l'équilibre", pct: 0, color: "#636E72", bg: "#f0f0f0" },
+              { label: "+15 % de marge", pct: 0.15, color: "#00B894", bg: "#f0fff8" },
+              { label: "+20 % de marge", pct: 0.20, color: "#0984E3", bg: "#f0f8ff" },
+              { label: "+30 % de marge", pct: 0.30, color: "#6C5CE7", bg: "#f0eeff" },
+            ].map(({ label, pct, color, bg }) => {
+              const prix = parseFloat(form.prix_ticket);
+              const valeur = parseFloat(form.valeur_estimee);
+              const rev = pct >= 1 ? valeur * 10 : valeur / (1 - pct);
+              const nb = Math.ceil(rev / prix);
+              return (
+                <button key={label} type="button" onClick={() => calcTickets(pct)}
+                  style={{
+                    background: bg, color, border: `1.5px solid ${color}44`,
+                    borderRadius: 10, padding: "7px 12px", cursor: "pointer",
+                    fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 12,
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+                  }}>
+                  <span>{label}</span>
+                  <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 15 }}>{nb} tickets</span>
+                </button>
+              );
+            })}
+          </div>
+          <p style={{ fontSize: 11, color: "#b2bec3", fontFamily: "'Nunito', sans-serif", marginTop: 8 }}>
+            Basé sur {parseFloat(form.valeur_estimee).toLocaleString("fr-FR")} € ÷ {parseFloat(form.prix_ticket).toFixed(2)} €/ticket · Hors frais Stripe
+          </p>
+        </div>
+      )}
+
       {/* Ref + dates */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -320,13 +533,78 @@ export default function LotForm({ lot, mode }: LotFormProps) {
         <label style={labelStyle}>Statut</label>
         <select name="statut" value={form.statut} onChange={handleChange} style={inputStyle}>
           <option value="actif">🟢 Actif</option>
-          <option value="programme">🔵 Programmé (prochainement)</option>
           <option value="termine">🔴 Terminé</option>
           <option value="archive">📦 Archivé</option>
         </select>
       </div>
 
-      {error && (
+      {/* ── Simulation financière ── */}
+      <SimulationPanel
+        prixTicket={parseFloat(form.prix_ticket) || 0}
+        totalTickets={parseInt(form.total_tickets) || 0}
+        valeurLot={parseFloat(form.valeur_estimee) || 0}
+      />
+
+      {error === "CONSTRAINT" && (
+        <div style={{ background: "#fff3f0", border: "2px solid #E17055", borderRadius: 16, padding: "16px 18px", fontFamily: "'Nunito', sans-serif" }}>
+          <div style={{ fontWeight: 800, fontSize: 14, color: "#E17055", marginBottom: 10 }}>
+            ⚠️ La base de données doit être mise à jour
+          </div>
+          <p style={{ fontSize: 13, color: "#636E72", marginBottom: 12, lineHeight: 1.6 }}>
+            Les nouvelles catégories et statuts ne sont pas encore autorisés par Supabase.<br />
+            Copie ce SQL et colle-le dans{" "}
+            <a
+              href={`https://supabase.com/dashboard/project/${process.env.NEXT_PUBLIC_SUPABASE_URL?.replace("https://", "").replace(".supabase.co", "")}/sql/new`}
+              target="_blank" rel="noreferrer"
+              style={{ color: "#6C5CE7", fontWeight: 800 }}
+            >
+              Supabase → SQL Editor
+            </a>
+            , puis réessaie.
+          </p>
+          <div style={{ position: "relative" }}>
+            <pre style={{
+              background: "#2D3436", color: "#A29BFE", borderRadius: 12,
+              padding: "12px 14px", fontSize: 11, overflowX: "auto",
+              lineHeight: 1.6, margin: 0,
+            }}>{`DO $$
+DECLARE c RECORD;
+BEGIN
+  FOR c IN
+    SELECT constraint_name FROM information_schema.table_constraints
+    WHERE table_name = 'lots' AND constraint_type = 'CHECK'
+  LOOP
+    EXECUTE 'ALTER TABLE lots DROP CONSTRAINT "' || c.constraint_name || '"';
+  END LOOP;
+END $$;
+
+ALTER TABLE lots ADD CONSTRAINT lots_statut_check
+  CHECK (statut IN ('actif','termine','archive','programme'));
+
+ALTER TABLE lots ADD CONSTRAINT lots_categorie_check
+  CHECK (categorie IN (
+    'smartphone','tech','gaming','audio','photo','tv',
+    'maison','electromenager','mode','bijoux','montres','sacs',
+    'chaussures','parfum','sport','voiture','moto','voyage',
+    'gastronomie','art','luxe','enfants','culture','crypto','autre'
+  ));`}</pre>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(`DO $$\nDECLARE c RECORD;\nBEGIN\n  FOR c IN\n    SELECT constraint_name FROM information_schema.table_constraints\n    WHERE table_name = 'lots' AND constraint_type = 'CHECK'\n  LOOP\n    EXECUTE 'ALTER TABLE lots DROP CONSTRAINT "' || c.constraint_name || '"';\n  END LOOP;\nEND $$;\n\nALTER TABLE lots ADD CONSTRAINT lots_statut_check\n  CHECK (statut IN ('actif','termine','archive','programme'));\n\nALTER TABLE lots ADD CONSTRAINT lots_categorie_check\n  CHECK (categorie IN ('smartphone','tech','gaming','audio','photo','tv','maison','electromenager','mode','bijoux','montres','sacs','chaussures','parfum','sport','voiture','moto','voyage','gastronomie','art','luxe','enfants','culture','crypto','autre'));`)}
+              style={{
+                position: "absolute", top: 8, right: 8,
+                background: "#6C5CE7", color: "white", border: "none",
+                borderRadius: 8, padding: "4px 12px", cursor: "pointer",
+                fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 11,
+              }}
+            >
+              📋 Copier
+            </button>
+          </div>
+        </div>
+      )}
+
+      {error && error !== "CONSTRAINT" && (
         <div style={{ background: "#fff3f0", border: "2px solid #E17055", borderRadius: 14, padding: "12px 16px", color: "#E17055", fontWeight: 700, fontSize: 13, fontFamily: "'Nunito', sans-serif" }}>
           ⚠️ {error}
         </div>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
-import GlobalOnlineBadge from "@/components/GlobalOnlineBadge";
 
 export const metadata: Metadata = {
   title: "GoWinGo 🎰 — Tentez votre chance !",
@@ -19,8 +18,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: "'Nunito', sans-serif", background: "#F8F9FF", minHeight: "100vh" }}>
 
         <AnnouncementBanner />
-        <GlobalOnlineBadge />
-
         <main>{children}</main>
 
         {/* FOOTER */}
