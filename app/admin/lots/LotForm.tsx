@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -576,45 +576,39 @@ export default function LotForm({ lot, mode }: LotFormProps) {
             </a>
             , puis réessaie.
           </p>
-          <div style={{ position: "relative" }}>
-            <pre style={{
-              background: "#2D3436", color: "#A29BFE", borderRadius: 12,
-              padding: "12px 14px", fontSize: 11, overflowX: "auto",
-              lineHeight: 1.6, margin: 0,
-            }}>{`DO $$
-DECLARE c RECORD;
-BEGIN
-  FOR c IN
-    SELECT constraint_name FROM information_schema.table_constraints
-    WHERE table_name = 'lots' AND constraint_type = 'CHECK'
-  LOOP
-    EXECUTE 'ALTER TABLE lots DROP CONSTRAINT "' || c.constraint_name || '"';
-  END LOOP;
-END $$;
+          {(() => {
+            const dropStatements = constraintNames.length > 0
+              ? constraintNames
+                  .map((n) => `ALTER TABLE lots DROP CONSTRAINT IF EXISTS "${n}";`)
+                  .join("\n")
+              : `DO $$\nDECLARE c RECORD;\nBEGIN\n  FOR c IN\n    SELECT constraint_name FROM information_schema.table_constraints\n    WHERE table_name = 'lots' AND constraint_type = 'CHECK'\n  LOOP\n    EXECUTE 'ALTER TABLE lots DROP CONSTRAINT "' || c.constraint_name || '"';\n  END LOOP;\nEND $$;`;
 
-ALTER TABLE lots ADD CONSTRAINT lots_statut_check
-  CHECK (statut IN ('actif','termine','archive','programme'));
+            const addStatements = `\nALTER TABLE lots ADD CONSTRAINT lots_statut_check\n  CHECK (statut IN ('actif','termine','archive','programme'));\n\nALTER TABLE lots ADD CONSTRAINT lots_categorie_check\n  CHECK (categorie IN (\n    'smartphone','tech','gaming','audio','photo','tv',\n    'maison','electromenager','mode','bijoux','montres','sacs',\n    'chaussures','parfum','sport','voiture','moto','voyage',\n    'gastronomie','art','luxe','enfants','culture','crypto','autre'\n  ));`;
 
-ALTER TABLE lots ADD CONSTRAINT lots_categorie_check
-  CHECK (categorie IN (
-    'smartphone','tech','gaming','audio','photo','tv',
-    'maison','electromenager','mode','bijoux','montres','sacs',
-    'chaussures','parfum','sport','voiture','moto','voyage',
-    'gastronomie','art','luxe','enfants','culture','crypto','autre'
-  ));`}</pre>
-            <button
-              type="button"
-              onClick={() => navigator.clipboard.writeText(`DO $$\nDECLARE c RECORD;\nBEGIN\n  FOR c IN\n    SELECT constraint_name FROM information_schema.table_constraints\n    WHERE table_name = 'lots' AND constraint_type = 'CHECK'\n  LOOP\n    EXECUTE 'ALTER TABLE lots DROP CONSTRAINT "' || c.constraint_name || '"';\n  END LOOP;\nEND $$;\n\nALTER TABLE lots ADD CONSTRAINT lots_statut_check\n  CHECK (statut IN ('actif','termine','archive','programme'));\n\nALTER TABLE lots ADD CONSTRAINT lots_categorie_check\n  CHECK (categorie IN ('smartphone','tech','gaming','audio','photo','tv','maison','electromenager','mode','bijoux','montres','sacs','chaussures','parfum','sport','voiture','moto','voyage','gastronomie','art','luxe','enfants','culture','crypto','autre'));`)}
-              style={{
-                position: "absolute", top: 8, right: 8,
-                background: "#6C5CE7", color: "white", border: "none",
-                borderRadius: 8, padding: "4px 12px", cursor: "pointer",
-                fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 11,
-              }}
-            >
-              📋 Copier
-            </button>
-          </div>
+            const fullSql = dropStatements + addStatements;
+
+            return (
+              <div style={{ position: "relative" }}>
+                <pre style={{
+                  background: "#2D3436", color: "#A29BFE", borderRadius: 12,
+                  padding: "12px 14px", fontSize: 11, overflowX: "auto",
+                  lineHeight: 1.6, margin: 0,
+                }}>{fullSql}</pre>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(fullSql)}
+                  style={{
+                    position: "absolute", top: 8, right: 8,
+                    background: "#6C5CE7", color: "white", border: "none",
+                    borderRadius: 8, padding: "4px 12px", cursor: "pointer",
+                    fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 11,
+                  }}
+                >
+                  📋 Copier
+                </button>
+              </div>
+            );
+          })()}
         </div>
       )}
 
