@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
-
-async function checkAdminAuth() {
-  const cookieStore = await cookies();
-  const adminAuth = cookieStore.get("admin_auth");
-  return adminAuth?.value === process.env.ADMIN_PASSWORD;
-}
+import { checkAdminAuth } from "@/lib/admin-auth";
 
 export async function POST(req: NextRequest) {
   if (!(await checkAdminAuth())) {
@@ -20,14 +14,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Aucun fichier fourni." }, { status: 400 });
   }
 
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  const isVideo = file.type.startsWith("video/");
+  const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
   if (file.size > maxSize) {
-    return NextResponse.json({ error: "Image trop lourde (max 5 Mo)." }, { status: 400 });
+    return NextResponse.json({ error: isVideo ? "Vidéo trop lourde (max 100 Mo)." : "Image trop lourde (max 5 Mo)." }, { status: 400 });
   }
 
-  const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-  if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: "Format non supporté (JPG, PNG, WEBP)." }, { status: 400 });
+  const allowedImages = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const allowedVideos = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"];
+  if (![...allowedImages, ...allowedVideos].includes(file.type)) {
+    return NextResponse.json({ error: "Format non supporté (JPG, PNG, WEBP, MP4, WEBM, MOV)." }, { status: 400 });
   }
 
   const ext = file.name.split(".").pop();

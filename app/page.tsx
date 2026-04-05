@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { supabaseClient, Lot } from "@/lib/supabase";
 import LotGrid from "@/components/LotGrid";
 
@@ -11,7 +12,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabaseClient().from("lots").select("*").eq("statut", "actif")
+    supabaseClient().from("lots").select("*").in("statut", ["actif", "programme"])
       .order("created_at", { ascending: false })
       .then(({ data }) => { setLots(data || []); setLoading(false); });
   }, []);
@@ -19,7 +20,7 @@ export default function HomePage() {
   return (
     <div>
       {/* HERO */}
-      <div style={{ position: "relative", overflow: "hidden", padding: "70px 24px 80px", background: "linear-gradient(135deg, #6C5CE7 0%, #a29bfe 40%, #FD79A8 70%, #FDCB6E 100%)" }}>
+      <div style={{ position: "relative", overflow: "hidden", padding: "clamp(40px, 8vw, 70px) clamp(16px, 5vw, 24px) clamp(48px, 8vw, 80px)", background: "linear-gradient(135deg, #6C5CE7 0%, #a29bfe 40%, #FD79A8 70%, #FDCB6E 100%)" }}>
 
         {/* Floating emoji */}
         {FLOATING_EMOJIS.map((e, i) => (
@@ -44,6 +45,11 @@ export default function HomePage() {
             {lots.length} lot{lots.length > 1 ? "s" : ""} actif{lots.length > 1 ? "s" : ""} en ce moment !
           </div>
 
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+            <div style={{ position: "relative", width: 120, height: 80, borderRadius: 20, overflow: "hidden", background: "white", padding: 6, boxShadow: "0 15px 40px rgba(0,0,0,0.2)", border: "2px solid rgba(255,255,255,0.4)" }}>
+              <Image src="/images/logo-gowingo.png" alt="GoWinGo" fill style={{ objectFit: "contain" }} />
+            </div>
+          </div>
           <h1 style={{
             fontFamily: "'Fredoka One', cursive",
             fontSize: "clamp(38px, 7vw, 68px)",
@@ -51,12 +57,12 @@ export default function HomePage() {
             marginBottom: 16,
             textShadow: "0 4px 20px rgba(0,0,0,0.15)"
           }}>
-            🎉 Tentez votre chance !
+            Tentez votre chance !
           </h1>
 
-          <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 18, fontWeight: 600, marginBottom: 36, lineHeight: 1.6 }}>
-            Achetez vos tickets et remportez des lots incroyables !<br />
-            Simple, rapide, et certifié huissier. 🏆
+          <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "clamp(15px, 4vw, 18px)", fontWeight: 600, marginBottom: 36, lineHeight: 1.6 }}>
+            Achetez vos tickets et remportez des lots incroyables !<br className="hero-br" />
+            {" "}Simple, rapide, et certifié huissier. 🏆
           </p>
 
           <a href="#lots" className="btn-gold" style={{ fontSize: 17, padding: "16px 36px" }}>

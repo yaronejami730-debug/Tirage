@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
-
-async function checkAdminAuth() {
-  const cookieStore = await cookies();
-  const adminAuth = cookieStore.get("admin_auth");
-  return adminAuth?.value === process.env.ADMIN_PASSWORD;
-}
+import { checkAdminAuth } from "@/lib/admin-auth";
 
 export async function GET() {
   if (!(await checkAdminAuth())) {
@@ -41,6 +35,8 @@ export async function POST(req: NextRequest) {
       total_tickets,
       reference_lot,
       date_fin,
+      date_ouverture,
+      medias,
     } = body;
 
     if (!nom || !prix_ticket || !total_tickets || !reference_lot) {
@@ -61,7 +57,9 @@ export async function POST(req: NextRequest) {
         total_tickets,
         reference_lot,
         date_fin: date_fin || null,
-        statut: "actif",
+        date_ouverture: date_ouverture || null,
+        medias: medias || [],
+        statut: date_ouverture ? "programme" : (body.statut || "actif"),
         categorie: body.categorie || "autre",
         valeur_estimee: body.valeur_estimee || null,
       })

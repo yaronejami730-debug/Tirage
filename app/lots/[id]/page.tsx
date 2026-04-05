@@ -35,7 +35,8 @@ export default function LotDetailPage({ params }: Props) {
 
   const remaining = lot.total_tickets - lot.tickets_vendus;
   const isSoldOut = remaining <= 0;
-  const isArchived = lot.statut !== "actif";
+  const isProgramme = lot.statut === "programme";
+  const isArchived = lot.statut !== "actif" && lot.statut !== "programme";
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
   const barColor = pct >= 90 ? "#E17055" : pct >= 70 ? "#FDCB6E" : "#00B894";
 
@@ -49,16 +50,16 @@ export default function LotDetailPage({ params }: Props) {
         <span style={{ color: "#2D3436", fontWeight: 700 }}>{lot.nom}</span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
+      <div className="lot-detail-grid">
 
         {/* LEFT */}
         <div>
           {/* Image */}
-          <div style={{ position: "relative", height: 360, borderRadius: 28, overflow: "hidden", marginBottom: 24, boxShadow: "0 20px 60px rgba(108,92,231,0.2)", background: "linear-gradient(135deg, #f0eeff, #fff0f6)" }}>
+          <div style={{ position: "relative", height: 480, borderRadius: 32, overflow: "hidden", marginBottom: 24, boxShadow: "0 22px 70px rgba(108,92,231,0.22)", background: "linear-gradient(135deg, #f0eeff, #fff0f6)" }}>
             {lot.image_url ? (
               <Image src={lot.image_url} alt={lot.nom} fill style={{ objectFit: "cover" }} priority />
             ) : (
-              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80 }}>
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 100 }}>
                 🎁
               </div>
             )}
@@ -89,6 +90,29 @@ export default function LotDetailPage({ params }: Props) {
             </div>
           </div>
 
+          {/* Galerie médias */}
+          {lot.medias && lot.medias.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {lot.medias.map((url, i) => {
+                  const vid = /\.(mp4|webm|mov|avi)(\?|$)/i.test(url);
+                  return (
+                    <div key={i} style={{ position: "relative", width: 100, height: 100, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: "2px solid #f0eeff", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                      {vid ? (
+                        <video src={url} controls style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <img src={url} alt={`media-${i}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      )}
+                      {vid && (
+                        <div style={{ position: "absolute", bottom: 4, left: 4, background: "rgba(0,0,0,0.6)", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "white", fontWeight: 700 }}>▶</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Info card */}
           <div style={{ background: "white", borderRadius: 24, padding: 24, border: "2px solid #f0eeff", boxShadow: "0 4px 20px rgba(108,92,231,0.08)" }}>
             <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 26, color: "#2D3436", marginBottom: 8, lineHeight: 1.2 }}>
@@ -99,7 +123,7 @@ export default function LotDetailPage({ params }: Props) {
             )}
 
             {/* Stats grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+            <div className="stats-grid-3">
               {[
                 { label: "💰 Prix/ticket", val: `${Number(lot.prix_ticket).toFixed(2)} €`, bg: "#fff9e6", color: "#e6b455" },
                 { label: "🎫 Restants", val: remaining > 0 ? remaining : "Complet", bg: remaining <= 10 ? "#fff3f0" : "#f0fff8", color: remaining <= 10 ? "#E17055" : "#00B894" },
@@ -137,28 +161,60 @@ export default function LotDetailPage({ params }: Props) {
         </div>
 
         {/* RIGHT — form */}
-        <div style={{ position: "sticky", top: 84 }}>
-          {isArchived ? (
+        <div className="lot-form-sticky" style={{ position: "sticky", top: 84 }}>
+          {isProgramme ? (
             <div style={{ background: "white", borderRadius: 28, padding: 40, textAlign: "center", border: "2px solid #f0eeff", boxShadow: "0 8px 40px rgba(108,92,231,0.1)" }}>
-              <div style={{ fontSize: 56, marginBottom: 12 }}>🔒</div>
-              <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#2D3436", marginBottom: 8 }}>Tirage terminé</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, justifyContent: "center" }}>
+                <div style={{ position: "relative", width: 44, height: 44, borderRadius: 12, border: "1px solid #f0eeff", background: "white", padding: 4, flexShrink: 0 }}>
+                  <img src="/images/logo-gowingo.png" alt="GoWinGo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
+                <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#6C5CE7", marginBottom: 0 }}>Prochainement</h3>
+              </div>
+              <p style={{ color: "#636E72", fontSize: 14, marginBottom: 20 }}>Ce tirage n&apos;est pas encore ouvert.</p>
+              {lot.date_ouverture && (
+                <div style={{ background: "#f8f7ff", borderRadius: 16, padding: 16, marginBottom: 20 }}>
+                  <div style={{ fontSize: 12, color: "#A29BFE", fontWeight: 700, marginBottom: 8 }}>OUVERTURE DANS</div>
+                  <CountdownTimer dateFin={lot.date_ouverture} />
+                </div>
+              )}
+              <Link href="/" className="btn-fun">← Voir les autres lots</Link>
+            </div>
+          ) : isArchived ? (
+            <div style={{ background: "white", borderRadius: 28, padding: 40, textAlign: "center", border: "2px solid #f0eeff", boxShadow: "0 8px 40px rgba(108,92,231,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, justifyContent: "center" }}>
+                <div style={{ position: "relative", width: 44, height: 44, borderRadius: 12, border: "1px solid #f0eeff", background: "white", padding: 4, flexShrink: 0 }}>
+                  <img src="/images/logo-gowingo.png" alt="GoWinGo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
+                <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#2D3436", marginBottom: 0 }}>Tirage terminé</h3>
+              </div>
               <p style={{ color: "#636E72", fontSize: 14, marginBottom: 24 }}>La période de participation est clôturée.</p>
               <Link href="/" className="btn-fun">← Voir les autres lots</Link>
             </div>
           ) : isSoldOut ? (
             <div style={{ background: "white", borderRadius: 28, padding: 40, textAlign: "center", border: "2px solid #fff3f0", boxShadow: "0 8px 40px rgba(225,112,85,0.1)" }}>
-              <div style={{ fontSize: 56, marginBottom: 12 }}>😔</div>
-              <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#2D3436", marginBottom: 8 }}>Complet !</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, justifyContent: "center" }}>
+                <div style={{ position: "relative", width: 44, height: 44, borderRadius: 12, border: "1px solid #f0eeff", background: "white", padding: 4, flexShrink: 0 }}>
+                  <img src="/images/logo-gowingo.png" alt="GoWinGo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
+                <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#2D3436", marginBottom: 0 }}>Complet !</h3>
+              </div>
               <p style={{ color: "#636E72", fontSize: 14, marginBottom: 24 }}>Tous les tickets ont été vendus.</p>
               <Link href="/" className="btn-fun">← Voir les autres lots</Link>
             </div>
           ) : (
             <div style={{ background: "white", borderRadius: 28, padding: 28, border: "2px solid #f0eeff", boxShadow: "0 12px 50px rgba(108,92,231,0.15)" }}>
               <div style={{ marginBottom: 22 }}>
-                <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#6C5CE7", marginBottom: 4 }}>
-                  🎫 Choisissez vos tickets
-                </h2>
-                <p style={{ color: "#636E72", fontSize: 13 }}>Paiement sécurisé · Confirmation email immédiate</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                  <div style={{ position: "relative", width: 120, height: 60, borderRadius: 12, border: "1.5px solid #f0eeff", background: "white", padding: 6, flexShrink: 0, boxShadow: "0 6px 15px rgba(108,92,231,0.12)" }}>
+                    <Image src="/images/logo-gowingo.png" alt="GoWinGo" fill style={{ objectFit: "contain" }} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 21, color: "#2D3436", marginBottom: 2 }}>
+                      Choisissez vos tickets
+                    </h2>
+                    <p style={{ color: "#636E72", fontSize: 12, margin: 0 }}>Paiement sécurisé · Confirmation email immédiate</p>
+                  </div>
+                </div>
               </div>
               <ParticipationForm
                 lotId={lot.id}

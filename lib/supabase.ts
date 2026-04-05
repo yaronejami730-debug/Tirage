@@ -10,11 +10,13 @@ export type Lot = {
   tickets_vendus: number;
   reference_lot: string;
   date_fin: string | null;
-  statut: "actif" | "termine" | "archive";
+  statut: "actif" | "termine" | "archive" | "programme";
   categorie: "tech" | "mode" | "gaming" | "maison" | "luxe" | "autre";
   valeur_estimee: number | null;
   winner_participation_id: string | null;
   drawn_at: string | null;
+  date_ouverture: string | null;
+  medias: string[] | null;
   created_at: string;
 };
 
@@ -33,6 +35,15 @@ export type Participation = {
   statut: "en_attente" | "confirme" | "annule";
   created_at: string;
   lots?: Lot;
+};
+
+export type Annonce = {
+  id: string;
+  texte: string;
+  couleur: string;
+  emoji: string | null;
+  actif: boolean;
+  created_at: string;
 };
 
 export const supabaseClient = () =>

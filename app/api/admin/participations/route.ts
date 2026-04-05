@@ -1,23 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
+import { checkAdminAuth } from "@/lib/admin-auth";
 
-async function checkAdminAuth() {
-  const cookieStore = await cookies();
-  const adminAuth = cookieStore.get("admin_auth");
-  return adminAuth?.value === process.env.ADMIN_PASSWORD;
-}
-
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (!(await checkAdminAuth())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const lotId = req.nextUrl.searchParams.get("lot_id");
   const supabase = supabaseAdmin();
-  const { data, error } = await supabase
+  let query = supabase
     .from("participations")
     .select("*, lots(nom, reference_lot, prix_ticket)")
     .order("created_at", { ascending: false });
+
+  if (lotId) query = query.eq("lot_id", lotId);
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
-
-async function checkAdminAuth() {
-  const cookieStore = await cookies();
-  const adminAuth = cookieStore.get("admin_auth");
-  return adminAuth?.value === process.env.ADMIN_PASSWORD;
-}
+import { checkAdminAuth } from "@/lib/admin-auth";
 
 export async function GET(
   _req: NextRequest,
@@ -42,6 +36,8 @@ export async function PUT(
       total_tickets,
       reference_lot,
       date_fin,
+      date_ouverture,
+      medias,
       statut,
       categorie,
       valeur_estimee,
@@ -58,6 +54,8 @@ export async function PUT(
         total_tickets,
         reference_lot,
         date_fin: date_fin || null,
+        date_ouverture: date_ouverture || null,
+        medias: medias || [],
         statut,
         categorie: categorie || "autre",
         valeur_estimee: valeur_estimee || null,
