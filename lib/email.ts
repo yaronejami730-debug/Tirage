@@ -1,13 +1,6 @@
-import * as Brevo from "@getbrevo/brevo";
+import { BrevoClient } from "@getbrevo/brevo";
 
-const getBrevoClient = () => {
-  const client = new Brevo.TransactionalEmailsApi();
-  client.setApiKey(
-    Brevo.TransactionalEmailsApiApiKeys.apiKey,
-    process.env.BREVO_API_KEY!
-  );
-  return client;
-};
+const getBrevoClient = () => new BrevoClient({ apiKey: process.env.BREVO_API_KEY! });
 
 interface SendConfirmationEmailParams {
   to: string;
@@ -149,14 +142,13 @@ Conservez bien cet email, il vous servira de preuve de participation lors du tir
 Bonne chance !
 L'équipe GoWinGo`;
 
-  const sendSmtpEmail = new Brevo.SendSmtpEmail();
-  sendSmtpEmail.subject = subject;
-  sendSmtpEmail.htmlContent = html;
-  sendSmtpEmail.textContent = textContent;
-  sendSmtpEmail.sender = { name: "GoWinGo", email: "noreply@gowingo.fr" };
-  sendSmtpEmail.to = [{ email: to, name: `${prenom} ${nom}` }];
-
   const client = getBrevoClient();
-  const result = await client.sendTransacEmail(sendSmtpEmail);
+  const result = await client.transactionalEmails.sendTransacEmail({
+    subject,
+    htmlContent: html,
+    textContent,
+    sender: { name: "GoWinGo", email: "noreply@gowingo.fr" },
+    to: [{ email: to, name: `${prenom} ${nom}` }],
+  });
   return result;
 }

@@ -70,16 +70,6 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
                 <CountdownTimer dateFin={lot.date_ouverture} />
               </div>
             )}
-            {lot.description && (
-              <p style={{
-                fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.55,
-                margin: "6px 0 0", fontFamily: "'Nunito', sans-serif", fontWeight: 600,
-                textAlign: "center", maxHeight: 48, overflow: "hidden",
-                display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as any,
-              }}>
-                {lot.description}
-              </p>
-            )}
           </div>
         )}
 

@@ -328,8 +328,8 @@ export default function LotForm({ lot, mode }: LotFormProps) {
 
       {/* Description */}
       <div>
-        <label style={labelStyle}>Description</label>
-        <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description détaillée..." rows={3} style={{ ...inputStyle, resize: "none" }} />
+        <label style={labelStyle}>Description *</label>
+        <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description détaillée du produit..." rows={3} style={{ ...inputStyle, resize: "none" }} required />
       </div>
 
       {/* Catégorie + valeur */}
