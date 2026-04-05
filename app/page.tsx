@@ -1,11 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { supabaseClient, Lot } from "@/lib/supabase";
 import LotGrid from "@/components/LotGrid";
+import CountdownTimer from "@/components/CountdownTimer";
 
-const FLOATING_EMOJIS = ["🎁", "🎫", "⭐", "🏆", "🎉", "🎊", "💎", "🎯"];
+const FLOATING_ITEMS = [
+  { emoji: "📱", size: 52, top: 5,  left: 2  },
+  { emoji: "🚗", size: 60, top: 60, left: 0  },
+  { emoji: "✈️", size: 56, top: 14, left: 82 },
+  { emoji: "💻", size: 54, top: 71, left: 85 },
+  { emoji: "📺", size: 50, top: 3,  left: 43 },
+  { emoji: "🎧", size: 48, top: 79, left: 42 },
+  { emoji: "⌚", size: 46, top: 37, left: 89 },
+  { emoji: "🎮", size: 52, top: 43, left: 1  },
+  { emoji: "💎", size: 44, top: 86, left: 13 },
+  { emoji: "🏎️", size: 58, top: 91, left: 69 },
+  { emoji: "🎟️", size: 44, top: 21, left: 62 },
+  { emoji: "📷", size: 48, top: 56, left: 92 },
+  { emoji: "🖥️", size: 50, top: 9,  left: 21 },
+  { emoji: "🎸", size: 46, top: 74, left: 57 },
+  { emoji: "🚀", size: 44, top: 29, left: 74 },
+  { emoji: "👜", size: 46, top: 93, left: 34 },
+  { emoji: "🛥️", size: 50, top: 19, left: 9  },
+  { emoji: "🏠", size: 48, top: 67, left: 21 },
+  { emoji: "💰", size: 44, top: 44, left: 51 },
+  { emoji: "🍾", size: 46, top: 32, left: 6  },
+  { emoji: "🚁", size: 50, top: 8,  left: 66 },
+  { emoji: "👟", size: 44, top: 83, left: 76 },
+  { emoji: "🧳", size: 46, top: 52, left: 88 },
+  { emoji: "🏆", size: 50, top: 16, left: 30 },
+  { emoji: "🎯", size: 42, top: 97, left: 52 },
+  { emoji: "🪙", size: 40, top: 48, left: 77 },
+  { emoji: "🎀", size: 42, top: 63, left: 6  },
+  { emoji: "💳", size: 44, top: 26, left: 48 },
+  { emoji: "🎪", size: 48, top: 88, left: 28 },
+  { emoji: "🛍️", size: 44, top: 40, left: 15 },
+  { emoji: "🏋️", size: 46, top: 76, left: 93 },
+  { emoji: "🎨", size: 44, top: 12, left: 55 },
+  { emoji: "🚤", size: 48, top: 58, left: 33 },
+  { emoji: "🎺", size: 44, top: 95, left: 8  },
+  { emoji: "🧿", size: 40, top: 35, left: 58 },
+  { emoji: "🛸", size: 46, top: 22, left: 18 },
+  { emoji: "🎭", size: 44, top: 70, left: 48 },
+  { emoji: "🌟", size: 42, top: 50, left: 68 },
+  { emoji: "🏝️", size: 46, top: 82, left: 61 },
+  { emoji: "🎠", size: 44, top: 6,  left: 37 },
+];
 
 export default function HomePage() {
   const [lots, setLots] = useState<Lot[]>([]);
@@ -17,36 +60,38 @@ export default function HomePage() {
       .then(({ data }) => { setLots(data || []); setLoading(false); });
   }, []);
 
+  // Prochain tirage = lot actif avec la date_fin la plus proche (non expirée)
+  const prochainTirage = useMemo(() => {
+    const now = Date.now();
+    return lots
+      .filter(l => l.statut === "actif" && l.date_fin && new Date(l.date_fin).getTime() > now)
+      .sort((a, b) => new Date(a.date_fin!).getTime() - new Date(b.date_fin!).getTime())[0] ?? null;
+  }, [lots]);
+
   return (
     <div>
       {/* HERO */}
       <div style={{ position: "relative", overflow: "hidden", padding: "clamp(40px, 8vw, 70px) clamp(16px, 5vw, 24px) clamp(48px, 8vw, 80px)", background: "linear-gradient(135deg, #6C5CE7 0%, #a29bfe 40%, #FD79A8 70%, #FDCB6E 100%)" }}>
 
-        {/* Floating emoji */}
-        {FLOATING_EMOJIS.map((e, i) => (
+        {/* Floating prize items */}
+        {FLOATING_ITEMS.map((item, i) => (
           <div key={i} style={{
-            position: "absolute", fontSize: `${20 + (i % 3) * 10}px`,
-            top: `${10 + (i * 11) % 75}%`,
-            left: `${(i * 13) % 90}%`,
-            opacity: 0.18,
-            animation: `float ${2.5 + i * 0.4}s ease-in-out ${i * 0.3}s infinite`,
-            pointerEvents: "none"
-          }}>{e}</div>
+            position: "absolute",
+            fontSize: item.size,
+            top: `${item.top}%`,
+            left: `${item.left}%`,
+            opacity: 0.3,
+            animation: `float ${3 + i * 0.35}s ease-in-out ${i * 0.25}s infinite`,
+            pointerEvents: "none",
+            filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.25))",
+            userSelect: "none",
+          }}>{item.emoji}</div>
         ))}
 
         <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center", position: "relative" }}>
 
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "6px 16px",
-            color: "white", fontSize: 13, fontWeight: 800, marginBottom: 24, border: "1px solid rgba(255,255,255,0.3)"
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#00B894", display: "inline-block" }} />
-            {lots.length} lot{lots.length > 1 ? "s" : ""} actif{lots.length > 1 ? "s" : ""} en ce moment !
-          </div>
-
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-            <div style={{ position: "relative", width: 120, height: 80, borderRadius: 20, overflow: "hidden", background: "white", padding: 6, boxShadow: "0 15px 40px rgba(0,0,0,0.2)", border: "2px solid rgba(255,255,255,0.4)" }}>
+            <div style={{ position: "relative", width: 400, height: 400 }}>
               <Image src="/images/logo-gowingo.png" alt="GoWinGo" fill style={{ objectFit: "contain" }} />
             </div>
           </div>
@@ -57,7 +102,7 @@ export default function HomePage() {
             marginBottom: 16,
             textShadow: "0 4px 20px rgba(0,0,0,0.15)"
           }}>
-            Tentez votre chance !
+            {"Tentez votre chance\u00A0!"}
           </h1>
 
           <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "clamp(15px, 4vw, 18px)", fontWeight: 600, marginBottom: 36, lineHeight: 1.6 }}>
@@ -65,9 +110,110 @@ export default function HomePage() {
             {" "}Simple, rapide, et certifié huissier. 🏆
           </p>
 
-          <a href="#lots" className="btn-gold" style={{ fontSize: 17, padding: "16px 36px" }}>
-            Voir les lots ✨
-          </a>
+          {/* Prochain tirage — URGENCE */}
+          {prochainTirage && (
+            <div style={{ marginTop: 32 }}>
+              {/* Badge urgence */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12 }}>
+                <span style={{ fontSize: 22, animation: "flicker 0.9s ease-in-out infinite alternate" }}>🔥</span>
+                <span style={{
+                  fontFamily: "'Fredoka One', cursive",
+                  fontSize: "clamp(13px, 3vw, 16px)",
+                  fontWeight: 900,
+                  color: "#FF7043",
+                  textTransform: "uppercase",
+                  letterSpacing: "2px",
+                  textShadow: "0 0 20px rgba(255,112,67,0.8)",
+                  animation: "urgentPulse 1.2s ease-in-out infinite",
+                }}>
+                  PROCHAIN TIRAGE
+                </span>
+                <span style={{ fontSize: 22, animation: "flicker 0.9s ease-in-out infinite alternate" }}>🔥</span>
+              </div>
+
+              {/* Card principale */}
+              <Link href={`/lots/${prochainTirage.id}`} style={{ textDecoration: "none", display: "block" }}>
+                <div style={{
+                  background: "rgba(255,255,255,0.12)",
+                  backdropFilter: "blur(20px)",
+                  border: "1.5px solid rgba(255,255,255,0.35)",
+                  borderRadius: 24,
+                  overflow: "hidden",
+                  boxShadow: "0 8px 40px rgba(0,0,0,0.2)",
+                  cursor: "pointer",
+                  transition: "transform .2s, box-shadow .2s",
+                }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1.02)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 50px rgba(0,0,0,0.3)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 40px rgba(0,0,0,0.2)"; }}
+                >
+                  {/* En-tête PROCHAIN TIRAGE dans la card */}
+                  <div style={{
+                    padding: "12px 20px 10px",
+                    borderBottom: "1px solid rgba(255,255,255,0.2)",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  }}>
+                    <span style={{ fontSize: 18, animation: "flicker 0.8s ease-in-out infinite alternate" }}>🔥</span>
+                    <span style={{
+                      fontFamily: "'Fredoka One', cursive",
+                      fontSize: "clamp(15px, 3.5vw, 19px)",
+                      color: "white",
+                      letterSpacing: "2px",
+                      textTransform: "uppercase",
+                      textShadow: "0 2px 12px rgba(0,0,0,0.4)",
+                    }}>
+                      PROCHAIN TIRAGE
+                    </span>
+                    <span style={{ fontSize: 18, animation: "flicker 1s ease-in-out infinite alternate" }}>🔥</span>
+                  </div>
+
+                  {/* Photo du lot */}
+                  {prochainTirage.image_url && (
+                    <div style={{ position: "relative", height: 200, background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ position: "relative", width: 160, height: 180 }}>
+                        <Image
+                          src={prochainTirage.image_url}
+                          alt={prochainTirage.nom}
+                          fill
+                          style={{ objectFit: "contain", filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.45))" }}
+                        />
+                      </div>
+                      <span style={{ position: "absolute", left: 16, bottom: 8, fontSize: 28, animation: "flicker 0.8s ease-in-out infinite alternate" }}>🔥</span>
+                      <span style={{ position: "absolute", right: 16, bottom: 8, fontSize: 28, animation: "flicker 1s ease-in-out infinite alternate" }}>🔥</span>
+                    </div>
+                  )}
+
+                  {/* Infos + countdown */}
+                  <div style={{ padding: "14px 20px 20px" }}>
+                    <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: "clamp(18px, 4vw, 24px)", color: "white", textAlign: "center", marginBottom: 14, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                      {prochainTirage.nom}
+                    </div>
+
+                    {/* Countdown légèrement plus grand */}
+                    <div style={{ marginBottom: 18, transform: "scale(1.1)", transformOrigin: "center" }}>
+                      <CountdownTimer dateFin={prochainTirage.date_fin!} variant="hero" />
+                    </div>
+
+                    {/* Gros bouton CTA — gradient du hero */}
+                    <div style={{
+                      width: "100%",
+                      padding: "16px",
+                      background: "linear-gradient(135deg, #6C5CE7 0%, #FD79A8 55%, #FDCB6E 100%)",
+                      color: "white",
+                      fontFamily: "'Fredoka One', cursive",
+                      fontSize: "clamp(16px, 4vw, 20px)",
+                      textAlign: "center",
+                      borderRadius: 18,
+                      boxShadow: "0 6px 24px rgba(108,92,231,0.4)",
+                      letterSpacing: "0.5px",
+                      animation: "ctaPulse 2s ease-in-out infinite",
+                    }}>
+                      🎯 JE TENTE MA CHANCE !
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
 
           {/* Stats */}
           {!loading && lots.length > 0 && (
@@ -112,33 +258,12 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* HOW IT WORKS */}
-      <div id="how" style={{ background: "white", borderTop: "2px solid #f0eeff", padding: "64px 24px" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 32, color: "#2D3436", marginBottom: 12 }}>
-            ❓ Comment jouer ?
-          </h2>
-          <p style={{ color: "#636E72", fontSize: 15, marginBottom: 48 }}>3 étapes simples pour tenter votre chance !</p>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>
-            {[
-              { emoji: "🔍", color: "#6C5CE7", bg: "#f0eeff", title: "1. Choisissez", desc: "Parcourez nos lots disponibles et choisissez celui qui vous fait rêver !" },
-              { emoji: "🎫", color: "#FD79A8", bg: "#fff0f6", title: "2. Achetez", desc: "Sélectionnez le nombre de tickets, remplissez votre nom et payez en sécurité." },
-              { emoji: "🏆", color: "#FDCB6E", bg: "#fffbee", title: "3. Gagnez !", desc: "Au tirage, si votre ticket est tiré, on vous contacte et vous recevez votre lot !" },
-            ].map(step => (
-              <div key={step.title} style={{ padding: "28px 20px", borderRadius: 24, background: step.bg, border: `2px solid ${step.color}22` }}>
-                <div style={{ fontSize: 48, marginBottom: 14 }}>{step.emoji}</div>
-                <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: step.color, marginBottom: 8 }}>{step.title}</h3>
-                <p style={{ fontSize: 14, color: "#636E72", lineHeight: 1.6 }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+        @keyframes flicker { 0% { transform: scale(1) rotate(-3deg); } 100% { transform: scale(1.15) rotate(3deg); } }
+        @keyframes urgentPulse { 0%,100% { opacity: 1; text-shadow: 0 0 20px rgba(255,112,67,0.8); } 50% { opacity: 0.75; text-shadow: 0 0 40px rgba(255,112,67,1); } }
+        @keyframes ctaPulse { 0%,100% { transform: scale(1); box-shadow: 0 6px 24px rgba(108,92,231,0.55); } 50% { transform: scale(1.02); box-shadow: 0 10px 36px rgba(108,92,231,0.8); } }
       `}</style>
     </div>
   );

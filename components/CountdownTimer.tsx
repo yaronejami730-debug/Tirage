@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-interface Props { dateFin: string; }
+interface Props { dateFin: string; variant?: "hero"; }
 
-export default function CountdownTimer({ dateFin }: Props) {
+export default function CountdownTimer({ dateFin, variant }: Props) {
+  const isHero = variant === "hero";
   const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, expired: false });
 
   useEffect(() => {
@@ -41,19 +42,21 @@ export default function CountdownTimer({ dateFin }: Props) {
     <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "center" }}>
       {units.map(({ val, label }, i) => (
         <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {i > 0 && <span style={{ color: "#FF7043", fontWeight: 900, fontSize: 16, lineHeight: 1 }}>:</span>}
+          {i > 0 && <span style={{ color: isHero ? "rgba(255,255,255,0.5)" : "#FF7043", fontWeight: 900, fontSize: 16, lineHeight: 1 }}>:</span>}
           <div style={{ textAlign: "center", minWidth: 40 }}>
             <div style={{
-              background: "linear-gradient(135deg, #FF7043, #FDCB6E)",
+              background: isHero ? "rgba(255,255,255,0.22)" : "linear-gradient(135deg, #FF7043, #FDCB6E)",
+              border: isHero ? "1px solid rgba(255,255,255,0.35)" : "none",
               borderRadius: 10, padding: "6px 6px 4px",
-              fontFamily: "'Fredoka One', cursive", fontSize: 20, color: "white",
+              fontFamily: "'Fredoka One', cursive", fontSize: 20,
+              color: "white",
               fontVariantNumeric: "tabular-nums", lineHeight: 1,
-              boxShadow: "0 3px 10px rgba(255,112,67,0.3)",
+              boxShadow: isHero ? "0 2px 8px rgba(0,0,0,0.15)" : "0 3px 10px rgba(255,112,67,0.3)",
               minWidth: 40,
             }}>
               {String(val).padStart(2, "0")}
             </div>
-            <div style={{ fontSize: 9, color: "#FF7043", fontWeight: 700, textTransform: "uppercase", marginTop: 3, letterSpacing: "0.5px" }}>
+            <div style={{ fontSize: 9, color: isHero ? "rgba(255,255,255,0.7)" : "#FF7043", fontWeight: 700, textTransform: "uppercase", marginTop: 3, letterSpacing: "0.5px" }}>
               {label}
             </div>
           </div>

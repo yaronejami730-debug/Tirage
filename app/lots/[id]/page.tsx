@@ -7,6 +7,7 @@ import Link from "next/link";
 import { supabaseClient, Lot } from "@/lib/supabase";
 import ParticipationForm from "@/components/ParticipationForm";
 import CountdownTimer from "@/components/CountdownTimer";
+import LotOnlineBadge from "@/components/LotOnlineBadge";
 
 interface Props { params: Promise<{ id: string }>; }
 
@@ -42,6 +43,9 @@ export default function LotDetailPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "36px 20px 80px" }}>
+
+      {/* Badges joueurs en ligne */}
+      <LotOnlineBadge lotId={id} />
 
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28, fontSize: 13 }}>

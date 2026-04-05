@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import "./globals.css";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import GlobalOnlineBadge from "@/components/GlobalOnlineBadge";
 
 export const metadata: Metadata = {
   title: "GoWinGo 🎰 — Tentez votre chance !",
@@ -19,45 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: "'Nunito', sans-serif", background: "#F8F9FF", minHeight: "100vh" }}>
 
         <AnnouncementBanner />
-
-        {/* NAVBAR */}
-        <header style={{
-          position: "sticky", top: 0, zIndex: 100,
-          background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)",
-          borderBottom: "2px solid #f0eeff",
-          boxShadow: "0 2px 20px rgba(108,92,231,0.08)"
-        }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-
-            {/* Logo */}
-            <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
-              <div style={{ position: "relative", width: 50, height: 50, borderRadius: 12, overflow: "hidden", background: "white", border: "1px solid #f0eeff", display: "flex", alignItems: "center", justifyContent: "center", padding: 4, boxShadow: "0 6px 15px rgba(108,92,231,0.15)" }}>
-                <Image src="/images/logo-gowingo.png" alt="GoWinGo" fill style={{ objectFit: "contain" }} />
-              </div>
-              <span style={{
-                fontFamily: "'Fredoka One', cursive", fontSize: 22,
-                color: "#2D3436"
-              }}>GoWinGo</span>
-              <span style={{
-                background: "#FD79A8", color: "white", fontSize: 10, fontWeight: 800,
-                padding: "2px 7px", borderRadius: 20
-              }}>LIVE 🔥</span>
-            </a>
-
-            {/* Nav */}
-            <nav style={{ display: "flex", gap: 4, alignItems: "center" }}>
-              <a href="/" style={{ fontWeight: 700, fontSize: 13, color: "#6C5CE7", textDecoration: "none", padding: "6px 14px", borderRadius: 10, background: "#f0eeff", whiteSpace: "nowrap" }}>
-                🎁 Lots
-              </a>
-              <a href="#how" style={{ fontWeight: 600, fontSize: 13, color: "#636e72", textDecoration: "none", padding: "6px 12px", borderRadius: 10, whiteSpace: "nowrap", transition: "all 0.2s" }}>
-                ❓ Comment jouer
-              </a>
-              <a href="/admin" style={{ fontWeight: 600, fontSize: 12, color: "#b2bec3", textDecoration: "none", padding: "6px 10px", borderRadius: 10, whiteSpace: "nowrap" }}>
-                Admin
-              </a>
-            </nav>
-          </div>
-        </header>
+        <GlobalOnlineBadge />
 
         <main>{children}</main>
 

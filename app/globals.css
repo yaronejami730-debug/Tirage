@@ -170,6 +170,26 @@
     white-space: nowrap;
   }
 
+  /* Image containers with responsive heights */
+  .lot-card-img {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+  }
+
+  .lot-detail-hero-img {
+    position: relative;
+    height: 480px;
+    border-radius: 32px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 22px 70px rgba(108,92,231,0.22);
+    background: linear-gradient(135deg, #f0eeff, #fff0f6);
+  }
+
+  /* Hide on mobile */
+  .hide-mobile { display: flex; }
+
   @media (max-width: 640px) {
     .lot-detail-grid {
       grid-template-columns: 1fr;
@@ -192,6 +212,32 @@
 
     .lot-form-sticky {
       position: static !important;
+    }
+
+    .hide-mobile {
+      display: none !important;
+    }
+
+    .lot-card-img {
+      height: 220px !important;
+    }
+
+    .lot-detail-hero-img {
+      height: 260px !important;
+      border-radius: 20px !important;
+    }
+
+    /* Tighter padding on mobile for section containers */
+    .section-padding {
+      padding: 36px 16px !important;
+    }
+
+    /* Hero stats wrap nicely */
+    .hero-stats {
+      gap: 10px !important;
+    }
+    .hero-stat {
+      padding: 10px 14px !important;
     }
   }
 }
