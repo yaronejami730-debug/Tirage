@@ -11,6 +11,10 @@ export type Lot = {
   reference_lot: string;
   date_fin: string | null;
   statut: "actif" | "termine" | "archive";
+  categorie: "tech" | "mode" | "gaming" | "maison" | "luxe" | "autre";
+  valeur_estimee: number | null;
+  winner_participation_id: string | null;
+  drawn_at: string | null;
   created_at: string;
 };
 
@@ -25,27 +29,21 @@ export type Participation = {
   ticket_numbers: number[];
   stripe_payment_id: string | null;
   stripe_session_id: string | null;
+  reference_jeu: string | null;
   statut: "en_attente" | "confirme" | "annule";
   created_at: string;
   lots?: Lot;
 };
 
-// Client-side Supabase client (uses anon key)
 export const supabaseClient = () =>
   createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-// Server-side Supabase client (uses service role key - never expose to client)
 export const supabaseAdmin = () =>
   createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
+    { auth: { autoRefreshToken: false, persistSession: false } }
   );

@@ -1,86 +1,79 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabaseClient } from "@/lib/supabase";
+import { supabaseClient, Lot } from "@/lib/supabase";
 import LotGrid from "@/components/LotGrid";
-import { Lot } from "@/lib/supabase";
+
+const FLOATING_EMOJIS = ["🎁", "🎫", "⭐", "🏆", "🎉", "🎊", "💎", "🎯"];
 
 export default function HomePage() {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabaseClient()
-      .from("lots")
-      .select("*")
-      .eq("statut", "actif")
+    supabaseClient().from("lots").select("*").eq("statut", "actif")
       .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setLots(data || []);
-        setLoading(false);
-      });
+      .then(({ data }) => { setLots(data || []); setLoading(false); });
   }, []);
-
-  const totalTickets = lots.reduce((a, l) => a + l.total_tickets, 0);
-  const ticketsRestants = lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0);
 
   return (
     <div>
       {/* HERO */}
-      <div style={{
-        background: "linear-gradient(135deg, #1e0a3c 0%, #2d1258 40%, #1a1035 100%)",
-        padding: "72px 24px 80px",
-        position: "relative",
-        overflow: "hidden"
-      }}>
-        {/* decorative blobs */}
-        <div style={{ position: "absolute", top: -100, left: -100, width: 400, height: 400, borderRadius: "50%", background: "rgba(124,58,237,0.25)", filter: "blur(80px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -80, right: -80, width: 350, height: 350, borderRadius: "50%", background: "rgba(79,70,229,0.2)", filter: "blur(80px)", pointerEvents: "none" }} />
+      <div style={{ position: "relative", overflow: "hidden", padding: "70px 24px 80px", background: "linear-gradient(135deg, #6C5CE7 0%, #a29bfe 40%, #FD79A8 70%, #FDCB6E 100%)" }}>
 
-        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", position: "relative" }}>
+        {/* Floating emoji */}
+        {FLOATING_EMOJIS.map((e, i) => (
+          <div key={i} style={{
+            position: "absolute", fontSize: `${20 + (i % 3) * 10}px`,
+            top: `${10 + (i * 11) % 75}%`,
+            left: `${(i * 13) % 90}%`,
+            opacity: 0.18,
+            animation: `float ${2.5 + i * 0.4}s ease-in-out ${i * 0.3}s infinite`,
+            pointerEvents: "none"
+          }}>{e}</div>
+        ))}
 
-          {/* Pill badge */}
+        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center", position: "relative" }}>
+
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: 999, padding: "6px 16px", marginBottom: 28,
-            color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "6px 16px",
+            color: "white", fontSize: 13, fontWeight: 800, marginBottom: 24, border: "1px solid rgba(255,255,255,0.3)"
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
-            Tirages certifiés · Résultats par huissier indépendant
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#00B894", display: "inline-block" }} />
+            {lots.length} lot{lots.length > 1 ? "s" : ""} actif{lots.length > 1 ? "s" : ""} en ce moment !
           </div>
 
           <h1 style={{
-            color: "white", fontWeight: 900, fontSize: "clamp(36px, 6vw, 62px)",
-            lineHeight: 1.1, marginBottom: 20, letterSpacing: -1
+            fontFamily: "'Fredoka One', cursive",
+            fontSize: "clamp(38px, 7vw, 68px)",
+            color: "white", lineHeight: 1.05,
+            marginBottom: 16,
+            textShadow: "0 4px 20px rgba(0,0,0,0.15)"
           }}>
-            Gagnez des lots{" "}
-            <span style={{
-              background: "linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
-            }}>
-              incroyables
-            </span>
+            🎉 Tentez votre chance !
           </h1>
 
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 17, lineHeight: 1.6, marginBottom: 40, maxWidth: 480, margin: "0 auto 40px" }}>
-            Choisissez vos tickets, participez au tirage et tentez de remporter des prix d'exception. Simple, rapide, sécurisé.
+          <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 18, fontWeight: 600, marginBottom: 36, lineHeight: 1.6 }}>
+            Achetez vos tickets et remportez des lots incroyables !<br />
+            Simple, rapide, et certifié huissier. 🏆
           </p>
 
+          <a href="#lots" className="btn-gold" style={{ fontSize: 17, padding: "16px 36px" }}>
+            Voir les lots ✨
+          </a>
+
           {/* Stats */}
-          {!loading && (
-            <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+          {!loading && lots.length > 0 && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 40, flexWrap: "wrap" }}>
               {[
-                { val: lots.length, label: "Lots actifs", color: "#a78bfa" },
-                { val: totalTickets, label: "Tickets disponibles", color: "#fbbf24" },
-                { val: ticketsRestants, label: "Places restantes", color: "#4ade80" },
+                { val: lots.length, label: "Lots actifs", bg: "rgba(255,255,255,0.15)" },
+                { val: lots.reduce((a, l) => a + l.total_tickets, 0), label: "Tickets dispo", bg: "rgba(255,255,255,0.15)" },
+                { val: lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0), label: "Places restantes", bg: "rgba(255,255,255,0.15)" },
               ].map(s => (
-                <div key={s.label} style={{
-                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 18, padding: "16px 28px", textAlign: "center", minWidth: 110
-                }}>
-                  <div style={{ fontSize: 30, fontWeight: 900, color: s.color }}>{s.val}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{s.label}</div>
+                <div key={s.label} style={{ background: s.bg, borderRadius: 18, padding: "14px 22px", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(8px)" }}>
+                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "white" }}>{s.val}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -89,25 +82,22 @@ export default function HomePage() {
       </div>
 
       {/* LOTS */}
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 24px" }}>
+      <div id="lots" style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 20px" }}>
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
-            <div style={{ width: 40, height: 40, border: "3px solid #7c3aed", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
+            <div style={{ width: 44, height: 44, border: "4px solid #6C5CE7", borderTopColor: "transparent", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
           </div>
         ) : lots.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0" }}>
-            <div style={{ fontSize: 64, marginBottom: 16 }}>🎟️</div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: "#374151", marginBottom: 8 }}>Aucun lot en cours</h2>
-            <p style={{ color: "#9ca3af" }}>Revenez bientôt pour nos prochains tirages !</p>
+          <div style={{ textAlign: "center", padding: 80 }}>
+            <div style={{ fontSize: 72, marginBottom: 16 }}>🎟️</div>
+            <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "#2D3436", marginBottom: 8 }}>Aucun lot en cours</h2>
+            <p style={{ color: "#636E72" }}>Revenez bientôt pour nos prochains tirages !</p>
           </div>
         ) : (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
-              <h2 style={{ fontSize: 26, fontWeight: 900, color: "#111" }}>Lots en cours</h2>
-              <span style={{
-                background: "rgba(124,58,237,0.1)", color: "#7c3aed",
-                fontWeight: 700, fontSize: 13, padding: "3px 12px", borderRadius: 999
-              }}>
+              <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "#2D3436" }}>🎁 Lots à gagner</h2>
+              <span style={{ background: "#f0eeff", color: "#6C5CE7", fontWeight: 800, fontSize: 13, padding: "4px 14px", borderRadius: 999 }}>
                 {lots.length} actif{lots.length > 1 ? "s" : ""}
               </span>
             </div>
@@ -117,26 +107,23 @@ export default function HomePage() {
       </div>
 
       {/* HOW IT WORKS */}
-      <div style={{ background: "white", borderTop: "1px solid #f3f4f6", padding: "64px 24px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <h2 style={{ textAlign: "center", fontSize: 26, fontWeight: 900, color: "#111", marginBottom: 48 }}>
-            Comment ça marche ?
+      <div id="how" style={{ background: "white", borderTop: "2px solid #f0eeff", padding: "64px 24px" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 32, color: "#2D3436", marginBottom: 12 }}>
+            ❓ Comment jouer ?
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 32 }}>
+          <p style={{ color: "#636E72", fontSize: 15, marginBottom: 48 }}>3 étapes simples pour tenter votre chance !</p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>
             {[
-              { emoji: "🎟️", title: "1. Achetez vos tickets", desc: "Choisissez un lot, sélectionnez le nombre de tickets et payez en toute sécurité via Stripe." },
-              { emoji: "⏳", title: "2. Attendez le tirage", desc: "À la clôture du lot, un tirage est effectué par un huissier de justice indépendant." },
-              { emoji: "🏆", title: "3. Réclamez votre gain", desc: "Le gagnant est notifié par email et reçoit son lot dans les meilleurs délais." },
+              { emoji: "🔍", color: "#6C5CE7", bg: "#f0eeff", title: "1. Choisissez", desc: "Parcourez nos lots disponibles et choisissez celui qui vous fait rêver !" },
+              { emoji: "🎫", color: "#FD79A8", bg: "#fff0f6", title: "2. Achetez", desc: "Sélectionnez le nombre de tickets, remplissez votre nom et payez en sécurité." },
+              { emoji: "🏆", color: "#FDCB6E", bg: "#fffbee", title: "3. Gagnez !", desc: "Au tirage, si votre ticket est tiré, on vous contacte et vous recevez votre lot !" },
             ].map(step => (
-              <div key={step.title} style={{ textAlign: "center" }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: 20,
-                  background: "linear-gradient(135deg, #f5f3ff, #ede9fe)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 28, margin: "0 auto 16px"
-                }}>{step.emoji}</div>
-                <h3 style={{ fontWeight: 800, fontSize: 16, color: "#111", marginBottom: 8 }}>{step.title}</h3>
-                <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6 }}>{step.desc}</p>
+              <div key={step.title} style={{ padding: "28px 20px", borderRadius: 24, background: step.bg, border: `2px solid ${step.color}22` }}>
+                <div style={{ fontSize: 48, marginBottom: 14 }}>{step.emoji}</div>
+                <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: step.color, marginBottom: 8 }}>{step.title}</h3>
+                <p style={{ fontSize: 14, color: "#636E72", lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             ))}
           </div>
@@ -145,7 +132,7 @@ export default function HomePage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.6; } }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
       `}</style>
     </div>
   );

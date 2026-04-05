@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tirage — Tentez votre chance !",
-  description: "Achetez vos tickets et participez à nos tirages au sort exclusifs.",
+  title: "WinYouWatch 🎰 — Tentez votre chance !",
+  description: "Achetez vos tickets et tentez de remporter des lots incroyables !",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -12,38 +12,47 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body style={{ fontFamily: "'Inter', sans-serif", background: "#FAFAFA", minHeight: "100vh" }}>
+      <body style={{ fontFamily: "'Nunito', sans-serif", background: "#F8F9FF", minHeight: "100vh" }}>
 
-        {/* Header */}
+        {/* NAVBAR */}
         <header style={{
-          position: "sticky", top: 0, zIndex: 50,
-          background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(124,58,237,0.1)",
-          boxShadow: "0 1px 20px rgba(0,0,0,0.06)"
+          position: "sticky", top: 0, zIndex: 100,
+          background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)",
+          borderBottom: "2px solid #f0eeff",
+          boxShadow: "0 2px 20px rgba(108,92,231,0.08)"
         }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+            {/* Logo */}
             <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
               <div style={{
-                width: 36, height: 36, borderRadius: 12,
-                background: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+                width: 42, height: 42, borderRadius: 14,
+                background: "linear-gradient(135deg, #6C5CE7, #FD79A8)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(124,58,237,0.4)"
-              }}>
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                </svg>
-              </div>
-              <span style={{ fontSize: 20, fontWeight: 900, background: "linear-gradient(135deg, #7c3aed, #4c1d95)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                Tirage
-              </span>
+                fontSize: 22, boxShadow: "0 4px 15px rgba(108,92,231,0.4)"
+              }}>🎰</div>
+              <span style={{
+                fontFamily: "'Fredoka One', cursive", fontSize: 24,
+                background: "linear-gradient(135deg, #6C5CE7, #FD79A8)",
+                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
+              }}>WinYouWatch</span>
+              <span style={{
+                background: "#FD79A8", color: "white", fontSize: 11, fontWeight: 800,
+                padding: "2px 8px", borderRadius: 20, marginLeft: 4
+              }}>LIVE 🔥</span>
             </a>
-            <nav style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <a href="/" style={{ fontSize: 14, fontWeight: 600, color: "#6d28d9", textDecoration: "none", padding: "6px 14px", borderRadius: 10, background: "rgba(124,58,237,0.08)" }}>
-                Lots
+
+            {/* Nav */}
+            <nav style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <a href="/" style={{ fontWeight: 700, fontSize: 14, color: "#6C5CE7", textDecoration: "none", padding: "8px 16px", borderRadius: 12, background: "#f0eeff" }}>
+                🎁 Lots
               </a>
-              <a href="/admin" style={{ fontSize: 14, fontWeight: 500, color: "#9ca3af", textDecoration: "none", padding: "6px 14px", borderRadius: 10 }}>
+              <a href="#how" style={{ fontWeight: 700, fontSize: 14, color: "#636E72", textDecoration: "none", padding: "8px 16px", borderRadius: 12, transition: "all .2s" }}>
+                ❓ Comment jouer
+              </a>
+              <a href="/admin" style={{ fontWeight: 600, fontSize: 13, color: "#b2bec3", textDecoration: "none", padding: "8px 14px", borderRadius: 12 }}>
                 Admin
               </a>
             </nav>
@@ -52,20 +61,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <main>{children}</main>
 
-        {/* Footer */}
-        <footer style={{ marginTop: 80, background: "#111", padding: "40px 24px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #7c3aed, #4c1d95)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                </svg>
-              </div>
-              <span style={{ color: "white", fontWeight: 800, fontSize: 16 }}>Tirage</span>
+        {/* FOOTER */}
+        <footer style={{ background: "#2D3436", padding: "48px 24px 32px", marginTop: 80 }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, textAlign: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 28 }}>🎰</span>
+              <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "white" }}>WinYouWatch</span>
             </div>
-            <p style={{ color: "#6b7280", fontSize: 12, textAlign: "center" }}>
-              Tirages certifiés par huissier indépendant · Paiement sécurisé · © {new Date().getFullYear()} Tirage
+            <p style={{ color: "#636E72", fontSize: 13, maxWidth: 480 }}>
+              Tentez votre chance, changez votre quotidien ! 🎉<br />
+              Jeu administré sous contrôle huissier indépendant · Paiement sécurisé Stripe
             </p>
+            <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+              {["Mentions légales", "CGV", "Règlement", "Contact"].map(l => (
+                <a key={l} href="#" style={{ color: "#636E72", fontSize: 12, textDecoration: "none" }}>{l}</a>
+              ))}
+            </div>
+            <p style={{ color: "#4a5568", fontSize: 11 }}>© {new Date().getFullYear()} WinYouWatch — Tous droits réservés</p>
           </div>
         </footer>
       </body>

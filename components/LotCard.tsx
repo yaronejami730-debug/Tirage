@@ -5,154 +5,171 @@ import Link from "next/link";
 import { Lot } from "@/lib/supabase";
 import CountdownTimer from "./CountdownTimer";
 
-interface LotCardProps {
-  lot: Lot;
-}
+const CATEGORY_LABELS: Record<string, string> = {
+  tech: "Tech 📱", mode: "Mode 👜", gaming: "Gaming 🎮",
+  maison: "Maison 🏠", luxe: "Luxe 💎", autre: "Autre 🎁",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  tech: "#6C5CE7", mode: "#FD79A8", gaming: "#00B894",
+  maison: "#FDCB6E", luxe: "#E17055", autre: "#A29BFE",
+};
+
+interface LotCardProps { lot: Lot; }
 
 export default function LotCard({ lot }: LotCardProps) {
   const remaining = lot.total_tickets - lot.tickets_vendus;
   const isSoldOut = remaining <= 0;
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
   const isUrgent = remaining <= 15 && remaining > 0;
+  const cat = lot.categorie || "autre";
+  const catColor = CATEGORY_COLORS[cat] || "#A29BFE";
 
-  const barColor = pct >= 90 ? "#ef4444" : pct >= 70 ? "#f97316" : "#7c3aed";
+  const barColor = pct >= 90 ? "#E17055" : pct >= 70 ? "#FDCB6E" : "#00B894";
 
   return (
-    <div className="card flex flex-col group" style={{ cursor: "default" }}>
-
-      {/* Image zone */}
-      <div style={{ position: "relative", height: 220, overflow: "hidden", background: "linear-gradient(135deg, #4c1d95, #1e1b4b)" }}>
+    <div className="lot-card flex flex-col">
+      {/* IMAGE */}
+      <div style={{ position: "relative", height: 200, overflow: "hidden", background: `linear-gradient(135deg, ${catColor}33, ${catColor}11)` }}>
         {lot.image_url ? (
-          <Image
-            src={lot.image_url}
-            alt={lot.nom}
-            fill
-            style={{ objectFit: "cover", transition: "transform .5s ease" }}
-            className="group-hover:scale-105"
-          />
+          <Image src={lot.image_url} alt={lot.nom} fill style={{ objectFit: "cover" }} className="group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.15)" strokeWidth={1}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-            </svg>
+          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56 }}>
+            {cat === "tech" ? "📱" : cat === "mode" ? "👜" : cat === "gaming" ? "🎮" : cat === "maison" ? "🏠" : cat === "luxe" ? "💎" : "🎁"}
           </div>
         )}
 
-        {/* Dark overlay gradient */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)" }} />
+        {/* Dark overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)" }} />
 
-        {/* Urgency badge */}
-        {isUrgent && (
+        {/* Category badge — top left */}
+        <div style={{
+          position: "absolute", top: 12, left: 12,
+          background: catColor, color: "white",
+          fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 11,
+          padding: "4px 10px", borderRadius: 20, boxShadow: `0 2px 8px ${catColor}66`
+        }}>
+          {CATEGORY_LABELS[cat]}
+        </div>
+
+        {/* Urgency — top right */}
+        {isUrgent && !isSoldOut && (
           <div style={{
-            position: "absolute", top: 12, left: 12,
-            background: "#ef4444", color: "white",
-            fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20,
-            display: "flex", alignItems: "center", gap: 4,
-            boxShadow: "0 2px 8px rgba(239,68,68,0.5)",
-            animation: "pulse 2s infinite"
+            position: "absolute", top: 12, right: 12,
+            background: "#E17055", color: "white",
+            fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 11,
+            padding: "4px 10px", borderRadius: 20, animation: "pulse 1.5s infinite"
           }}>
             🔥 Plus que {remaining} !
           </div>
         )}
 
-        {/* Countdown badge */}
+        {/* Price — bottom left */}
+        <div style={{
+          position: "absolute", bottom: 12, left: 12,
+          background: "linear-gradient(135deg, #FDCB6E, #f9a825)",
+          color: "#2D3436", fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 14,
+          padding: "5px 12px", borderRadius: 20, boxShadow: "0 3px 10px rgba(253,203,110,0.5)"
+        }}>
+          {Number(lot.prix_ticket).toFixed(2)} € / ticket
+        </div>
+
+        {/* Countdown — bottom right */}
         {lot.date_fin && !isSoldOut && (
           <div style={{
-            position: "absolute", top: 12, right: 12,
+            position: "absolute", bottom: 12, right: 12,
             background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
-            borderRadius: 12, padding: "5px 10px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            display: "flex", alignItems: "center", gap: 6
+            borderRadius: 12, padding: "5px 10px", border: "1px solid rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", gap: 5
           }}>
-            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <span style={{ fontSize: 11 }}>⏰</span>
             <CountdownTimer dateFin={lot.date_fin} />
           </div>
         )}
 
-        {/* Price badge */}
-        <div style={{
-          position: "absolute", bottom: 12, left: 12,
-          background: "linear-gradient(135deg, #f59e0b, #d97706)",
-          color: "white", fontWeight: 800, fontSize: 15,
-          padding: "6px 14px", borderRadius: 12,
-          boxShadow: "0 3px 10px rgba(245,158,11,0.5)"
-        }}>
-          {Number(lot.prix_ticket).toFixed(2)} €
-          <span style={{ fontSize: 11, fontWeight: 500, opacity: 0.85, marginLeft: 4 }}>/ ticket</span>
-        </div>
-
-        {/* Sold out overlay */}
+        {/* SOLD OUT */}
         {isSoldOut && (
           <div style={{
-            position: "absolute", inset: 0, background: "rgba(0,0,0,0.75)",
+            position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)",
             display: "flex", alignItems: "center", justifyContent: "center"
           }}>
-            <div style={{
-              background: "#ef4444", color: "white", fontWeight: 900, fontSize: 22,
+            <span style={{
+              background: "#E17055", color: "white",
+              fontFamily: "'Fredoka One', cursive", fontSize: 24,
               padding: "10px 28px", borderRadius: 16, transform: "rotate(-4deg)",
-              boxShadow: "0 8px 30px rgba(239,68,68,0.6)", letterSpacing: 2
-            }}>
-              COMPLET
-            </div>
+              boxShadow: "0 8px 30px rgba(225,112,85,0.6)"
+            }}>COMPLET</span>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div style={{ padding: "18px 20px 20px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <h3 style={{ fontWeight: 800, fontSize: 17, color: "#111", lineHeight: 1.3, marginBottom: 6 }}>
+      {/* CONTENT */}
+      <div style={{ padding: "16px 18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+
+        {/* Ref */}
+        <p style={{ fontSize: 11, fontWeight: 700, color: "#A29BFE", marginBottom: 4, fontFamily: "'Nunito', sans-serif" }}>
+          🏷️ {lot.reference_lot}
+        </p>
+
+        {/* Title */}
+        <h3 style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 16, color: "#2D3436", lineHeight: 1.3, marginBottom: 6 }}>
           {lot.nom}
         </h3>
+
+        {/* Description */}
         {lot.description && (
-          <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.5, marginBottom: 14,
-            overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>
+          <p style={{
+            fontSize: 13, color: "#636E72", lineHeight: 1.5, marginBottom: 10,
+            overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const
+          }}>
             {lot.description}
           </p>
         )}
 
-        {/* Progress */}
-        <div style={{ marginTop: "auto", marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
-            <span style={{ color: "#9ca3af" }}>{lot.tickets_vendus} vendus</span>
-            <span style={{ color: isUrgent ? "#ef4444" : "#9ca3af", fontWeight: isUrgent ? 700 : 400 }}>
-              {remaining > 0 ? `${remaining} restants` : "Complet"}
+        {/* Badges: tickets restants / valeur */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+          <span style={{ background: "#f0eeff", color: "#6C5CE7", fontWeight: 800, fontSize: 12, padding: "4px 10px", borderRadius: 20, fontFamily: "'Nunito', sans-serif" }}>
+            🎫 {remaining > 0 ? `${remaining} restants` : "Complet"}
+          </span>
+          {lot.valeur_estimee && (
+            <span style={{ background: "#fff9e6", color: "#e6b455", fontWeight: 800, fontSize: 12, padding: "4px 10px", borderRadius: 20, fontFamily: "'Nunito', sans-serif" }}>
+              💰 Valeur {Number(lot.valeur_estimee).toFixed(0)} €
             </span>
+          )}
+        </div>
+
+        {/* Progress */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ height: 8, background: "#f0eeff", borderRadius: 999, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${pct}%`, background: barColor, borderRadius: 999, transition: "width .5s" }} />
           </div>
-          <div style={{ height: 6, background: "#f3f4f6", borderRadius: 999, overflow: "hidden" }}>
-            <div style={{
-              height: "100%", width: `${pct}%`,
-              background: barColor,
-              borderRadius: 999,
-              transition: "width .5s ease"
-            }} />
-          </div>
+          <p style={{ fontSize: 11, color: "#b2bec3", marginTop: 4, fontFamily: "'Nunito', sans-serif", textAlign: "right" }}>
+            {Math.round(pct)}% vendus
+          </p>
         </div>
 
         {/* CTA */}
-        {isSoldOut ? (
-          <button disabled style={{
-            width: "100%", padding: "12px", borderRadius: 14, border: "none",
-            background: "#f3f4f6", color: "#9ca3af", fontWeight: 700, fontSize: 15, cursor: "not-allowed"
-          }}>
-            Complet
-          </button>
-        ) : (
-          <Link href={`/lots/${lot.id}`} style={{
-            display: "block", textAlign: "center", textDecoration: "none",
-            width: "100%", padding: "13px", borderRadius: 14,
-            background: "linear-gradient(135deg, #7c3aed, #5b21b6)",
-            color: "white", fontWeight: 800, fontSize: 15,
-            boxShadow: "0 4px 15px rgba(124,58,237,0.35)",
-            transition: "all .2s ease"
-          }}
-          className="hover:shadow-xl active:scale-95"
-          >
-            🎟️ Participer
-          </Link>
-        )}
+        <div style={{ marginTop: "auto" }}>
+          {isSoldOut ? (
+            <div style={{ width: "100%", padding: "12px", borderRadius: 14, background: "#f8f9ff", color: "#b2bec3", fontWeight: 800, fontSize: 14, textAlign: "center", fontFamily: "'Nunito', sans-serif" }}>
+              😔 Complet
+            </div>
+          ) : (
+            <Link href={`/lots/${lot.id}`} style={{
+              display: "block", textAlign: "center", textDecoration: "none",
+              background: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
+              color: "white", fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 15,
+              padding: "13px", borderRadius: 16,
+              boxShadow: "0 6px 20px rgba(108,92,231,0.35)",
+              transition: "all .2s ease"
+            }}>
+              🎫 Acheter des tickets
+            </Link>
+          )}
+        </div>
       </div>
+
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}`}</style>
     </div>
   );
 }

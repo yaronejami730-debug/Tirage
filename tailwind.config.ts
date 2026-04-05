@@ -9,40 +9,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: "#f5f3ff",
-          100: "#ede9fe",
-          200: "#ddd6fe",
-          300: "#c4b5fd",
-          400: "#a78bfa",
-          500: "#8b5cf6",
-          600: "#7c3aed",
-          700: "#6d28d9",
-          800: "#5b21b6",
-          900: "#4c1d95",
-        },
-        gold: {
-          400: "#fbbf24",
-          500: "#f59e0b",
-          600: "#d97706",
-        },
+        primary: { DEFAULT: "#6C5CE7", light: "#A29BFE", dark: "#5541d7" },
+        candy: { DEFAULT: "#FD79A8", dark: "#e8608e" },
+        gold: { DEFAULT: "#FDCB6E", dark: "#e6b455" },
+        mint: { DEFAULT: "#00B894", dark: "#009d7e" },
+        coral: { DEFAULT: "#E17055", dark: "#c85c3e" },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        fun: ["'Fredoka One'", "cursive"],
+        body: ["'Nunito'", "sans-serif"],
       },
-      animation: {
-        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        shimmer: "shimmer 2s linear infinite",
-      },
-      keyframes: {
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
+      borderRadius: { xl2: "20px", xl3: "28px" },
+      boxShadow: {
+        fun: "0 8px 30px rgba(108,92,231,0.25)",
+        candy: "0 8px 30px rgba(253,121,168,0.25)",
+        gold: "0 8px 30px rgba(253,203,110,0.35)",
       },
     },
   },
   plugins: [],
 };
-
 export default config;
