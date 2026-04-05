@@ -185,8 +185,8 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
             😔 Complet
           </div>
         ) : (
-          <Link href={`/lots/${lot.id}`} style={{
-            display: "block", textAlign: "center", textDecoration: "none",
+          <div style={{
+            display: "block", textAlign: "center",
             background: "linear-gradient(135deg, #FF7043, #FF8C42)",
             color: "white", fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 15,
             padding: "13px", borderRadius: 16,
@@ -194,7 +194,7 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
             transition: "all .2s ease"
           }}>
             JE TENTE MA CHANCE
-          </Link>
+          </div>
         )}
       </div>
 
