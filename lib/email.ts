@@ -1,6 +1,13 @@
-import { Resend } from "resend";
+import * as Brevo from "@getbrevo/brevo";
 
-const getResend = () => new Resend(process.env.RESEND_API_KEY);
+const getBrevoClient = () => {
+  const client = new Brevo.TransactionalEmailsApi();
+  client.setApiKey(
+    Brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY!
+  );
+  return client;
+};
 
 interface SendConfirmationEmailParams {
   to: string;
@@ -42,24 +49,18 @@ export async function sendConfirmationEmail({
     <tr>
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.07);">
-          <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:40px;text-align:center;">
-              <h1 style="color:white;margin:0;font-size:28px;letter-spacing:-0.5px;">Tirage</h1>
+              <h1 style="color:white;margin:0;font-size:28px;letter-spacing:-0.5px;">GoWinGo</h1>
               <p style="color:#ddd6fe;margin:8px 0 0;font-size:15px;">Confirmation de participation</p>
             </td>
           </tr>
-
-          <!-- Body -->
           <tr>
             <td style="padding:40px;">
               <p style="color:#374151;font-size:16px;margin:0 0 20px;">Bonjour <strong>${prenom} ${nom}</strong>,</p>
-
               <p style="color:#374151;font-size:16px;margin:0 0 24px;">
                 Votre participation au tirage a bien été enregistrée. Voici le récapitulatif de votre achat :
               </p>
-
-              <!-- Lot Info Box -->
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3ff;border-radius:8px;margin-bottom:28px;">
                 <tr>
                   <td style="padding:24px;">
@@ -92,20 +93,15 @@ export async function sendConfirmationEmail({
                   </td>
                 </tr>
               </table>
-
-              <!-- Ticket Numbers -->
               <div style="margin-bottom:28px;">
                 <h3 style="color:#111827;font-size:18px;margin:0 0 16px;">Vos numéros de tickets</h3>
                 <div style="background:#f9fafb;border:2px dashed #c4b5fd;border-radius:8px;padding:20px;text-align:center;">
                   ${ticketList}
                 </div>
               </div>
-
               <p style="color:#374151;font-size:15px;margin:0 0 24px;">
                 Conservez bien cet email, il vous servira de preuve de participation lors du tirage.
               </p>
-
-              <!-- Legal Notice -->
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef3c7;border-left:4px solid #f59e0b;border-radius:4px;margin-bottom:24px;">
                 <tr>
                   <td style="padding:16px;">
@@ -117,20 +113,16 @@ export async function sendConfirmationEmail({
                   </td>
                 </tr>
               </table>
-
               <p style="color:#6b7280;font-size:14px;margin:0;">
                 Bonne chance !<br>
-                <strong style="color:#7c3aed;">L'équipe Tirage</strong>
+                <strong style="color:#7c3aed;">L'équipe GoWinGo</strong>
               </p>
             </td>
           </tr>
-
-          <!-- Footer -->
           <tr>
             <td style="background:#f9fafb;padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
               <p style="color:#9ca3af;font-size:12px;margin:0;">
-                Cet email a été envoyé automatiquement suite à votre achat.
-                Merci de ne pas y répondre directement.
+                Cet email a été envoyé automatiquement suite à votre achat. Merci de ne pas y répondre directement.
               </p>
             </td>
           </tr>
@@ -139,11 +131,9 @@ export async function sendConfirmationEmail({
     </tr>
   </table>
 </body>
-</html>
-  `;
+</html>`;
 
-  const text = `
-Bonjour ${prenom} ${nom},
+  const textContent = `Bonjour ${prenom} ${nom},
 
 Votre participation au tirage a bien été enregistrée.
 
@@ -156,29 +146,17 @@ Vos numéros de tickets : ${ticketNumbers.map((n) => `#${n}`).join(", ")}
 
 Conservez bien cet email, il vous servira de preuve de participation lors du tirage.
 
-Mention légale : Le tirage sera effectué par un organisme externe indépendant.
-
 Bonne chance !
-L'équipe Tirage
-  `;
+L'équipe GoWinGo`;
 
-  try {
-    const { data, error } = await getResend().emails.send({
-      from: "Tirage <noreply@tirage.fr>",
-      to,
-      subject,
-      html,
-      text,
-    });
+  const sendSmtpEmail = new Brevo.SendSmtpEmail();
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = html;
+  sendSmtpEmail.textContent = textContent;
+  sendSmtpEmail.sender = { name: "GoWinGo", email: "noreply@gowingo.fr" };
+  sendSmtpEmail.to = [{ email: to, name: `${prenom} ${nom}` }];
 
-    if (error) {
-      console.error("Resend error:", error);
-      throw new Error(`Failed to send email: ${error.message}`);
-    }
-
-    return data;
-  } catch (err) {
-    console.error("Email send failed:", err);
-    throw err;
-  }
+  const client = getBrevoClient();
+  const result = await client.sendTransacEmail(sendSmtpEmail);
+  return result;
 }
