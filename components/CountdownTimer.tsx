@@ -27,7 +27,7 @@ export default function CountdownTimer({ dateFin }: Props) {
   if (t.expired) return <span style={{ color: "#ef4444", fontSize: 12, fontWeight: 700 }}>Terminé</span>;
 
   const parts = t.d > 0
-    ? [[t.d, "j"], [t.h, "h"], [t.m, "m"]]
+    ? [[t.d, "j"], [t.h, "h"], [t.m, "m"], [t.s, "s"]]
     : [[t.h, "h"], [t.m, "m"], [t.s, "s"]];
 
   return (
