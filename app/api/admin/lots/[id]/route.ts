@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { checkAdminAuth } from "@/lib/admin-auth";
 
+const DB_CATEGORY_MAP: Record<string, string> = {
+  smartphone: "tech", audio: "tech", photo: "tech", tv: "tech",
+  electromenager: "maison", gastronomie: "maison",
+  bijoux: "luxe", montres: "luxe", art: "luxe",
+  sacs: "mode", chaussures: "mode", parfum: "mode",
+  sport: "autre", voiture: "autre", moto: "autre",
+  voyage: "autre", enfants: "autre", culture: "autre", crypto: "autre",
+  // already valid:
+  tech: "tech", mode: "mode", gaming: "gaming", maison: "maison", luxe: "luxe", autre: "autre",
+};
+function safeCategorie(cat: string): string {
+  return DB_CATEGORY_MAP[cat] ?? "autre";
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -57,7 +71,7 @@ export async function PUT(
         date_ouverture: date_ouverture || null,
         medias: medias || [],
         statut: statut === "programme" ? "actif" : statut,
-        categorie: categorie || "autre",
+        categorie: safeCategorie(categorie || "autre"),
         valeur_estimee: valeur_estimee || null,
       })
       .eq("id", id)
