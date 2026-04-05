@@ -141,6 +141,19 @@ export default function LotForm({ lot, mode }: LotFormProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Fetch real constraint names when a CONSTRAINT error is shown
+  useEffect(() => {
+    if (error !== "CONSTRAINT") return;
+    fetch("/api/admin/migrate")
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d.constraints) && d.constraints.length > 0) {
+          setConstraintNames(d.constraints);
+        }
+      })
+      .catch(() => { /* ignore — fallback SQL will be shown */ });
+  }, [error]);
+
   const generateRef = async () => {
     const res = await fetch("/api/admin/lots");
     const data = await res.json();
