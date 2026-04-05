@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import DeleteLotButton from "./DeleteLotButton";
+import DrawButton from "./DrawButton";
 import { Lot } from "@/lib/supabase";
 
 const statutBadge = {
@@ -92,6 +93,9 @@ export default function AdminLotsPage() {
                       <Link href={`/admin/lots/${lot.id}/edit`} className="text-xs text-primary-600 hover:text-primary-700 font-medium px-2 py-1 rounded-lg hover:bg-primary-50 transition-colors">
                         Modifier
                       </Link>
+                      {lot.statut === "actif" && lot.tickets_vendus > 0 && (
+                        <DrawButton lotId={lot.id} lotNom={lot.nom} onDone={() => window.location.reload()} />
+                      )}
                       <DeleteLotButton lotId={lot.id} lotNom={lot.nom} />
                     </div>
                   </td>

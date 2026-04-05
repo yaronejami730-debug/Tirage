@@ -8,6 +8,20 @@ async function checkAdminAuth() {
   return adminAuth?.value === process.env.ADMIN_PASSWORD;
 }
 
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!(await checkAdminAuth())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { id } = await params;
+  const supabase = supabaseAdmin();
+  const { data, error } = await supabase.from("lots").select("*").eq("id", id).single();
+  if (error || !data) return NextResponse.json({ error: "Lot introuvable." }, { status: 404 });
+  return NextResponse.json({ lot: data });
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -29,6 +43,8 @@ export async function PUT(
       reference_lot,
       date_fin,
       statut,
+      categorie,
+      valeur_estimee,
     } = body;
 
     const supabase = supabaseAdmin();
@@ -43,6 +59,8 @@ export async function PUT(
         reference_lot,
         date_fin: date_fin || null,
         statut,
+        categorie: categorie || "autre",
+        valeur_estimee: valeur_estimee || null,
       })
       .eq("id", id)
       .select()

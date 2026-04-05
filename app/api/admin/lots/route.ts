@@ -62,6 +62,8 @@ export async function POST(req: NextRequest) {
         reference_lot,
         date_fin: date_fin || null,
         statut: "actif",
+        categorie: body.categorie || "autre",
+        valeur_estimee: body.valeur_estimee || null,
       })
       .select()
       .single();
