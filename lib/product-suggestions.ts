@@ -1,6 +1,8 @@
+import { CategorieVal } from './categories';
+
 export interface ProductSuggestion {
   nom: string;
-  categorie: string;
+  categorie: CategorieVal;
   valeur?: number;
 }
 
