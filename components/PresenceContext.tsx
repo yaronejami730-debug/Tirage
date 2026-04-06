@@ -13,9 +13,10 @@ const PresenceContext = createContext<PresenceContextType>({ onlineCount: 0 });
 export function PresenceProvider({ children }: { children: React.ReactNode }) {
   const [onlineCount, setOnlineCount] = useState(0);
   const pathname = usePathname();
+  const channelRef = React.useRef<any>(null);
 
+  // 1. INITIALISATION DU CANAL (UNE SEULE FOIS)
   useEffect(() => {
-    const isAdmin = pathname?.startsWith("/admin");
     const channel = supabaseClient.channel("global-presence", {
       config: {
         presence: {
@@ -32,18 +33,30 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
         ).length;
         setOnlineCount(visitors);
       })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track({
-            online_at: new Date().toISOString(),
-            role: isAdmin ? "admin" : "user",
-          });
-        }
-      });
+      .subscribe();
+
+    channelRef.current = channel;
 
     return () => {
       channel.unsubscribe();
     };
+  }, []);
+
+  // 2. MISE À JOUR DU TRACKING LORS DU CHANGEMENT DE PAGE
+  useEffect(() => {
+    const channel = channelRef.current;
+    if (!channel) return;
+
+    const updateTracking = async () => {
+      const isAdmin = pathname?.startsWith("/admin");
+      // On attend que la souscription soit prête avant de tracker (si premier chargement)
+      await channel.track({
+        online_at: new Date().toISOString(),
+        role: isAdmin ? "admin" : "user",
+      });
+    };
+
+    updateTracking();
   }, [pathname]);
 
   return (

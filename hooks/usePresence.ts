@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { supabaseClient } from "@/lib/supabase";
 
-const HEARTBEAT_INTERVAL = 30_000; // 30s
+const HEARTBEAT_INTERVAL = 5_000; // 5s pour une réactivité accrue
 
 function getSessionId(): string {
   let uid = sessionStorage.getItem("gowingo_uid");
