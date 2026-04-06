@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
-const TTL_MS = 90_000; // session considérée morte après 90s sans heartbeat
+const TTL_MS = 2_500; // session morte après 2.5s sans heartbeat (instantané)
 
 function cutoff() {
   return new Date(Date.now() - TTL_MS).toISOString();

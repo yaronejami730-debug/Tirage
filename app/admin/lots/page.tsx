@@ -6,7 +6,6 @@ import DeleteLotButton from "./DeleteLotButton";
 import BailiffButton from "./BailiffButton";
 import LotParticipantsModal from "./LotParticipantsModal";
 import { Lot, supabaseClient } from "@/lib/supabase";
-import { useOnlineCount } from "@/components/PresenceContext";
 
 const statutBadge: Record<string, string> = {
   actif: "bg-green-100 text-green-700",
@@ -27,7 +26,6 @@ export default function AdminLotsPage() {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
-  const onlineCount = useOnlineCount();
 
   useEffect(() => {
     fetch("/api/admin/lots")
