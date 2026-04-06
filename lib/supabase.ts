@@ -18,6 +18,7 @@ export type Lot = {
   date_ouverture: string | null;
   medias: string[] | null;
   packs: { qte: number; reduction: number }[] | null;
+  reglement_url: string | null;
   created_at: string;
 };
 
