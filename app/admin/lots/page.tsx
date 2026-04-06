@@ -6,6 +6,7 @@ import DeleteLotButton from "./DeleteLotButton";
 import BailiffButton from "./BailiffButton";
 import LotParticipantsModal from "./LotParticipantsModal";
 import { Lot, supabaseClient } from "@/lib/supabase";
+import { useOnlineCount } from "@/components/PresenceContext";
 
 const statutBadge: Record<string, string> = {
   actif: "bg-green-100 text-green-700",
@@ -26,7 +27,7 @@ export default function AdminLotsPage() {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
-  const [onlineCount, setOnlineCount] = useState(1);
+  const onlineCount = useOnlineCount();
 
   useEffect(() => {
     fetch("/api/admin/lots")
@@ -35,21 +36,6 @@ export default function AdminLotsPage() {
         setLots(data.lots || []);
         setLoading(false);
       });
-
-    const supabase = supabaseClient;
-    const channel = supabase.channel("global-presence");
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        // Compter seulement les utilisateurs qui ne sont pas admin
-        const realUsers = Object.values(state).filter((presences: any) => 
-          presences.some((p: any) => p.role === "user")
-        ).length;
-        setOnlineCount(realUsers);
-      })
-      .subscribe();
-
-    return () => { channel.unsubscribe(); };
   }, []);
 
   if (loading) {

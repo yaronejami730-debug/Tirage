@@ -56,7 +56,7 @@ export function usePresence(channel: string): number {
     const interval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
 
     // Realtime : écoute les changements sur la table presence_sessions
-    const supabase = supabaseClient();
+    const supabase = supabaseClient;
     const sub = supabase
       .channel(`presence_realtime_${channel}`)
       .on(

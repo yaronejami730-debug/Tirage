@@ -19,7 +19,10 @@ export default function LotDetailPage({ params }: Props) {
   const [activeMedia, setActiveMedia] = useState<string | null>(null);
 
   useEffect(() => {
-    supabaseClient().from("lots").select("*").eq("id", id).single()
+    supabaseClient.from("lots")
+      .select("*")
+      .eq("id", id)
+      .single()
       .then(({ data, error }) => {
         if (error || !data) setGone(true);
         else {

@@ -23,9 +23,14 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    supabaseClient().from("lots").select("*").in("statut", ["actif", "programme"])
+    supabaseClient.from("lots")
+      .select("*")
+      .in("statut", ["actif", "programme"])
       .order("created_at", { ascending: false })
-      .then(({ data }) => { setLots(data || []); setLoading(false); });
+      .then(({ data }) => { 
+        setLots(data || []); 
+        setLoading(false); 
+      });
   }, []);
 
   // Prochain tirage = lot actif avec la date_fin la plus proche (non expirée)
