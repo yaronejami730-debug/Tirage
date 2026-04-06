@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import DeleteLotButton from "./DeleteLotButton";
-import DrawButton from "./DrawButton";
+import BailiffButton from "./BailiffButton";
 import LotParticipantsModal from "./LotParticipantsModal";
 import { Lot } from "@/lib/supabase";
 
@@ -78,17 +78,19 @@ export default function AdminLotsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {lots.map((lot) => (
-                    <tr key={lot.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr 
+                      key={lot.id} 
+                      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedLot(lot)}
+                    >
                       <td className="px-6 py-4">
-                        <button onClick={() => setSelectedLot(lot)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-                          <p className="font-semibold text-primary-600 hover:underline">{lot.nom}</p>
-                          <p className="text-xs text-gray-500 font-mono mt-0.5">{lot.reference_lot}</p>
-                          {!lot.description && (
-                            <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
-                              ⚠️ Description manquante
-                            </span>
-                          )}
-                        </button>
+                        <p className="font-semibold text-primary-600 hover:underline">{lot.nom}</p>
+                        <p className="text-xs text-gray-500 font-mono mt-0.5">{lot.reference_lot}</p>
+                        {!lot.description && (
+                          <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                            ⚠️ Description manquante
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-gray-900 font-medium">{Number(lot.prix_ticket).toFixed(2)} €</td>
                       <td className="px-6 py-4">
@@ -97,18 +99,18 @@ export default function AdminLotsPage() {
                           <span className="text-gray-500"> / {lot.total_tickets}</span>
                         </div>
                         <div className="w-24 h-1.5 bg-gray-100 rounded-full mt-1.5 overflow-hidden">
-                          <div className="h-full bg-primary-500 rounded-full" style={{ width: `${Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100)}%` }} />
+                          <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100)}%` }} />
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         {(() => { const s = getStatutDisplay(lot); return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statutBadge[s.key]}`}>{s.label}</span>; })()}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <Link href={`/lots/${lot.id}`} target="_blank" className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">Voir</Link>
                           <Link href={`/admin/lots/${lot.id}/edit`} className="text-xs text-primary-600 hover:text-primary-700 font-medium px-2 py-1 rounded-lg hover:bg-primary-50 transition-colors">Modifier</Link>
                           {lot.statut === "actif" && lot.tickets_vendus > 0 && (
-                            <DrawButton lotId={lot.id} lotNom={lot.nom} onDone={() => window.location.reload()} />
+                            <BailiffButton lotId={lot.id} lotNom={lot.nom} />
                           )}
                           <DeleteLotButton lotId={lot.id} lotNom={lot.nom} />
                         </div>
@@ -122,18 +124,20 @@ export default function AdminLotsPage() {
             {/* Cards mobile */}
             <div className="md:hidden space-y-3">
               {lots.map((lot) => (
-                <div key={lot.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                <div 
+                  key={lot.id} 
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 cursor-pointer active:bg-gray-50 transition-colors"
+                  onClick={() => setSelectedLot(lot)}
+                >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex-1 min-w-0">
-                      <button onClick={() => setSelectedLot(lot)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }} className="w-full">
-                        <p className="font-semibold text-primary-600 text-sm leading-tight">{lot.nom}</p>
-                        <p className="text-xs text-gray-400 font-mono mt-0.5">{lot.reference_lot}</p>
-                        {!lot.description && (
-                          <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
-                            ⚠️ Description manquante
-                          </span>
-                        )}
-                      </button>
+                      <p className="font-semibold text-primary-600 text-sm leading-tight">{lot.nom}</p>
+                      <p className="text-xs text-gray-400 font-mono mt-0.5">{lot.reference_lot}</p>
+                      {!lot.description && (
+                        <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                          ⚠️ Description manquante
+                        </span>
+                      )}
                     </div>
                     {(() => { const s = getStatutDisplay(lot); return <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statutBadge[s.key]}`}>{s.label}</span>; })()}
                   </div>
@@ -146,16 +150,16 @@ export default function AdminLotsPage() {
                     <div className="flex-1">
                       <p className="text-xs text-gray-400 mb-1">Tickets : <span className="font-semibold text-gray-700">{lot.tickets_vendus} / {lot.total_tickets}</span></p>
                       <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary-500 rounded-full" style={{ width: `${Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100)}%` }} />
+                        <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100)}%` }} />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-3 border-t border-gray-50 flex-wrap">
+                  <div className="flex items-center gap-2 pt-3 border-t border-gray-50 flex-wrap" onClick={(e) => e.stopPropagation()}>
                     <Link href={`/lots/${lot.id}`} target="_blank" className="text-xs text-gray-500 font-medium px-3 py-1.5 rounded-lg bg-gray-50 transition-colors">Voir</Link>
                     <Link href={`/admin/lots/${lot.id}/edit`} className="text-xs text-primary-600 font-medium px-3 py-1.5 rounded-lg bg-primary-50 transition-colors">Modifier</Link>
                     {lot.statut === "actif" && lot.tickets_vendus > 0 && (
-                      <DrawButton lotId={lot.id} lotNom={lot.nom} onDone={() => window.location.reload()} />
+                      <BailiffButton lotId={lot.id} lotNom={lot.nom} />
                     )}
                     <DeleteLotButton lotId={lot.id} lotNom={lot.nom} />
                   </div>

@@ -2,31 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Lot, Participation } from "@/lib/supabase";
+import CountdownTimer from "@/components/CountdownTimer";
 
-function exportCSV(lot: Lot, participations: Participation[]) {
-  const headers = ["Prénom", "Nom", "Email", "Téléphone", "Quantité", "N° tickets", "Statut", "Date"];
-  const rows = participations.map((p) => [
-    p.prenom,
-    p.nom,
-    p.email,
-    p.telephone ?? "",
-    p.quantite,
-    (p.ticket_numbers ?? []).join(" | "),
-    p.statut,
-    new Date(p.created_at).toLocaleString("fr-FR"),
-  ]);
+import { generateCSV, downloadCSV } from "@/lib/export-utils";
 
-  const csv = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-    .join("\n");
-
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `participants_${lot.reference_lot}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+function handleExport(lot: Lot, participations: Participation[]) {
+  const csv = generateCSV(lot, participations);
+  downloadCSV(csv, `participants_${lot.reference_lot}.csv`);
 }
 
 const statutColor: Record<string, string> = {
@@ -73,15 +55,22 @@ export default function LotParticipantsModal({ lot, onClose }: { lot: Lot; onClo
       >
         {/* Header */}
         <div style={{ padding: "20px 24px", borderBottom: "1px solid #f0eeff", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexShrink: 0 }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: "#2D3436", margin: 0 }}>{lot.nom}</h2>
             <p style={{ fontSize: 12, color: "#b2bec3", fontFamily: "'Nunito', sans-serif", margin: "2px 0 0", fontWeight: 600 }}>
               {lot.reference_lot} · {confirmes.length} participant{confirmes.length > 1 ? "s" : ""} confirmé{confirmes.length > 1 ? "s" : ""}
             </p>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+
+          {lot.date_fin && (
+            <div style={{ transform: "scale(0.85)", transformOrigin: "center" }}>
+              <CountdownTimer dateFin={lot.date_fin} />
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flex: 1, justifyContent: "flex-end" }}>
             <button
-              onClick={() => exportCSV(lot, confirmes)}
+              onClick={() => handleExport(lot, confirmes)}
               disabled={confirmes.length === 0}
               style={{
                 padding: "8px 16px", borderRadius: 10, border: "none", cursor: confirmes.length === 0 ? "not-allowed" : "pointer",

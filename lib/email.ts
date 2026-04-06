@@ -152,3 +152,39 @@ L'équipe GoWinGo`;
   });
   return result;
 }
+
+interface SendBailiffEmailParams {
+  to: string;
+  lotNom: string;
+  lotReference: string;
+  csvContentBase64: string;
+}
+
+export async function sendBailiffEmail({
+  to,
+  lotNom,
+  lotReference,
+  csvContentBase64,
+}: SendBailiffEmailParams) {
+  const subject = `Liste des participants - ${lotNom} - ${lotReference}`;
+  const textContent = `Bonjour,
+
+Veuillez trouver ci-joint la liste des participants pour le lot "${lotNom}" (Référence: ${lotReference}).
+
+L'équipe GoWinGo`;
+
+  const client = getBrevoClient();
+  const result = await client.transactionalEmails.sendTransacEmail({
+    subject,
+    textContent,
+    sender: { name: "GoWinGo", email: "noreply@gowingo.fr" },
+    to: [{ email: to }],
+    attachment: [
+      {
+        content: csvContentBase64,
+        name: `participants_${lotReference}.csv`,
+      },
+    ],
+  });
+  return result;
+}
