@@ -204,11 +204,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="font-bold text-gray-900 text-sm">Admin</span>
           </button>
 
-          {/* Mini compteur dans la top bar */}
-          <div className="flex items-center gap-1.5 bg-green-50 border border-green-100 rounded-full px-3 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
-            <span className="text-xs font-bold text-green-700">{onlineCount} {onlineCount > 1 ? "visiteurs" : "visiteur"}</span>
-          </div>
         </header>
 
         {/* Page */}

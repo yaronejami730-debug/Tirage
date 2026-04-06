@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
     .from("presence_sessions")
     .select("*", { count: "exact", head: true })
     .eq("channel", channel)
+    .eq("role", "user") // On ne compte que les utilisateurs réels
     .gte("last_seen_at", cutoff());
 
   return NextResponse.json({ count: count ?? 0 });
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/presence  →  upsert session + { count: N }
 export async function POST(req: NextRequest) {
-  const { session_id, channel } = await req.json();
+  const { session_id, channel, role = "user" } = await req.json();
   if (!session_id || !channel) {
     return NextResponse.json({ error: "Missing params" }, { status: 400 });
   }
@@ -34,18 +35,19 @@ export async function POST(req: NextRequest) {
 
   // Upsert la session courante
   await supabase.from("presence_sessions").upsert(
-    { session_id, channel, last_seen_at: now },
+    { session_id, channel, last_seen_at: now, role },
     { onConflict: "session_id,channel" }
   );
 
   // Nettoyage des sessions expirées
   await supabase.from("presence_sessions").delete().lt("last_seen_at", cutoff());
 
-  // Compte les sessions actives pour ce channel
+  // Compte les sessions actives (utilisateurs seulement) pour ce channel
   const { count } = await supabase
     .from("presence_sessions")
     .select("*", { count: "exact", head: true })
     .eq("channel", channel)
+    .eq("role", "user")
     .gte("last_seen_at", cutoff());
 
   return NextResponse.json({ count: count ?? 0 });

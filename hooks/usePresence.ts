@@ -13,7 +13,7 @@ function getSessionId(): string {
   return uid;
 }
 
-export function usePresence(channel: string): number {
+export function usePresence(channel: string, role: "user" | "admin" = "user"): number {
   const [count, setCount] = useState(0);
   const sessionId = useRef<string | null>(null);
 
@@ -27,7 +27,7 @@ export function usePresence(channel: string): number {
         const res = await fetch("/api/presence", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session_id: sid, channel }),
+          body: JSON.stringify({ session_id: sid, channel, role }),
         });
         if (res.ok) {
           const data = await res.json();
@@ -76,7 +76,7 @@ export function usePresence(channel: string): number {
       navigator.sendBeacon(
         "/api/presence",
         new Blob(
-          [JSON.stringify({ session_id: sid, channel })],
+          [JSON.stringify({ session_id: sid, channel, role })],
           { type: "application/json" }
         )
       );
@@ -94,7 +94,7 @@ export function usePresence(channel: string): number {
       fetch("/api/presence", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sid, channel }),
+        body: JSON.stringify({ session_id: sid, channel, role }),
         keepalive: true,
       }).catch(() => {});
     };
