@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Participation, Lot } from "@/lib/supabase";
 
 type ParticipationWithLot = Participation & {
@@ -47,54 +46,40 @@ export default function ConfirmationContent() {
   }, [sessionId]);
 
   useEffect(() => {
-    if (!sessionId) {
-      setError("Session introuvable.");
-      setLoading(false);
-      return;
-    }
-
+    if (!sessionId) { setError("Session introuvable."); setLoading(false); return; }
     let isMounted = true;
-
     const initialFetch = async () => {
       let attempts = 0;
       while (attempts < 12 && isMounted) {
         const result = await fetchData();
         if (result === "confirmed") return;
-        if (result === "found") {
-          setPolling(true);
-          return;
-        }
+        if (result === "found") { setPolling(true); return; }
         attempts++;
         if (attempts < 12) await new Promise(r => setTimeout(r, 2000));
       }
-
       if (isMounted) {
-        setError("Nous n'avons pas encore reçu la confirmation de Stripe. Pas d'inquiétude, cela peut prendre quelques instants !");
+        setError("La confirmation de Stripe n'a pas encore été reçue. Pas d'inquiétude, cela peut prendre quelques instants.");
         setLoading(false);
         setPolling(true);
       }
     };
-
     initialFetch();
     return () => { isMounted = false; };
   }, [sessionId, fetchData]);
 
-  // Background polling if not confirmed
   useEffect(() => {
     if (!polling || !sessionId) return;
-    const interval = setInterval(() => {
-      fetchData(true);
-    }, 4000);
+    const interval = setInterval(() => { fetchData(true); }, 4000);
     return () => clearInterval(interval);
   }, [polling, sessionId, fetchData]);
 
   const launchConfetti = async () => {
     try {
       const confetti = (await import("canvas-confetti")).default;
-      const colors = ["#6C5CE7", "#FD79A8", "#FDCB6E", "#00B894", "#A29BFE"];
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors });
-      setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 60, origin: { x: 0 }, colors }), 400);
-      setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1 }, colors }), 600);
+      const colors = ["#8a6000", "#C9A84C", "#1d1d1f", "#6e6e73", "#a1a1a6"];
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors });
+      setTimeout(() => confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 }, colors }), 400);
+      setTimeout(() => confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 }, colors }), 600);
     } catch {}
   };
 
@@ -111,231 +96,200 @@ export default function ConfirmationContent() {
       a.download = `GoWinGo-Ticket-${participation.lots?.reference_lot || "ticket"}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("PDF generation failed", err);
+    } catch {
       window.print();
     } finally {
       setGeneratingPDF(false);
     }
   };
 
+  /* ── Loading ──────────────────────────────────── */
   if (loading) return (
-    <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
-      <div style={{ width: 48, height: 48, border: "4px solid #6C5CE7", borderTopColor: "transparent", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
-      <p style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: "#6C5CE7" }}>Finalisation de votre participation... 🎫</p>
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 20 }}>
+      <div style={{ width: 36, height: 36, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#1d1d1f", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+      <p style={{ fontSize: 14, color: "#6e6e73", fontWeight: 400 }}>Finalisation de votre participation…</p>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
-  // If we have an error but NO participation data at all
+  /* ── Erreur sans participation ─────────────────── */
   if (error && !participation) return (
-    <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ maxWidth: 480, background: "white", borderRadius: 28, padding: 40, textAlign: "center", border: "2px solid #f0eeff", boxShadow: "0 12px 50px rgba(108,92,231,0.12)" }}>
-        <div style={{ fontSize: 64, marginBottom: 12 }}>⏳</div>
-        <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "#6C5CE7", marginBottom: 12 }}>Presque fini !</h2>
-        <p style={{ color: "#636E72", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>{error}</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <button onClick={() => fetchData()} className="btn-fun">🔄 Réessayer maintenant</button>
-          <Link href="/" style={{ color: "#b2bec3", fontSize: 13, textDecoration: "underline" }}>Retour à l'accueil</Link>
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ maxWidth: 440, background: "#ffffff", borderRadius: 20, padding: 48, textAlign: "center", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+        <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(138,96,0,0.07)", border: "1px solid rgba(138,96,0,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.02em", marginBottom: 10 }}>Traitement en cours</h2>
+        <p style={{ color: "#6e6e73", fontSize: 14, lineHeight: 1.7, marginBottom: 28 }}>{error}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <button onClick={() => fetchData()}
+            style={{ padding: "13px", borderRadius: 12, border: "none", background: "#1d1d1f", color: "#ffffff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            Vérifier maintenant
+          </button>
+          <Link href="/" style={{ color: "#a1a1a6", fontSize: 13, textDecoration: "none", padding: "8px" }}>
+            Retour à l&apos;accueil
+          </Link>
         </div>
       </div>
     </div>
   );
 
   const p = participation!;
-  const refJeu = p.reference_jeu || `#JEU-${new Date(p.created_at).toISOString().slice(0,10).replace(/-/g,"")}-${Math.floor(Math.random()*9000)+1000}`;
   const isConfirmed = p.statut === "confirme";
 
-  const detailItems = [
-    { label: "Participant", val: `${p.prenom} ${p.nom}`, bg: "rgba(162, 155, 254, 0.12)", color: "#6C5CE7" },
-    { label: "E-mail", val: p.email, bg: "rgba(253, 203, 110, 0.12)", color: "#B45309" },
-    { label: "Quantité", val: `${p.quantite} ticket${p.quantite > 1 ? "s" : ""}`, bg: "rgba(0, 184, 148, 0.12)", color: "#00B894" },
-    { label: "Date", val: new Date(p.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }), bg: "rgba(255, 112, 67, 0.1)", color: "#E17055" },
-  ];
-
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto", padding: "48px 20px 100px" }}>
+    <div style={{ maxWidth: 560, margin: "0 auto", padding: "60px 24px 100px" }}>
 
-      {/* LOGO & SUCCESS HEADER */}
-      <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <div style={{ position: "relative", width: 220, height: 220, margin: "0 auto 16px" }}>
-          <Image src="/images/logo-gowingo.png" alt="GoWinGo" fill style={{ objectFit: "contain" }} priority />
-        </div>
-        
-        <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 32, color: "#2D3436", marginBottom: 12 }}>
-          {isConfirmed ? "Félicitations, " : "Merci, "}{p.prenom} !
-        </h1>
-        <p style={{ color: "#636E72", fontSize: 16, fontWeight: 500, lineHeight: 1.6, maxWidth: 440, margin: "0 auto" }}>
-          {isConfirmed 
-            ? "Votre participation est validée ! Vous pouvez maintenant télécharger votre ticket officiel."
-            : "Votre paiement a été reçu. Nous générons vos numéros de tickets officiels en ce moment même..."
-          }
-        </p>
-      </div>
-
-      {/* RECAP CARD */}
-      <div id="recap-card" style={{ 
-        background: "white", borderRadius: 32, overflow: "hidden", 
-        border: "1px solid #f0eeff", 
-        boxShadow: "0 30px 80px rgba(108,92,231,0.08)", 
-        marginBottom: 32,
-        animation: "bounce-in .6s .2s both"
-      }}>
-
-        {/* Header - Cleaner, matching site cards */}
-        <div style={{ 
-          background: isConfirmed ? "linear-gradient(135deg, #6C5CE7 0%, #8E7CFF 100%)" : "linear-gradient(135deg, #FF7043 0%, #FF9E80 100%)", 
-          padding: "32px 36px", 
-          position: "relative" 
-        }}>
-          {!isConfirmed && (
-            <div style={{ 
-              position: "absolute", top: 16, right: 16, 
-              background: "rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", 
-              color: "white", fontSize: 10, fontWeight: 900, 
-              padding: "5px 12px", borderRadius: 12, 
-              textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "white", animation: "pulse 1s infinite" }}></div>
-              Validation
-            </div>
-          )}
-          <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 8 }}>
-            Récapitulatif de commande
-          </p>
-          <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 26, color: "white", marginBottom: 12, lineHeight: 1.2 }}>
-            {p.lots?.nom || 'Chargement...'}
-          </h2>
-          <div style={{
-            background: "rgba(255,255,255,0.15)", color: "white", 
-            display: "inline-block", fontSize: 13, fontWeight: 800, 
-            padding: "5px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.2)"
-          }}>
-            🏷️ Lot: {p.lots?.reference_lot || '---'}
-          </div>
-        </div>
-
-        {/* Details Grid - Matching Pastel aesthetic */}
-        <div style={{ padding: "36px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 32 }}>
-            {detailItems.map(item => (
-              <div key={item.label} style={{ 
-                background: item.bg, borderRadius: 20, padding: "18px 24px", 
-                border: `1px solid ${item.color}15`,
-                display: "flex", flexDirection: "column", gap: 4
-              }}>
-                <div style={{ fontSize: 10, color: item.color, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", opacity: 0.8 }}>{item.label}</div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: "#2D3436", wordBreak: "break-all" }}>{item.val}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Ticket numbers section - Golden Ticket but aligned with site's gold */}
-          <div style={{ 
-            background: "rgba(253, 203, 110, 0.08)", 
-            borderRadius: 24, 
-            padding: "24px 32px", 
-            border: "2px dashed #FDCB6E",
-            position: "relative",
-            overflow: "hidden"
-          }}>
-            <div style={{ position: "absolute", right: -10, top: -10, fontSize: 56, opacity: 0.1, transform: "rotate(15deg)" }}>🏆</div>
-            
-            <p style={{ fontSize: 14, fontWeight: 900, color: "#B45309", marginBottom: 20, display: "flex", alignItems: "center", gap: 10, textTransform: "uppercase", letterSpacing: "1px" }}>
-              <span style={{ fontSize: 20 }}>🎟️</span> {isConfirmed ? "Vos numéros officiels" : "Vos numéros réservés"}
-            </p>
-            
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-              {isConfirmed && p.ticket_numbers?.length > 0 ? (
-                p.ticket_numbers.map((n: number) => (
-                  <div key={n} style={{
-                    position: "relative",
-                    background: "linear-gradient(135deg, #FDCB6E, #F9B021)",
-                    color: "white",
-                    width: 58,
-                    height: 58,
-                    borderRadius: "18px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "'Fredoka One', cursive",
-                    fontSize: 24,
-                    boxShadow: "0 6px 15px rgba(253,203,110,0.4)",
-                    border: "2px solid rgba(255,255,255,0.2)"
-                  }}>
-                    {n}
-                  </div>
-                ))
-              ) : (
-                <div style={{ display: "flex", gap: 12 }}>
-                  {[...Array(p.quantite)].map((_, i) => (
-                    <div key={i} style={{
-                      width: 58,
-                      height: 58,
-                      borderRadius: "18px",
-                      background: "#FDE047",
-                      opacity: 0.3,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 22,
-                      animation: "pulse 1.5s infinite"
-                    }}>?</div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Info */}
+      {/* ── Header ─────────────────────────────── */}
       <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <p style={{ color: "#b2bec3", fontSize: 13, lineHeight: 1.6, margin: "0 auto", maxWidth: 440 }}>
-          <strong style={{ color: "#636E72" }}>Besoin d'aide ?</strong> Une copie de ce ticket vous a été envoyée par email. Le tirage sera effectué dès que le lot sera complet.
+        <div style={{
+          width: 64, height: 64, borderRadius: "50%", margin: "0 auto 24px",
+          background: isConfirmed ? "rgba(138,96,0,0.08)" : "rgba(0,0,0,0.04)",
+          border: `1px solid ${isConfirmed ? "rgba(138,96,0,0.2)" : "rgba(0,0,0,0.08)"}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          {isConfirmed ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a6000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          ) : (
+            <div style={{ width: 20, height: 20, border: "2px solid rgba(0,0,0,0.1)", borderTopColor: "#1d1d1f", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+          )}
+        </div>
+
+        <h1 style={{ fontSize: 26, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.03em", marginBottom: 8 }}>
+          {isConfirmed ? `Félicitations, ${p.prenom}` : `Merci, ${p.prenom}`}
+        </h1>
+        <p style={{ color: "#6e6e73", fontSize: 14, lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
+          {isConfirmed
+            ? "Votre participation est confirmée. Vos tickets officiels sont attribués."
+            : "Votre paiement est reçu. Vos numéros de tickets sont en cours d'attribution…"}
         </p>
       </div>
 
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 16, animation: "bounce-in .6s .6s both" }}>
-        <Link href="/" className="btn-fun" style={{ flex: 1, padding: "18px 24px", fontSize: 16, background: "white", color: "#6C5CE7", border: "2px solid #6C5CE7", boxShadow: "none" }}>
-          🎁 Retour aux lots
+      {/* ── Carte de confirmation ──────────────── */}
+      <div style={{ background: "#ffffff", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", marginBottom: 24 }}>
+
+        {/* Header carte */}
+        <div style={{
+          padding: "24px 28px",
+          borderBottom: "1px solid rgba(0,0,0,0.06)",
+          background: isConfirmed ? "rgba(138,96,0,0.04)" : "rgba(0,0,0,0.02)",
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
+            {isConfirmed ? "Participation confirmée" : "En cours de validation"}
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.02em" }}>
+            {p.lots?.nom || "—"}
+          </div>
+          <div style={{ marginTop: 6, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.04)", padding: "4px 12px", borderRadius: 6, border: "1px solid rgba(0,0,0,0.06)" }}>
+            <span style={{ fontSize: 11, color: "#a1a1a6", fontWeight: 500 }}>Réf.</span>
+            <span style={{ fontSize: 11, color: "#6e6e73", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{p.lots?.reference_lot}</span>
+          </div>
+        </div>
+
+        {/* Détails */}
+        <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 0 }}>
+          {[
+            { label: "Participant", val: `${p.prenom} ${p.nom}` },
+            { label: "E-mail", val: p.email },
+            { label: "Tickets", val: `${p.quantite} ticket${p.quantite > 1 ? "s" : ""}` },
+            { label: "Date", val: new Date(p.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) },
+          ].map((item, i) => (
+            <div key={item.label} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "12px 0",
+              borderBottom: i < 3 ? "1px solid rgba(0,0,0,0.05)" : "none",
+            }}>
+              <span style={{ fontSize: 13, color: "#a1a1a6", fontWeight: 400 }}>{item.label}</span>
+              <span style={{ fontSize: 13, color: "#1d1d1f", fontWeight: 500 }}>{item.val}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Tickets */}
+        <div style={{ padding: "20px 28px 28px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>
+            {isConfirmed ? "Vos numéros officiels" : "Attribution en cours"}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {isConfirmed && p.ticket_numbers?.length > 0 ? (
+              p.ticket_numbers.map((n: number) => (
+                <div key={n} style={{
+                  background: "rgba(138,96,0,0.07)",
+                  border: "1px solid rgba(138,96,0,0.2)",
+                  color: "#8a6000",
+                  width: 52, height: 52, borderRadius: 12,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em",
+                }}>
+                  {n}
+                </div>
+              ))
+            ) : (
+              <div style={{ display: "flex", gap: 8 }}>
+                {[...Array(p.quantite)].map((_, i) => (
+                  <div key={i} style={{
+                    width: 52, height: 52, borderRadius: 12,
+                    background: "rgba(0,0,0,0.03)",
+                    border: "1px solid rgba(0,0,0,0.07)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 16, color: "#a1a1a6",
+                    animation: "pulse-slot 1.5s ease-in-out infinite",
+                    animationDelay: `${i * 0.15}s`,
+                  }}>—</div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Note ─────────────────────────────────── */}
+      <p style={{ fontSize: 12, color: "#a1a1a6", textAlign: "center", lineHeight: 1.7, marginBottom: 28 }}>
+        Une copie de ce ticket a été envoyée à votre adresse email.<br />
+        Le tirage sera effectué dès que le lot sera complet.
+      </p>
+
+      {/* ── Actions ───────────────────────────────── */}
+      <div style={{ display: "flex", gap: 10 }}>
+        <Link href="/" style={{
+          flex: 1, padding: "13px 20px", borderRadius: 12, textDecoration: "none",
+          border: "1px solid rgba(0,0,0,0.1)", background: "transparent",
+          color: "#6e6e73", fontSize: 13, fontWeight: 500,
+          textAlign: "center", transition: "all .2s",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          Retour aux lots
         </Link>
-        {isConfirmed ? (
+        {isConfirmed && (
           <button
             onClick={generatePDF}
             disabled={generatingPDF}
-            className="btn-gold"
-            style={{ 
-              flex: 1.5, padding: "18px 24px", fontSize: 16, fontWeight: 900,
-              background: "linear-gradient(135deg, #6C5CE7, #8E7CFF)",
-              opacity: generatingPDF ? 0.7 : 1, 
-              cursor: generatingPDF ? "wait" : "pointer"
+            style={{
+              flex: 1.5, padding: "13px 20px", borderRadius: 12, border: "none",
+              background: generatingPDF ? "rgba(29,29,31,0.5)" : "#1d1d1f",
+              color: "#ffffff", fontSize: 13, fontWeight: 600,
+              cursor: generatingPDF ? "wait" : "pointer", fontFamily: "inherit",
+              letterSpacing: "-0.01em",
             }}
           >
-            {generatingPDF ? "⏳ Génération..." : "📥 Télécharger le PDF"}
+            {generatingPDF ? "Génération…" : "Télécharger le PDF"}
           </button>
-        ) : (
-          <div style={{ flex: 1.5, display: "flex", alignItems: "center", justifyContent: "center", color: "#6C5CE7", fontWeight: 800 }}>
-             <div style={{ width: 14, height: 14, border: "2px solid #6C5CE7", borderTopColor: "transparent", borderRadius: "50%", animation: "spin .8s linear infinite", marginRight: 10 }} />
-             Synchronisation...
+        )}
+        {!isConfirmed && (
+          <div style={{ flex: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, color: "#a1a1a6", fontSize: 13, fontWeight: 400 }}>
+            <div style={{ width: 12, height: 12, border: "1.5px solid rgba(0,0,0,0.1)", borderTopColor: "#1d1d1f", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+            Synchronisation…
           </div>
         )}
       </div>
 
       <style>{`
-        @keyframes bounce-in {
-          0% { transform: scale(0.95); opacity: 0; }
-          60% { transform: scale(1.02); }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes pulse {
-          0% { opacity: 0.3; }
-          50% { opacity: 0.6; }
-          100% { opacity: 0.3; }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse-slot {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.15; }
         }
       `}</style>
     </div>

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Lot } from "@/lib/supabase";
-import { CATEGORY_MAP } from "@/lib/categories";
 import CountdownTimer from "./CountdownTimer";
 
 interface LotCardProps { lot: Lot; isProchain?: boolean; }
@@ -13,239 +12,219 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
   const isSoldOut = remaining <= 0;
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
   const isUrgent = remaining <= 10 && remaining > 0;
-  const cat = lot.categorie || "autre";
-  const catInfo = CATEGORY_MAP[cat as keyof typeof CATEGORY_MAP] ?? CATEGORY_MAP["autre"];
-  const catColor = catInfo.color;
   const isProgramme = !!(lot.date_ouverture && new Date(lot.date_ouverture) > new Date());
   const isNew = lot.created_at
     ? Date.now() - new Date(lot.created_at).getTime() < 48 * 60 * 60 * 1000
     : false;
 
-  const cardInner = (
+  return (
     <Link href={`/lots/${lot.id}`} style={{ textDecoration: "none", display: "block" }}>
-    <div className="lot-card flex flex-col group" style={isProchain ? { position: "relative", zIndex: 1 } : undefined}>
-      {/* IMAGE */}
-      <div style={{ position: "relative", height: 300, overflow: "hidden", background: `linear-gradient(135deg, ${catColor}33, ${catColor}11)` }}>
+      <div className="lot-card flex flex-col group" style={{ position: "relative" }}>
 
-        {lot.image_url ? (
-          <Image src={lot.image_url} alt={lot.nom} fill style={{ objectFit: "contain", padding: "8px" }} className="group-hover:scale-105 transition-transform duration-500" />
-        ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56 }}>
-            {catInfo.icon}
-          </div>
-        )}
-
-        {/* Prix par ticket sur la photo */}
-        {!isProgramme && (
-          <div style={{
-            position: "absolute", bottom: 12, left: 12, zIndex: 10,
-            background: "linear-gradient(135deg, #FF7043, #FF8C42)",
-            color: "white", fontFamily: "'Fredoka One', cursive",
-            fontSize: 17, padding: "6px 14px",
-            borderRadius: 22, letterSpacing: "0.3px",
-            boxShadow: "0 4px 16px rgba(255,112,67,0.55)",
-          }}>
-            {Number(lot.prix_ticket) % 1 === 0
-              ? `${Number(lot.prix_ticket).toFixed(0)} €`
-              : `${Number(lot.prix_ticket).toFixed(2)} €`} / ticket
-          </div>
-        )}
-
-        {/* PROCHAINEMENT overlay */}
-        {isProgramme && (
-          <div style={{
-            position: "absolute", inset: 0, background: "rgba(45,52,54,0.7)", backdropFilter: "blur(3px)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
-            padding: "16px",
-          }}>
+        {/* Badges absolus */}
+        <div style={{ position: "absolute", top: 14, left: 14, zIndex: 10, display: "flex", gap: 6 }}>
+          {isProchain && (
             <span style={{
-              background: "#6C5CE7", color: "white",
-              fontFamily: "'Fredoka One', cursive", fontSize: 22,
-              padding: "8px 24px", borderRadius: 16, boxShadow: "0 8px 30px rgba(108,92,231,0.5)",
-              marginBottom: 4,
-            }}>🔜 Prochainement</span>
-            {lot.date_ouverture && (
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, marginBottom: 6 }}>OUVERTURE DANS</div>
-                <CountdownTimer dateFin={lot.date_ouverture} />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* SOLD OUT overlay */}
-        {isSoldOut && !isProgramme && (
-          <div style={{
-            position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)",
-            display: "flex", alignItems: "center", justifyContent: "center"
-          }}>
+              background: "#8a6000", color: "#ffffff",
+              fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+              textTransform: "uppercase", padding: "4px 10px", borderRadius: 6,
+            }}>
+              Prochain tirage
+            </span>
+          )}
+          {isNew && !isProgramme && (
             <span style={{
-              background: "#E17055", color: "white",
-              fontFamily: "'Fredoka One', cursive", fontSize: 24,
-              padding: "10px 28px", borderRadius: 16, transform: "rotate(-4deg)",
-              boxShadow: "0 8px 30px rgba(225,112,85,0.6)"
-            }}>COMPLET</span>
-          </div>
-        )}
-      </div>
-
-      {/* CONTENT */}
-      <div style={{ padding: "16px 18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
-
-        {/* 1. FIN DU TIRAGE — tout en haut */}
-        {lot.date_fin && !isSoldOut && !isProgramme && (
-          <div style={{ marginBottom: 14, background: "#fff7f5", borderRadius: 14, padding: "10px 8px", border: "1px solid #ffe0d8" }}>
-            <div style={{ fontSize: 10, color: "#FF7043", fontWeight: 700, textTransform: "uppercase", textAlign: "center", marginBottom: 6, letterSpacing: "0.5px" }}>⏰ Fin du tirage</div>
-            <CountdownTimer dateFin={lot.date_fin} />
-          </div>
-        )}
-
-        {/* 2. Nom */}
-        <h3 style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 17, color: "#2D3436", lineHeight: 1.3, marginBottom: 8, margin: "0 0 8px 0" }}>
-          {lot.nom}
-        </h3>
-
-        {/* 3. Description avec fondu */}
-        <div style={{ position: "relative", maxHeight: 54, overflow: "hidden", marginBottom: 14 }}>
-          <p style={{ fontSize: 13, color: lot.description ? "#636E72" : "#b2bec3", lineHeight: 1.65, margin: 0, fontFamily: "'Nunito', sans-serif", fontStyle: lot.description ? "normal" : "italic" }}>
-            {lot.description || "Aucune description disponible"}
-          </p>
-          {lot.description && (
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0, height: 30,
-              background: "linear-gradient(to bottom, transparent, white)"
-            }} />
+              background: "rgba(255,255,255,0.9)", color: "#1d1d1f",
+              fontSize: 10, fontWeight: 600, letterSpacing: "0.05em",
+              textTransform: "uppercase", padding: "4px 10px", borderRadius: 6,
+              border: "1px solid rgba(0,0,0,0.08)",
+            }}>
+              Nouveau
+            </span>
+          )}
+          {isUrgent && !isSoldOut && (
+            <span style={{
+              background: "rgba(255,59,48,0.1)", color: "#d70015",
+              fontSize: 10, fontWeight: 600, letterSpacing: "0.05em",
+              textTransform: "uppercase", padding: "4px 10px", borderRadius: 6,
+              border: "1px solid rgba(215,0,21,0.15)",
+            }}>
+              Presque complet
+            </span>
           )}
         </div>
 
-        {/* 3b. Tickets restants — Uniquement si < 15 tickets (Sentiment d'Urgence) */}
-        {!isSoldOut && !isProgramme && remaining > 0 && remaining < 15 && (
+        {/* Prix */}
+        {!isProgramme && !isSoldOut && (
           <div style={{
-            display: "flex", 
-            alignItems: "center", 
-            gap: 7,
-            background: "linear-gradient(135deg, #fff3f0, #fff8f6)",
-            padding: "8px 12px",
-            borderRadius: 12,
-            border: "1px solid #ffe0d8",
-            marginBottom: 14,
-            animation: "pulse 2s infinite"
+            position: "absolute", top: 14, right: 14, zIndex: 10,
+            background: "rgba(255,255,255,0.92)", backdropFilter: "blur(10px)",
+            color: "#8a6000", fontSize: 13, fontWeight: 600,
+            padding: "5px 12px", borderRadius: 8,
+            border: "1px solid rgba(138,96,0,0.15)",
+            letterSpacing: "-0.01em",
           }}>
-            <span style={{ fontSize: 16 }}>🔥</span>
-            <span style={{ 
-              fontSize: 13, 
-              fontWeight: 800, 
-              color: "#E17055",
-              fontFamily: "'Nunito', sans-serif"
-            }}>
-              Il reste plus que <strong style={{ color: "#D63031", fontSize: 15 }}>{remaining}</strong> tickets !
-            </span>
+            {Number(lot.prix_ticket) % 1 === 0
+              ? `${Number(lot.prix_ticket).toFixed(0)} €`
+              : `${Number(lot.prix_ticket).toFixed(2)} €`}
+            <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 2 }}>/ticket</span>
           </div>
         )}
 
-        {/* 6. Catégorie + NOUVEAU + numéro de lot */}
-        <div style={{ marginTop: "auto", borderTop: "1px solid #f0eeff", paddingTop: 12, marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        {/* IMAGE */}
+        <div style={{
+          position: "relative", height: 260, overflow: "hidden",
+          background: "#f5f5f7",
+        }}>
+          {lot.image_url ? (
+            <Image
+              src={lot.image_url} alt={lot.nom} fill
+              style={{ objectFit: "cover", transition: "transform .6s cubic-bezier(0.16,1,0.3,1)" }}
+              className="group-hover:scale-105"
+            />
+          ) : (
             <div style={{
-              background: `${catColor}18`, color: catColor,
-              fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 10,
-              padding: "4px 10px", borderRadius: 20, letterSpacing: "0.5px", textTransform: "uppercase"
+              width: "100%", height: "100%", display: "flex",
+              alignItems: "center", justifyContent: "center",
+              color: "rgba(0,0,0,0.1)", fontSize: 48,
             }}>
-              {catInfo.icon} {catInfo.label}
+              ◇
             </div>
-            {isNew && !isProgramme && (
-              <div style={{
-                background: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
-                color: "white", fontFamily: "'Nunito', sans-serif",
-                fontWeight: 900, fontSize: 10, padding: "4px 10px",
-                borderRadius: 20, letterSpacing: "0.5px", textTransform: "uppercase",
-                boxShadow: "0 4px 12px rgba(108,92,231,0.4)",
+          )}
+
+          {/* Gradient bottom */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 60,
+            background: "linear-gradient(to top, rgba(255,255,255,0.5), transparent)",
+          }} />
+
+          {/* Prochainement overlay */}
+          {isProgramme && (
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "rgba(251,251,253,0.80)", backdropFilter: "blur(4px)",
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", gap: 12,
+            }}>
+              <span style={{
+                background: "rgba(255,255,255,0.95)", color: "#6e6e73",
+                fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
+                textTransform: "uppercase", padding: "6px 18px", borderRadius: 8,
+                border: "1px solid rgba(0,0,0,0.08)",
               }}>
-                ✨ Nouveau
+                Prochainement
+              </span>
+              {lot.date_ouverture && (
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: "#a1a1a6", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Ouverture dans</div>
+                  <CountdownTimer dateFin={lot.date_ouverture} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Sold out overlay */}
+          {isSoldOut && !isProgramme && (
+            <div style={{
+              position: "absolute", inset: 0, background: "rgba(251,251,253,0.80)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <span style={{
+                color: "#a1a1a6", fontSize: 12,
+                fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase",
+              }}>
+                Complet
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* CONTENT */}
+        <div style={{ padding: "20px 20px 22px", flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+
+          {/* Countdown */}
+          {lot.date_fin && !isSoldOut && !isProgramme && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "8px 12px", borderRadius: 8,
+              background: "rgba(0,0,0,0.03)",
+              border: "1px solid rgba(0,0,0,0.06)",
+            }}>
+              <span style={{ fontSize: 11, color: "#a1a1a6", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em", flexShrink: 0 }}>
+                Fin dans
+              </span>
+              <CountdownTimer dateFin={lot.date_fin} />
+            </div>
+          )}
+
+          {/* Title */}
+          <div>
+            <h3 style={{
+              fontWeight: 600, fontSize: 15, color: "#1d1d1f",
+              lineHeight: 1.4, margin: 0, letterSpacing: "-0.01em",
+            }}>
+              {lot.nom}
+            </h3>
+            {lot.valeur_estimee && (
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "#a1a1a6", fontWeight: 400 }}>
+                Valeur estimée — {Number(lot.valeur_estimee).toLocaleString("fr-FR")} €
+              </p>
+            )}
+          </div>
+
+          {/* Progress */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 11, color: "#a1a1a6", fontWeight: 500 }}>
+                {lot.tickets_vendus} / {lot.total_tickets} tickets
+              </span>
+              <span style={{ fontSize: 11, color: pct >= 90 ? "#d70015" : "#a1a1a6", fontWeight: 600 }}>
+                {Math.round(pct)}%
+              </span>
+            </div>
+            <div style={{ height: 3, background: "rgba(0,0,0,0.07)", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{
+                height: "100%", borderRadius: 99,
+                background: pct >= 90 ? "#ff3b30" : "#1d1d1f",
+                width: `${pct}%`,
+                transition: "width .6s cubic-bezier(0.16,1,0.3,1)",
+              }} />
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{ marginTop: "auto" }}>
+            {isProgramme ? (
+              <div style={{
+                width: "100%", padding: "11px", borderRadius: 10,
+                border: "1px solid rgba(0,0,0,0.08)",
+                color: "#a1a1a6", fontSize: 13, fontWeight: 500,
+                textAlign: "center",
+              }}>
+                Bientôt disponible
+              </div>
+            ) : isSoldOut ? (
+              <div style={{
+                width: "100%", padding: "11px", borderRadius: 10,
+                background: "rgba(0,0,0,0.03)",
+                color: "#a1a1a6", fontSize: 13, fontWeight: 500,
+                textAlign: "center",
+              }}>
+                Complet
+              </div>
+            ) : (
+              <div style={{
+                width: "100%", padding: "12px", borderRadius: 10, textAlign: "center",
+                background: "#1d1d1f", color: "#ffffff",
+                fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
+                transition: "background .2s",
+              }}>
+                Participer
               </div>
             )}
           </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ position: "relative", width: 18, height: 18, borderRadius: 5, overflow: "hidden", background: "white", padding: 2, border: "1px solid #f0eeff", flexShrink: 0 }}>
-              <img src="/images/logo-gowingo.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-            </div>
-            <p style={{ fontSize: 10, fontWeight: 700, color: "#b2bec3", margin: 0, fontFamily: "'Nunito', sans-serif", letterSpacing: "1px" }}>
-              #{lot.reference_lot}
-            </p>
-            {lot.valeur_estimee && (
-              <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: "#636E72" }}>
-                Valeur {Number(lot.valeur_estimee).toFixed(0)} €
-              </span>
-            )}
-          </div>
         </div>
-
-        {/* 7. CTA */}
-        {isProgramme ? (
-          <div style={{ width: "100%", padding: "12px", borderRadius: 14, background: "linear-gradient(135deg, #6C5CE722, #A29BFE22)", color: "#6C5CE7", fontWeight: 800, fontSize: 14, textAlign: "center", fontFamily: "'Nunito', sans-serif", border: "2px dashed #A29BFE" }}>
-            🔜 Bientôt disponible
-          </div>
-        ) : isSoldOut ? (
-          <div style={{ width: "100%", padding: "12px", borderRadius: 14, background: "#f8f9ff", color: "#b2bec3", fontWeight: 800, fontSize: 14, textAlign: "center", fontFamily: "'Nunito', sans-serif" }}>
-            😔 Complet
-          </div>
-        ) : (
-          <div style={{
-            display: "block", textAlign: "center",
-            background: "linear-gradient(135deg, #FF7043, #FF8C42)",
-            color: "white", fontFamily: "'Nunito', sans-serif", fontWeight: 900, fontSize: 15,
-            padding: "13px", borderRadius: 16,
-            boxShadow: "0 6px 20px rgba(255,112,67,0.4)",
-            transition: "all .2s ease"
-          }}>
-            JE TENTE MA CHANCE
-          </div>
-        )}
       </div>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-        @keyframes rotateBorder { to { transform: rotate(360deg); } }
-        @keyframes badgeFloat { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-5px)} }
-      `}</style>
-    </div>
     </Link>
-  );
-
-  if (!isProchain) return cardInner;
-
-  return (
-    <div style={{ position: "relative", marginTop: 18 }}>
-      {/* Badge flottant — en dehors du overflow:hidden */}
-      <div style={{
-        position: "absolute", top: -16, left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: 30,
-        background: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
-        color: "white", fontFamily: "'Fredoka One', cursive",
-        fontSize: 13, padding: "5px 18px", borderRadius: 999,
-        boxShadow: "0 4px 16px rgba(108,92,231,0.5)",
-        whiteSpace: "nowrap", letterSpacing: "0.5px",
-        animation: "badgeFloat 2s ease-in-out infinite",
-        pointerEvents: "none",
-      }}>
-        🎯 Prochain tirage
-      </div>
-
-      {/* Conteneur du liseré rotatif */}
-      <div style={{ padding: 3, borderRadius: 27, overflow: "hidden", position: "relative" }}>
-        {/* Gradient rotatif — semi-transparent */}
-        <div style={{
-          position: "absolute",
-          inset: "-100%",
-          background: "conic-gradient(from 0deg, #6C5CE7, #A29BFE, #FD79A8, #FDCB6E, #00B894, #6C5CE7)",
-          animation: "rotateBorder 3s linear infinite",
-          opacity: 0.55,
-        }} />
-        {/* La carte elle-même */}
-        {cardInner}
-      </div>
-    </div>
   );
 }

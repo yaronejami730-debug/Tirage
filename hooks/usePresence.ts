@@ -56,9 +56,10 @@ export function usePresence(channel: string, role: "user" | "admin" = "user"): n
     const interval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
 
     // Realtime : écoute les changements sur la table presence_sessions
+    // Suffixe unique pour éviter de réutiliser un canal déjà subscribé (StrictMode / HMR)
     const supabase = supabaseClient;
     const sub = supabase
-      .channel(`presence_realtime_${channel}`)
+      .channel(`presence_realtime_${channel}_${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {

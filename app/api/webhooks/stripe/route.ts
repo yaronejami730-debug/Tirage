@@ -4,11 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendConfirmationEmail } from "@/lib/email";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();

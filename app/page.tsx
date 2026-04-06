@@ -1,39 +1,36 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import Image from "next/image";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabaseClient, Lot } from "@/lib/supabase";
 import { CATEGORIES } from "@/lib/categories";
 import LotGrid from "@/components/LotGrid";
 
-const FLOATING_ITEMS = [
-  { emoji: "🚗", size: 52, top: 12, left: 3  },
-  { emoji: "✈️", size: 50, top: 10, left: 80 },
-  { emoji: "💻", size: 48, top: 65, left: 88 },
-  { emoji: "🎧", size: 44, top: 72, left: 5  },
-  { emoji: "💎", size: 42, top: 80, left: 50 },
-  { emoji: "🏆", size: 46, top: 20, left: 55 },
-  { emoji: "⌚", size: 42, top: 45, left: 92 },
-  { emoji: "📱", size: 44, top: 55, left: 1  },
-];
-
 export default function HomePage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(
+    searchParams.get("cat")
+  );
+
+  // Sync avec le param URL quand on revient du menu hamburger
+  useEffect(() => {
+    setActiveCategory(searchParams.get("cat"));
+  }, [searchParams]);
 
   useEffect(() => {
     supabaseClient.from("lots")
       .select("*")
       .in("statut", ["actif", "programme"])
       .order("created_at", { ascending: false })
-      .then(({ data }) => { 
-        setLots(data || []); 
-        setLoading(false); 
+      .then(({ data }) => {
+        setLots(data || []);
+        setLoading(false);
       });
   }, []);
 
-  // Prochain tirage = lot actif avec la date_fin la plus proche (non expirée)
   const prochainTirage = useMemo(() => {
     const now = Date.now();
     return lots
@@ -44,7 +41,6 @@ export default function HomePage() {
       .sort((a, b) => new Date(a.date_fin!).getTime() - new Date(b.date_fin!).getTime())[0] ?? null;
   }, [lots]);
 
-  // Lots triés : prochain tirage toujours en premier
   const lotsSorted = useMemo(() => {
     if (!prochainTirage) return lots;
     return [prochainTirage, ...lots.filter(l => l.id !== prochainTirage.id)];
@@ -52,150 +48,155 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* HERO */}
-      <div style={{ position: "relative", overflow: "hidden", padding: "clamp(40px, 8vw, 70px) clamp(16px, 5vw, 24px) clamp(48px, 8vw, 80px)", background: "linear-gradient(135deg, #6C5CE7 0%, #a29bfe 40%, #FD79A8 70%, #FDCB6E 100%)" }}>
+      {/* ─── HERO ─────────────────────────────────────── */}
+      <div style={{
+        borderBottom: "1px solid rgba(0,0,0,0.06)",
+        padding: "100px 28px 96px",
+      }}>
+        <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
 
-        {/* Floating prize items */}
-        {FLOATING_ITEMS.map((item, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            fontSize: item.size,
-            top: `${item.top}%`,
-            left: `${item.left}%`,
-            opacity: 0.12,
-            animation: `float ${4 + i * 0.5}s ease-in-out ${i * 0.4}s infinite`,
-            pointerEvents: "none",
-            filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))",
-            userSelect: "none",
-          }}>{item.emoji}</div>
-        ))}
-
-        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center", position: "relative" }}>
-
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-            <div style={{ position: "relative", width: 400, height: 400 }}>
-              <Image src="/images/logo-gowingo.png" alt="GoWinGo" fill style={{ objectFit: "contain" }} />
-            </div>
-          </div>
-          <h1 style={{
-            fontFamily: "'Fredoka One', cursive",
-            fontSize: "clamp(38px, 7vw, 68px)",
-            color: "white", lineHeight: 1.05,
-            marginBottom: 16,
-            textShadow: "0 4px 20px rgba(0,0,0,0.15)"
+          {/* Eyebrow */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            marginBottom: 28, padding: "6px 16px",
+            background: "rgba(0,0,0,0.04)",
+            border: "1px solid rgba(0,0,0,0.07)",
+            borderRadius: 99,
           }}>
-            {"Tentez votre chance\u00A0!"}
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#8a6000", display: "inline-block" }} />
+            <span style={{ fontSize: 12, fontWeight: 500, color: "#6e6e73", letterSpacing: "0.04em" }}>
+              Tirage certifié · Paiement sécurisé
+            </span>
+          </div>
+
+          <h1 style={{
+            fontSize: "clamp(40px, 6vw, 72px)",
+            fontWeight: 700,
+            color: "#1d1d1f",
+            lineHeight: 1.05,
+            letterSpacing: "-0.04em",
+            marginBottom: 20,
+          }}>
+            Tentez votre chance
+            <br />
+            <span style={{ color: "#a1a1a6", fontWeight: 300 }}>sur des lots d'exception</span>
           </h1>
 
-          <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "clamp(15px, 4vw, 18px)", fontWeight: 600, marginBottom: 36, lineHeight: 1.6 }}>
-            Achetez vos tickets et remportez des lots incroyables !<br className="hero-br" />
-            {" "}Simple, rapide, et certifié huissier. 🏆
+          <p style={{
+            color: "#6e6e73", fontSize: "clamp(14px, 2vw, 17px)",
+            fontWeight: 400, lineHeight: 1.7, maxWidth: 500, margin: "0 auto 44px",
+          }}>
+            Sélection exclusive de produits haut de gamme.
+            <br className="hero-br" />
+            Simple, rapide, et encadré par huissier.
           </p>
 
-
+          <a href="#lots" style={{
+            display: "inline-flex", alignItems: "center", gap: 10,
+            background: "#1d1d1f", color: "#ffffff",
+            fontWeight: 600, fontSize: 15, letterSpacing: "-0.02em",
+            padding: "15px 32px", borderRadius: 980, textDecoration: "none",
+            transition: "all .2s cubic-bezier(0.16,1,0.3,1)",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = "#3a3a3c"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,0.15)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "#1d1d1f"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+          >
+            Voir les lots
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
         </div>
       </div>
 
-      {/* TRUST BAR */}
-      <div style={{ background: "white", borderBottom: "1px solid #f0eeff" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", justifyContent: "center", alignItems: "center", gap: 40, flexWrap: "wrap" }}>
-          {[
-            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00B894" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>, label: "Paiement 100% sécurisé" },
-            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, label: "Tirage certifié huissier" },
-            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7043" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "Confirmation email immédiate" },
-            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FDCB6E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, label: "Des milliers de gagnants" },
-          ].map(item => (
-            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 700, color: "#636E72", whiteSpace: "nowrap" }}>
-              {item.icon}
-              {item.label}
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ─── LOTS ─────────────────────────────────────── */}
+      <div id="lots" style={{ maxWidth: 1200, margin: "0 auto", padding: "72px 28px 100px" }}>
 
-      {/* LOTS */}
-      <div id="lots" style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 20px" }}>
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <div style={{ width: 44, height: 44, border: "4px solid #6C5CE7", borderTopColor: "transparent", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+          <div style={{ display: "flex", justifyContent: "center", padding: 100 }}>
+            <div style={{ width: 32, height: 32, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#1d1d1f", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
           </div>
         ) : lots.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 80 }}>
-            <div style={{ fontSize: 72, marginBottom: 16 }}>🎟️</div>
-            <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "#2D3436", marginBottom: 8 }}>Aucun lot en cours</h2>
-            <p style={{ color: "#636E72" }}>Revenez bientôt pour nos prochains tirages !</p>
+          <div style={{ textAlign: "center", padding: 100 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#a1a1a6", letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>
+              Aucun lot en cours
+            </div>
+            <p style={{ color: "#a1a1a6", fontSize: 14 }}>Revenez bientôt pour nos prochains tirages.</p>
           </div>
         ) : (
           <>
-            {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
-              <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: "#2D3436" }}>🎁 Lots à gagner</h2>
-              <span style={{ background: "#f0eeff", color: "#6C5CE7", fontWeight: 800, fontSize: 13, padding: "4px 14px", borderRadius: 999 }}>
-                {lots.length} actif{lots.length > 1 ? "s" : ""}
-              </span>
-              <span style={{ background: "#fff3e0", color: "#FF7043", fontWeight: 800, fontSize: 13, padding: "4px 14px", borderRadius: 999 }}>
-                🎫 {lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0)} tickets dispo
-              </span>
+            {/* Header section */}
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 40, flexWrap: "wrap", gap: 16 }}>
+              <div>
+                <h2 style={{ fontSize: 22, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.03em", marginBottom: 4 }}>
+                  Lots disponibles
+                </h2>
+                <p style={{ fontSize: 13, color: "#a1a1a6", fontWeight: 400 }}>
+                  {lots.length} lot{lots.length > 1 ? "s" : ""} · {lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0)} tickets disponibles
+                </p>
+              </div>
+
+              {/* Filtres catégories */}
+              {(() => {
+                const presentCats = Array.from(new Set(lots.map(l => l.categorie)));
+                const filteredCats = CATEGORIES.filter(c => presentCats.includes(c.val as Lot["categorie"]));
+                if (filteredCats.length < 2) return null;
+                return (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <button
+                      onClick={() => { setActiveCategory(null); router.replace("/", { scroll: false }); }}
+                      style={{
+                        padding: "7px 16px", borderRadius: 980,
+                        fontFamily: "inherit", fontWeight: 500, fontSize: 13,
+                        cursor: "pointer",
+                        border: "1px solid",
+                        borderColor: activeCategory === null ? "rgba(138,96,0,0.35)" : "rgba(0,0,0,0.1)",
+                        background: activeCategory === null ? "rgba(138,96,0,0.07)" : "transparent",
+                        color: activeCategory === null ? "#8a6000" : "#6e6e73",
+                        transition: "all .15s",
+                      }}
+                    >
+                      Tous
+                    </button>
+                    {filteredCats.map(cat => {
+                      const active = activeCategory === cat.val;
+                      return (
+                        <button
+                          key={cat.val}
+                          onClick={() => {
+                            const next = active ? null : cat.val;
+                            setActiveCategory(next);
+                            router.replace(next ? `/?cat=${next}` : "/", { scroll: false });
+                          }}
+                          style={{
+                            padding: "7px 16px", borderRadius: 980,
+                            fontFamily: "inherit", fontWeight: 500, fontSize: 13,
+                            cursor: "pointer",
+                            border: "1px solid",
+                            borderColor: active ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)",
+                            background: active ? "rgba(0,0,0,0.05)" : "transparent",
+                            color: active ? "#1d1d1f" : "#6e6e73",
+                            transition: "all .15s",
+                          }}
+                        >
+                          {cat.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
 
-            {/* Filtres catégories — seulement les catégories présentes dans les lots */}
-            {(() => {
-              const presentCats = Array.from(new Set(lots.map(l => l.categorie)));
-              const filteredCats = CATEGORIES.filter(c => presentCats.includes(c.val as Lot["categorie"]));
-              if (filteredCats.length < 2) return null;
-              return (
-                <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 8, marginBottom: 28, WebkitOverflowScrolling: "touch" as any }}>
-                  {/* Bouton Tous */}
-                  <button
-                    onClick={() => setActiveCategory(null)}
-                    style={{
-                      flexShrink: 0, padding: "8px 18px", borderRadius: 999,
-                      fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13,
-                      cursor: "pointer", border: "2px solid",
-                      borderColor: activeCategory === null ? "#6C5CE7" : "#e0d9ff",
-                      background: activeCategory === null ? "#6C5CE7" : "white",
-                      color: activeCategory === null ? "white" : "#636E72",
-                      transition: "all .15s",
-                    }}
-                  >
-                    Tous
-                  </button>
-                  {filteredCats.map(cat => {
-                    const active = activeCategory === cat.val;
-                    return (
-                      <button
-                        key={cat.val}
-                        onClick={() => setActiveCategory(active ? null : cat.val)}
-                        style={{
-                          flexShrink: 0, padding: "8px 16px", borderRadius: 999,
-                          fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13,
-                          cursor: "pointer", border: "2px solid",
-                          borderColor: active ? cat.color : "#e0d9ff",
-                          background: active ? cat.color : "white",
-                          color: active ? "white" : "#636E72",
-                          transition: "all .15s",
-                          display: "flex", alignItems: "center", gap: 5,
-                        }}
-                      >
-                        <span>{cat.icon}</span>
-                        <span>{cat.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })()}
-
-            <LotGrid lots={activeCategory ? lotsSorted.filter(l => l.categorie === activeCategory) : lotsSorted} prochainTirageId={prochainTirage?.id} />
+            <LotGrid
+              lots={activeCategory ? lotsSorted.filter(l => l.categorie === activeCategory) : lotsSorted}
+              prochainTirageId={prochainTirage?.id}
+            />
           </>
         )}
       </div>
 
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
-        @keyframes flicker { 0% { transform: scale(1) rotate(-3deg); } 100% { transform: scale(1.15) rotate(3deg); } }
-      `}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

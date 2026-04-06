@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import AgeVerificationModal from "@/components/AgeVerificationModal";
 import Header from "@/components/Header";
 import { PresenceProvider } from "@/components/PresenceContext";
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
 export const metadata: Metadata = {
-  title: "GoWinGo 🎰 — Tentez votre chance !",
-  description: "Achetez vos tickets et tentez de remporter des lots incroyables !",
+  title: "GoWinGo — Participez. Gagnez.",
+  description: "Une sélection exclusive de lots d'exception. Paiement sécurisé, tirage certifié.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-      </head>
-      <body style={{ fontFamily: "'Nunito', sans-serif", background: "#F8F9FF", minHeight: "100vh" }}>
+      <head />
+      <body className={inter.className} style={{ background: "#fbfbfd", minHeight: "100vh" }}>
         <PresenceProvider>
           <AgeVerificationModal />
           <AnnouncementBanner />
@@ -26,23 +31,61 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
         </PresenceProvider>
 
-        {/* FOOTER */}
-        <footer style={{ background: "#2D3436", padding: "48px 24px 32px", marginTop: 80 }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, textAlign: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 28 }}>🎰</span>
-              <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "white" }}>GoWinGo</span>
+        <footer style={{
+          borderTop: "1px solid rgba(0,0,0,0.07)",
+          background: "#f5f5f7",
+          padding: "56px 24px 40px",
+          marginTop: 100,
+        }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 40, marginBottom: 48 }}>
+              {/* Brand */}
+              <div>
+                <Image src="/logo.png" alt="GoWinGo" width={160} height={54} style={{ objectFit: "contain", marginBottom: 10 }} />
+                <p style={{ color: "#6e6e73", fontSize: 13, lineHeight: 1.7, maxWidth: 280 }}>
+                  Une sélection exclusive de lots d'exception.<br />
+                  Paiement sécurisé. Tirage certifié.
+                </p>
+              </div>
+
+              {/* Links */}
+              <div style={{ display: "flex", gap: 60, flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Légal</div>
+                  {["Mentions légales", "CGV", "Règlement", "Confidentialité"].map(l => (
+                    <div key={l} style={{ marginBottom: 10 }}>
+                      <a href="#" className="footer-link">{l}</a>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Contact</div>
+                  {["Support", "Partenariats"].map(l => (
+                    <div key={l} style={{ marginBottom: 10 }}>
+                      <a href="#" className="footer-link">{l}</a>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <p style={{ color: "#636E72", fontSize: 13, maxWidth: 480 }}>
-              Tentez votre chance, changez votre quotidien ! 🎉<br />
-              Jeu administré sous contrôle huissier indépendant · Paiement sécurisé Stripe
-            </p>
-            <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-              {["Mentions légales", "CGV", "Règlement", "Contact"].map(l => (
-                <a key={l} href="#" style={{ color: "#636E72", fontSize: 12, textDecoration: "none" }}>{l}</a>
-              ))}
+
+            {/* Bottom bar */}
+            <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <p style={{ color: "#a1a1a6", fontSize: 12 }}>
+                © {new Date().getFullYear()} GoWinGo — Tous droits réservés
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                {[
+                  { label: "Paiement sécurisé", icon: "🔒" },
+                  { label: "Certifié huissier", icon: "⚖️" },
+                ].map(item => (
+                  <span key={item.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#a1a1a6" }}>
+                    <span style={{ fontSize: 11 }}>{item.icon}</span>
+                    {item.label}
+                  </span>
+                ))}
+              </div>
             </div>
-            <p style={{ color: "#4a5568", fontSize: 11 }}>© {new Date().getFullYear()} GoWinGo — Tous droits réservés</p>
           </div>
         </footer>
       </body>

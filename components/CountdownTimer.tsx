@@ -26,8 +26,8 @@ export default function CountdownTimer({ dateFin, variant }: Props) {
   }, [dateFin]);
 
   if (t.expired) return (
-    <div style={{ textAlign: "center", color: "#E17055", fontWeight: 800, fontSize: 12, padding: "6px 0" }}>
-      ⏰ Tirage terminé
+    <div style={{ textAlign: "center", color: "#6e6e73", fontWeight: 600, fontSize: 12, padding: "6px 0" }}>
+      Tirage terminé
     </div>
   );
 
@@ -42,21 +42,30 @@ export default function CountdownTimer({ dateFin, variant }: Props) {
     <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "center" }}>
       {units.map(({ val, label }, i) => (
         <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {i > 0 && <span style={{ color: isHero ? "rgba(255,255,255,0.5)" : "#FF7043", fontWeight: 900, fontSize: 16, lineHeight: 1 }}>:</span>}
-          <div style={{ textAlign: "center", minWidth: 40 }}>
+          {i > 0 && (
+            <span style={{
+              color: isHero ? "rgba(255,255,255,0.4)" : "#d2d2d7",
+              fontWeight: 500, fontSize: 14, lineHeight: 1,
+            }}>:</span>
+          )}
+          <div style={{ textAlign: "center", minWidth: 36 }}>
             <div style={{
-              background: isHero ? "rgba(255,255,255,0.22)" : "linear-gradient(135deg, #FF7043, #FDCB6E)",
-              border: isHero ? "1px solid rgba(255,255,255,0.35)" : "none",
-              borderRadius: 10, padding: "6px 6px 4px",
-              fontFamily: "'Fredoka One', cursive", fontSize: 20,
-              color: "white",
+              background: isHero ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.05)",
+              border: isHero ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 8, padding: "5px 6px 4px",
+              fontFamily: "inherit",
+              fontSize: 17, fontWeight: 600,
+              color: isHero ? "#ffffff" : "#1d1d1f",
               fontVariantNumeric: "tabular-nums", lineHeight: 1,
-              boxShadow: isHero ? "0 2px 8px rgba(0,0,0,0.15)" : "0 3px 10px rgba(255,112,67,0.3)",
-              minWidth: 40,
+              minWidth: 36, letterSpacing: "-0.02em",
             }}>
               {String(val).padStart(2, "0")}
             </div>
-            <div style={{ fontSize: 9, color: isHero ? "rgba(255,255,255,0.7)" : "#FF7043", fontWeight: 700, textTransform: "uppercase", marginTop: 3, letterSpacing: "0.5px" }}>
+            <div style={{
+              fontSize: 9, fontWeight: 500,
+              color: isHero ? "rgba(255,255,255,0.5)" : "#a1a1a6",
+              textTransform: "uppercase", marginTop: 3, letterSpacing: "0.05em",
+            }}>
               {label}
             </div>
           </div>
