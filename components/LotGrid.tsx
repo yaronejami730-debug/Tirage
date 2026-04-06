@@ -36,9 +36,15 @@ export default function LotGrid({ lots, prochainTirageId }: LotGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {lots.map((lot) => (
-        <LotCard key={lot.id} lot={lot} isProchain={lot.id === prochainTirageId} />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      {lots.map((lot, i) => (
+        <div 
+          key={lot.id} 
+          className="fade-up" 
+          style={{ animationDelay: `${0.6 + i * 0.1}s` }}
+        >
+          <LotCard lot={lot} isProchain={lot.id === prochainTirageId} />
+        </div>
       ))}
     </div>
   );

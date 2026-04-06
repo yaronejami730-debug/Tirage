@@ -135,15 +135,9 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
             <h3 style={{ fontWeight: 600, fontSize: 15, color: "#111111", lineHeight: 1.4, margin: 0, letterSpacing: "-0.01em" }}>
               {lot.nom}
             </h3>
-            {lot.description && (
-              <p style={{
-                margin: 0, fontSize: 13, color: "#6b6b6b", lineHeight: 1.6, fontWeight: 400,
-                display: "-webkit-box", WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical", overflow: "hidden",
-              } as React.CSSProperties}>
-                {lot.description}
-              </p>
-            )}
+            <p className="description-clamp">
+              {lot.description || "\u00A0"}
+            </p>
             {lot.valeur_estimee && (
               <p style={{ margin: 0, fontSize: 12, color: "#a0a0a0", fontWeight: 400 }}>
                 Valeur estimée — {Number(lot.valeur_estimee).toLocaleString("fr-FR")} €
@@ -168,21 +162,24 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
           {/* CTA */}
           <div style={{ marginTop: "auto" }}>
             {isProgramme ? (
-              <div style={{ width: "100%", padding: "11px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.08)", color: "#a0a0a0", fontSize: 13, fontWeight: 500, textAlign: "center" }}>
+              <div style={{ width: "100%", padding: "12px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.08)", color: "#a0a0a0", fontSize: 13, fontWeight: 600, textAlign: "center", background: "#f8f8fa" }}>
                 Bientôt disponible
               </div>
             ) : isSoldOut ? (
-              <div style={{ width: "100%", padding: "11px", borderRadius: 10, background: "rgba(0,0,0,0.03)", color: "#a0a0a0", fontSize: 13, fontWeight: 500, textAlign: "center" }}>
+              <div style={{ width: "100%", padding: "12px", borderRadius: 12, background: "rgba(0,0,0,0.03)", color: "#a0a0a0", fontSize: 13, fontWeight: 600, textAlign: "center" }}>
                 Complet
               </div>
             ) : (
-              <div style={{
-                width: "100%", padding: "12px", borderRadius: 10, textAlign: "center",
-                background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)",
-                color: "#ffffff", fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
-                boxShadow: "0 4px 14px rgba(123,77,255,0.22)",
-              }}>
-                Participer
+              <div 
+                className="transition-all duration-300 group-hover:scale-[1.02]"
+                style={{
+                  width: "100%", padding: "14px", borderRadius: 12, textAlign: "center",
+                  background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)",
+                  color: "#ffffff", fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em",
+                  boxShadow: "0 4px 14px rgba(123,77,255,0.22)",
+                }}
+              >
+                Participer au Tirage
               </div>
             )}
           </div>

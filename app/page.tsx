@@ -58,91 +58,184 @@ function HomePageContent() {
     <div>
       {/* ─── HERO ─────────────────────────────────────── */}
       <div style={{
-        borderBottom: "1px solid rgba(0,0,0,0.06)",
-        padding: "100px 28px 96px",
+        position: "relative",
+        overflow: "hidden",
+        padding: "120px 28px 140px",
+        background: "#0a0a0b",
+        color: "#ffffff",
       }}>
-        <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
+        {/* Abstract Background Image */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: "url('/hero-bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.5,
+          zIndex: 0,
+        }} />
 
-          {/* Eyebrow */}
-          <div style={{
+        {/* Decorative mask */}
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "40%",
+          background: "linear-gradient(to top, #ffffff 0%, transparent 100%)",
+          zIndex: 1,
+        }} />
+
+        <div style={{ 
+          maxWidth: 900, 
+          margin: "0 auto", 
+          textAlign: "center",
+          position: "relative",
+          zIndex: 10,
+        }}>
+
+          {/* Eyebrow / Trust Badge */}
+          <div className="fade-up" style={{
             display: "inline-flex", alignItems: "center", gap: 8,
-            marginBottom: 28, padding: "6px 16px",
-            background: "rgba(0,0,0,0.04)",
-            border: "1px solid rgba(0,0,0,0.07)",
+            marginBottom: 32, padding: "8px 20px",
+            background: "rgba(255,255,255,0.08)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: 99,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", display: "inline-block" }} />
-            <span style={{ fontSize: 12, fontWeight: 500, color: "#6b6b6b", letterSpacing: "0.04em" }}>
-              Tirage certifié · Paiement sécurisé
+            <span style={{ 
+              width: 8, height: 8, borderRadius: "50%", 
+              background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", 
+              display: "inline-block",
+              boxShadow: "0 0 12px #4F8CFF"
+            }} />
+            <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.85)", letterSpacing: "0.03em" }}>
+              Tirages certifiés · Paiement 100% sécurisé
             </span>
           </div>
 
-          <h1 style={{
-            fontSize: "clamp(40px, 6vw, 72px)",
-            fontWeight: 700,
-            color: "#111111",
-            lineHeight: 1.05,
-            letterSpacing: "-0.04em",
-            marginBottom: 20,
+          <h1 className="fade-up" style={{
+            fontSize: "clamp(44px, 7vw, 84px)",
+            fontWeight: 800,
+            lineHeight: 0.95,
+            letterSpacing: "-0.05em",
+            marginBottom: 24,
+            animationDelay: "0.1s"
           }}>
             Tentez votre chance
             <br />
-            <span style={{ color: "#a1a1a6", fontWeight: 300 }}>sur des lots d'exception</span>
+            <span style={{ 
+              background: "linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.4) 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontWeight: 400
+            }}>
+              sur des lots d'exception
+            </span>
           </h1>
 
-          <p style={{
-            color: "#6b6b6b", fontSize: "clamp(14px, 2vw, 17px)",
-            fontWeight: 400, lineHeight: 1.7, maxWidth: 500, margin: "0 auto 44px",
+          <p className="fade-up" style={{
+            color: "rgba(255,255,255,0.6)", 
+            fontSize: "clamp(16px, 2.5vw, 19px)",
+            fontWeight: 400, 
+            lineHeight: 1.6, 
+            maxWidth: 580, 
+            margin: "0 auto 48px",
+            animationDelay: "0.2s"
           }}>
-            Sélection exclusive de produits haut de gamme.
-            <br className="hero-br" />
-            Simple, rapide, et encadré par huissier.
+            Vivez l'adrénaline de nos tirages exclusifs. 
+            Une sélection rigoureuse de produits premium, encadrée par huissier.
           </p>
 
-          <a href="#lots" style={{
-            display: "inline-flex", alignItems: "center", gap: 10,
-            background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff",
-            fontWeight: 600, fontSize: 15, letterSpacing: "-0.02em",
-            padding: "15px 32px", borderRadius: 980, textDecoration: "none",
-            transition: "all .2s cubic-bezier(0.16,1,0.3,1)",
-            boxShadow: "0 4px 16px rgba(123,77,255,0.3)",
-          }}
-            onMouseEnter={e => { e.currentTarget.style.background = "#0077ed"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,113,227,0.4)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "#0071e3"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(123,77,255,0.3)"; }}
-          >
-            Voir les lots
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+          <div className="fade-up" style={{ animationDelay: "0.3s" }}>
+            <a href="#lots" style={{
+              display: "inline-flex", alignItems: "center", gap: 12,
+              background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff",
+              fontWeight: 700, fontSize: 16, letterSpacing: "-0.01em",
+              padding: "18px 40px", borderRadius: 980, textDecoration: "none",
+              transition: "all .3s cubic-bezier(0.16,1,0.3,1)",
+              boxShadow: "0 10px 40px rgba(79,140,255,0.35)",
+            }}
+              onMouseEnter={e => { 
+                e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"; 
+                e.currentTarget.style.boxShadow = "0 15px 50px rgba(79,140,255,0.5)"; 
+              }}
+              onMouseLeave={e => { 
+                e.currentTarget.style.transform = "translateY(0) scale(1)"; 
+                e.currentTarget.style.boxShadow = "0 10px 40px rgba(79,140,255,0.35)"; 
+              }}
+            >
+              Découvrir les lots
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="fade-up" style={{ 
+            marginTop: 64, 
+            display: "flex", 
+            justifyContent: "center", 
+            gap: 40,
+            animationDelay: "0.4s",
+            opacity: 0.7
+          }}>
+            {[
+              { label: "Certifié par Huissier", icon: "⚖️" },
+              { label: "Paiement Stripe", icon: "💳" },
+              { label: "Support 7j/7", icon: "💬" }
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500 }}>
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ─── LOTS ─────────────────────────────────────── */}
-      <div id="lots" style={{ maxWidth: 1200, margin: "0 auto", padding: "72px 28px 100px" }}>
+      <div id="lots" className="fade-up" style={{ 
+        maxWidth: 1200, 
+        margin: "0 auto", 
+        padding: "80px 28px 100px",
+        animationDelay: "0.5s"
+      }}>
 
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 100 }}>
-            <div style={{ width: 32, height: 32, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#111111", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+            <div className="spin" style={{ width: 32, height: 32, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#4F8CFF", borderRadius: "50%" }} />
           </div>
         ) : lots.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 100 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "#a1a1a6", letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>
+          <div style={{ textAlign: "center", padding: 100, background: "#f8f8fa", borderRadius: 32, border: "1px dashed rgba(0,0,0,0.1)" }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#a1a1a6", letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>
               Aucun lot en cours
             </div>
-            <p style={{ color: "#a1a1a6", fontSize: 14 }}>Revenez bientôt pour nos prochains tirages.</p>
+            <p style={{ color: "#a1a1a6", fontSize: 15, fontWeight: 400 }}>Revenez bientôt pour nos prochains tirages d'exception.</p>
           </div>
         ) : (
           <>
             {/* Header section */}
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 40, flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 48, flexWrap: "wrap", gap: 24 }}>
               <div>
-                <h2 style={{ fontSize: 22, fontWeight: 600, color: "#111111", letterSpacing: "-0.03em", marginBottom: 4 }}>
-                  Lots disponibles
+                <h2 style={{ fontSize: 32, fontWeight: 700, color: "#111111", letterSpacing: "-0.04em", marginBottom: 8 }}>
+                  Explorer les lots
                 </h2>
-                <p style={{ fontSize: 13, color: "#a1a1a6", fontWeight: 400 }}>
-                  {lots.length} lot{lots.length > 1 ? "s" : ""} · {lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0)} tickets disponibles
-                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ 
+                    fontSize: 13, color: "#4F8CFF", fontWeight: 600,
+                    background: "rgba(79,140,255,0.08)", padding: "4px 10px", borderRadius: 6
+                  }}>
+                    {lots.length} Tirages Actifs
+                  </span>
+                  <span style={{ fontSize: 13, color: "#a1a1a6", fontWeight: 400 }}>
+                    · {lots.reduce((a, l) => a + (l.total_tickets - l.tickets_vendus), 0)} tickets restants
+                  </span>
+                </div>
               </div>
 
               {/* Filtres catégories */}
@@ -151,18 +244,22 @@ function HomePageContent() {
                 const filteredCats = CATEGORIES.filter(c => presentCats.includes(c.val as Lot["categorie"]));
                 if (filteredCats.length < 2) return null;
                 return (
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <div style={{ 
+                    display: "flex", gap: 8, flexWrap: "wrap",
+                    background: "#f1f1f3", padding: 6, borderRadius: 14,
+                    border: "1px solid rgba(0,0,0,0.03)"
+                  }}>
                     <button
                       onClick={() => { setActiveCategory(null); router.replace("/", { scroll: false }); }}
                       style={{
-                        padding: "7px 16px", borderRadius: 980,
-                        fontFamily: "inherit", fontWeight: 500, fontSize: 13,
+                        padding: "8px 18px", borderRadius: 10,
+                        fontFamily: "inherit", fontWeight: 600, fontSize: 13,
                         cursor: "pointer",
-                        border: "1px solid",
-                        borderColor: activeCategory === null ? "rgba(0,113,227,0.35)" : "rgba(0,0,0,0.1)",
-                        background: activeCategory === null ? "rgba(0,113,227,0.07)" : "transparent",
-                        color: activeCategory === null ? "#0071e3" : "#6b6b6b",
-                        transition: "all .15s",
+                        border: "none",
+                        background: activeCategory === null ? "#ffffff" : "transparent",
+                        color: activeCategory === null ? "#111111" : "#6b6b6b",
+                        boxShadow: activeCategory === null ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+                        transition: "all .2s cubic-bezier(0.16,1,0.3,1)",
                       }}
                     >
                       Tous
@@ -178,14 +275,14 @@ function HomePageContent() {
                             router.replace(next ? `/?cat=${next}` : "/", { scroll: false });
                           }}
                           style={{
-                            padding: "7px 16px", borderRadius: 980,
-                            fontFamily: "inherit", fontWeight: 500, fontSize: 13,
+                            padding: "8px 18px", borderRadius: 10,
+                            fontFamily: "inherit", fontWeight: 600, fontSize: 13,
                             cursor: "pointer",
-                            border: "1px solid",
-                            borderColor: active ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)",
-                            background: active ? "rgba(0,0,0,0.05)" : "transparent",
+                            border: "none",
+                            background: active ? "#ffffff" : "transparent",
                             color: active ? "#111111" : "#6b6b6b",
-                            transition: "all .15s",
+                            boxShadow: active ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+                            transition: "all .2s cubic-bezier(0.16,1,0.3,1)",
                           }}
                         >
                           {cat.label}
