@@ -175,6 +175,12 @@ export default function LotForm({ lot, mode }: LotFormProps) {
     statut: lot?.statut || "actif",
     categorie: lot?.categorie || "autre",
     valeur_estimee: lot?.valeur_estimee ? String(lot.valeur_estimee) : "",
+    packs: lot?.packs || [
+      { qte: 15, reduction: 10 },
+      { qte: 20, reduction: 15 },
+      { qte: 25, reduction: 20 },
+      { qte: 50, reduction: 25 }
+    ],
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -274,6 +280,9 @@ export default function LotForm({ lot, mode }: LotFormProps) {
           image_url: form.image_url || null,
           valeur_estimee: form.valeur_estimee ? parseFloat(form.valeur_estimee) : null,
           medias,
+          packs: form.packs
+            .filter(p => Number(p.qte) > 0)
+            .map(p => ({ qte: Number(p.qte), reduction: Number(p.reduction) })),
         }),
       });
       const data = await res.json();
@@ -552,6 +561,53 @@ export default function LotForm({ lot, mode }: LotFormProps) {
         )}
       </div>
 
+      {/* Packs Promotionnels (VIP Packs) */}
+      <div style={{ background: "#f8f7ff", borderRadius: 16, padding: 20, border: "1.5px dashed #A29BFE" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+          <span style={{ fontSize: 22 }}>🎟️</span>
+          <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#6C5CE7", margin: 0 }}>Packs Promotionnels (VIP Packs)</h3>
+        </div>
+        <p style={{ fontSize: 12, color: "#b2bec3", fontFamily: "'Nunito', sans-serif", marginBottom: 16 }}>
+          Configurez jusqu&apos;à 4 packs avec réduction. Ils s&apos;afficheront en priorité sur le formulaire de participation.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          {form.packs.map((p, i) => (
+            <div key={i} style={{ background: "white", padding: 12, borderRadius: 12, border: "1.5px solid #f0eeff" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#2D3436" }}>Pack {i + 1}</span>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: "#b2bec3", textTransform: "uppercase" }}>Tickets</label>
+                  <input 
+                    type="number" min="0" value={p.qte} 
+                    onChange={e => {
+                      const newPacks = [...form.packs];
+                      newPacks[i].qte = parseInt(e.target.value) || 0;
+                      setForm(f => ({ ...f, packs: newPacks }));
+                    }}
+                    style={{ ...inputStyle, padding: "8px 10px" }}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: "#b2bec3", textTransform: "uppercase" }}>Reduc %</label>
+                  <input 
+                    type="number" min="0" max="100" value={p.reduction} 
+                    onChange={e => {
+                      const newPacks = [...form.packs];
+                      newPacks[i].reduction = parseInt(e.target.value) || 0;
+                      setForm(f => ({ ...f, packs: newPacks }));
+                    }}
+                    style={{ ...inputStyle, padding: "8px 10px" }} 
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Statut */}
       <div>
         <label style={labelStyle}>Statut</label>
@@ -559,6 +615,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
           <option value="actif">🟢 Actif</option>
           <option value="termine">🔴 Terminé</option>
           <option value="archive">📦 Archivé</option>
+          <option value="programme">🗓 Programmé</option>
         </select>
       </div>
 
@@ -593,7 +650,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
                   .join("\n")
               : `DO $$\nDECLARE c RECORD;\nBEGIN\n  FOR c IN\n    SELECT constraint_name FROM information_schema.table_constraints\n    WHERE table_name = 'lots' AND constraint_type = 'CHECK'\n  LOOP\n    EXECUTE 'ALTER TABLE lots DROP CONSTRAINT "' || c.constraint_name || '"';\n  END LOOP;\nEND $$;`;
 
-            const addStatements = `\nALTER TABLE lots ADD CONSTRAINT lots_statut_check\n  CHECK (statut IN ('actif','termine','archive','programme'));\n\nALTER TABLE lots ADD CONSTRAINT lots_categorie_check\n  CHECK (categorie IN (\n    'smartphone','tech','gaming','audio','photo','tv',\n    'maison','electromenager','mode','bijoux','montres','sacs',\n    'chaussures','parfum','sport','voiture','moto','voyage',\n    'gastronomie','art','luxe','enfants','culture','crypto','autre'\n  ));`;
+            const addStatements = `\nALTER TABLE lots ADD COLUMN IF NOT EXISTS packs jsonb;\n\nALTER TABLE lots ADD CONSTRAINT lots_statut_check\n  CHECK (statut IN ('actif','termine','archive','programme'));\n\nALTER TABLE lots ADD CONSTRAINT lots_categorie_check\n  CHECK (categorie IN (\n    'smartphone','tech','gaming','audio','photo','tv',\n    'maison','electromenager','mode','bijoux','montres','sacs',\n    'chaussures','parfum','sport','voiture','moto','voyage',\n    'gastronomie','art','luxe','enfants','culture','crypto','autre'\n  ));`;
 
             const fullSql = dropStatements + addStatements;
 

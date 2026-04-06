@@ -55,6 +55,7 @@ export async function PUT(
       statut,
       categorie,
       valeur_estimee,
+      packs,
     } = body;
 
     const supabase = supabaseAdmin();
@@ -70,6 +71,7 @@ export async function PUT(
         date_fin: date_fin || null,
         date_ouverture: date_ouverture || null,
         medias: medias || [],
+        packs: packs || [],
         statut: statut === "programme" ? "actif" : statut,
         categorie: safeCategorie(categorie || "autre"),
         valeur_estimee: valeur_estimee || null,

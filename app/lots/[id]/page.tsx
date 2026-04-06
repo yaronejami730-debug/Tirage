@@ -180,63 +180,15 @@ export default function LotDetailPage({ params }: Props) {
               </p>
             )}
 
-            {/* Stats grid */}
-            <div className="stats-grid-3">
-              {[
-                {
-                  label: "Prix / ticket",
-                  val: `${Number(lot.prix_ticket).toFixed(2)} €`,
-                  bg: "linear-gradient(135deg, #fff9e6, #fffbee)",
-                  color: "#e6a817",
-                  border: "#FDCB6E",
-                  icon: "💰",
-                },
-                {
-                  label: remaining <= 0 ? "Complet" : "Tickets restants",
-                  val: remaining > 0 ? remaining : "—",
-                  bg: remaining <= 10 ? "linear-gradient(135deg, #fff3f0, #fff8f6)" : "linear-gradient(135deg, #f0fff8, #eafff4)",
-                  color: remaining <= 10 ? "#E17055" : "#00B894",
-                  border: remaining <= 10 ? "#E17055" : "#00B894",
-                  icon: "🎫",
-                },
-                {
-                  label: "Total tickets",
-                  val: lot.total_tickets,
-                  bg: "linear-gradient(135deg, #f0eeff, #f5f0ff)",
-                  color: "#6C5CE7",
-                  border: "#A29BFE",
-                  icon: "📊",
-                },
-              ].map(s => (
-                <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: "14px 10px", textAlign: "center", border: `2px solid ${s.border}33` }}>
-                  <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
-                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: s.color, lineHeight: 1 }}>{s.val}</div>
-                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: "#636E72", fontWeight: 700, marginTop: 4 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Valeur estimée */}
-            {lot.valeur_estimee && (
-              <div style={{ background: "linear-gradient(135deg, #fff9e6, #fffbee)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, border: "2px solid #FDCB6E55", display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 24, flexShrink: 0 }}>💎</span>
-                <div>
-                  <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: 12, color: "#b2bec3", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>Valeur estimée du lot</div>
-                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#e6a817" }}>{Number(lot.valeur_estimee).toFixed(0)} €</div>
+            {/* Description */}
+            {(lot.description || lot.reglement_url) && (
+              <div style={{ marginBottom: 32 }}>
+                <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 24, color: "#2D3436", marginBottom: 16 }}>À propos de ce lot</h3>
+                <div style={{ color: "#636E72", lineHeight: 1.8, fontSize: 16, whiteSpace: "pre-wrap" }}>
+                  {lot.description}
                 </div>
               </div>
             )}
-
-            {/* Progress */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Nunito', sans-serif", fontSize: 12, fontWeight: 800, color: "#636E72", marginBottom: 8 }}>
-                <span>{lot.tickets_vendus} vendus</span>
-                <span style={{ color: barColor }}>{Math.round(pct)}% rempli</span>
-              </div>
-              <div style={{ height: 10, background: "#f0eeff", borderRadius: 999, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${pct}%`, background: barColor, borderRadius: 999, transition: "width .5s" }} />
-              </div>
-            </div>
           </div>
         </div>
 
@@ -302,6 +254,9 @@ export default function LotDetailPage({ params }: Props) {
                 lotImage={lot.image_url}
                 prixTicket={Number(lot.prix_ticket)}
                 maxTickets={Math.min(remaining, 50)}
+                totalTickets={lot.total_tickets}
+                packs={lot.packs}
+                valeurEstimee={lot.valeur_estimee}
               />
               {/* Trust */}
               <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 20, flexWrap: "wrap" }}>

@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       date_fin,
       date_ouverture,
       medias,
+      packs,
     } = body;
 
     if (!nom || !prix_ticket || !total_tickets || !reference_lot) {
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
         date_fin: date_fin || null,
         date_ouverture: date_ouverture || null,
         medias: medias || [],
+        packs: packs || [],
         statut: body.statut && body.statut !== "programme" ? body.statut : "actif",
         categorie: safeCategorie(body.categorie || "autre"),
         valeur_estimee: body.valeur_estimee || null,

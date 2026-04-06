@@ -15,16 +15,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (quantite < 1 || quantite > 10) {
+    if (quantite < 1 || quantite > 50) {
       return NextResponse.json(
-        { error: "La quantité doit être entre 1 et 10." },
+        { error: "La quantité doit être entre 1 et 50." },
         { status: 400 }
       );
     }
 
     const supabase = supabaseAdmin();
 
-    // Fetch the lot
+    // Fetch the lot with packs
     const { data: lot, error: lotError } = await supabase
       .from("lots")
       .select("*")
@@ -43,14 +43,18 @@ export async function POST(req: NextRequest) {
     const remaining = lot.total_tickets - lot.tickets_vendus;
     if (remaining < quantite) {
       return NextResponse.json(
-        {
-          error: `Il ne reste que ${remaining} ticket${remaining > 1 ? "s" : ""} disponible${remaining > 1 ? "s" : ""}.`,
-        },
+        { error: `Il ne reste que ${remaining} ticket(s) disponible(s).` },
         { status: 400 }
       );
     }
 
-    const unitAmountCents = Math.round(Number(lot.prix_ticket) * 100); // price per ticket in cents
+    // Check for packs and apply discount
+    const matchingPack = lot.packs?.find((p: any) => Number(p.qte) === Number(quantite));
+    const reduction = matchingPack ? Number(matchingPack.reduction) : 0;
+    
+    // unitAmountCents should be the price per ticket AFTER discount for Stripe to handle total = quantity * price correctly
+    const discountedUnitPrice = Number(lot.prix_ticket) * (1 - reduction / 100);
+    const unitAmountCents = Math.round(discountedUnitPrice * 100);
 
     // Create Stripe Checkout session first to get session ID
     const stripe = getStripe();
@@ -62,8 +66,8 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: "eur",
             product_data: {
-              name: lot.nom,
-              description: `Participation au tirage • Référence: ${lot.reference_lot}`,
+              name: "Participation au tirage",
+              description: `Lot: ${lot.nom} • Réf: ${lot.reference_lot}${reduction > 0 ? ` • Pack VIP (-${reduction}%)` : ""}`,
             },
             unit_amount: unitAmountCents,
           },

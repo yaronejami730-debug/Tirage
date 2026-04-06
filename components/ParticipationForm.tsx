@@ -11,6 +11,9 @@ interface ParticipationFormProps {
   lotImage: string | null;
   prixTicket: number;
   maxTickets: number;
+  totalTickets: number; // Added for chance calculation
+  packs: { qte: number; reduction: number }[] | null; // Added for VIP Packs
+  valeurEstimee: number | null; // Added for stats
 }
 
 export default function ParticipationForm({
@@ -19,10 +22,20 @@ export default function ParticipationForm({
   lotImage,
   prixTicket,
   maxTickets,
+  totalTickets,
+  packs,
+  valeurEstimee,
 }: ParticipationFormProps) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0); 
   const [quantite, setQuantite] = useState(1);
+  const [selectedPackIdx, setSelectedPackIdx] = useState<number | null>(null);
+  
+  // Question & Answers
+  const [currentQuestion, setCurrentQuestion] = useState<{ q: string, a: string, choices: string[] } | null>(null);
+  const [userAnswer, setUserAnswer] = useState<string | null>(null);
+  const [isWrong, setIsWrong] = useState(false);
+
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
@@ -31,26 +44,72 @@ export default function ParticipationForm({
   const [error, setError] = useState<string | null>(null);
 
   const steps = [
-    { id: 1, label: "Choix du ticket" },
-    { id: 2, label: "Finalisation" },
+    { id: 1, label: "Tickets" },
+    { id: 2, label: "Question" },
+    { id: 3, label: "Finalisation" },
   ];
+
+  // Questions generator data
+  const questionPool = {
+    tech: [
+      { q: "Qui a révolutionné l'iPhone ?", a: "Apple", wrong: ["Samsung", "Google", "Microsoft"] },
+      { q: "Android appartient à quel groupe ?", a: "Google", wrong: ["Apple", "Huawei", "Amazon"] },
+      { q: "Qui fabrique les consoles PlayStation ?", a: "Sony", wrong: ["Nintendo", "Microsoft", "Sega"] }
+    ],
+    cars: [
+      { q: "De quel pays vient la marque Porsche ?", a: "Allemagne", wrong: ["Italie", "France", "USA"] },
+      { q: "Tesla est spécialisé dans quel domaine ?", a: "Électrique", wrong: ["Diesel", "Hydraulique", "GPL"] },
+      { q: "La marque Ferrari est originaire de ?", a: "Italie", wrong: ["Espagne", "France", "UK"] }
+    ],
+    luxury: [
+      { q: "Quelle marque fabrique la Submariner ?", a: "Rolex", wrong: ["Omega", "Seiko", "Cartier"] },
+      { q: "Patek Philippe est célèbre pour ses ?", a: "Montres", wrong: ["Sacs", "Voitures", "Bijoux"] },
+      { q: "Louis Vuitton est une marque de ?", a: "Luxe", wrong: ["Sport", "Bricolage", "Gaming"] }
+    ]
+  };
+
+  const generateQuestion = () => {
+    const themes = Object.keys(questionPool) as Array<keyof typeof questionPool>;
+    const theme = themes[Math.floor(Math.random() * themes.length)];
+    const qList = questionPool[theme];
+    const item = qList[Math.floor(Math.random() * qList.length)];
+    const choices = [item.a, ...item.wrong].sort(() => Math.random() - 0.5);
+    setCurrentQuestion({ q: item.q, a: item.a, choices });
+  };
 
   const handleNext = () => {
     setError(null);
     setDirection(1);
-    setStep(2);
+    if (step === 1) {
+      if (!currentQuestion) generateQuestion();
+      setStep(2);
+    } else if (step === 2) {
+      if (!userAnswer) {
+        setError("Veuillez répondre à la question pour continuer.");
+        return;
+      }
+      if (userAnswer !== currentQuestion?.a) {
+        setIsWrong(true);
+        setError("Mauvaise réponse ! Réessayez.");
+        return;
+      }
+      setStep(3);
+    }
     window.scrollTo({ top: 300, behavior: "smooth" });
   };
 
   const handleBack = () => {
     setDirection(-1);
-    setStep(1);
+    setIsWrong(false);
+    setError(null);
+    if (step === 3) setStep(2);
+    else if (step === 2) setStep(1);
     window.scrollTo({ top: 300, behavior: "smooth" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (step === 1) {
+    if (step < 3) {
       handleNext();
       return;
     }
@@ -89,56 +148,84 @@ export default function ParticipationForm({
     }
   };
 
-  const total = (quantite * prixTicket).toFixed(0);
+  const currentPack = packs?.find(p => p.qte === quantite);
+  const reduction = currentPack ? currentPack.reduction : 0;
+  const originalTotal = quantite * prixTicket;
+  const total = (originalTotal * (1 - reduction / 100)).toFixed(0);
 
   const transition = { type: "spring" as const, stiffness: 300, damping: 30 };
 
   return (
     <div className="w-full">
-      {/* PROGRESS BAR - 2 Steps */}
-      <div style={{ paddingBottom: 50, marginBottom: 40, borderBottom: "1px solid #f0eeff" }}>
-        <div style={{ position: "relative", maxWidth: 400, margin: "0 auto" }}>
+      {/* PROGRESS BAR - 3 Steps */}
+      <div style={{ marginBottom: 60, padding: "40px 10% 0" }}>
+        <div style={{ position: "relative" }}>
+          {/* Background line */}
+          <div style={{ 
+            position: "absolute", top: "50%", left: 0, right: 0, height: 2, 
+            background: "#f0eeff", transform: "translateY(-50%)", zIndex: 0 
+          }} />
           
-          <div style={{ position: "absolute", top: 48, left: "15%", right: "15%", height: 3, background: "#f0eeff", borderRadius: 4, zIndex: 0 }} />
-          
+          {/* Active part line */}
           <motion.div 
             initial={false}
-            animate={{ width: step === 1 ? "0%" : "70%" }}
+            animate={{ width: step === 1 ? "0%" : step === 2 ? "50%" : "100%" }}
             transition={transition}
-            style={{ position: "absolute", top: 48, left: "15%", height: 3, background: "#6C5CE7", borderRadius: 4, zIndex: 1 }} 
+            style={{ 
+              position: "absolute", top: "50%", left: 0, height: 4, 
+              background: "linear-gradient(90deg, #6C5CE7, #A29BFE)", 
+              transform: "translateY(-50%)", zIndex: 1, 
+              borderRadius: 4 
+            }} 
           />
           
           <div style={{ display: "flex", justifyContent: "space-between", position: "relative", zIndex: 2 }}>
             {steps.map((s) => (
-              <div key={s.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 120, textAlign: "center" }}>
+              <div key={s.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+                {/* Labels above */}
                 <motion.div 
-                  animate={{ color: step >= s.id ? "#6C5CE7" : "#b2bec3", scale: step === s.id ? 1.05 : 1 }}
-                  style={{ fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 18 }}
+                  animate={{ 
+                    color: step >= s.id ? "#6C5CE7" : "#b2bec3", 
+                    scale: step === s.id ? 1.05 : 1,
+                    y: step === s.id ? -10 : 0
+                  }}
+                  style={{ 
+                    position: "absolute", bottom: 25, width: 120, textAlign: "center",
+                    fontSize: 10, fontWeight: 900, textTransform: "uppercase", 
+                    letterSpacing: "1px", whiteSpace: "nowrap"
+                  }}
                 >
                   {s.label}
                 </motion.div>
                 
-                <div style={{ position: "relative" }}>
+                {/* Dot */}
+                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                    {step === s.id && (
                      <motion.div 
                        layoutId="pulse"
-                       initial={{ scale: 0.8, opacity: 0 }}
-                       animate={{ scale: 1.8, opacity: 0 }}
-                       transition={{ repeat: Infinity, duration: 1.5 }}
-                       style={{ position: "absolute", inset: -4, borderRadius: "50%", background: "#6C5CE744" }}
+                       animate={{ 
+                         scale: [1, 1.8, 1],
+                         opacity: [0.6, 0.2, 0.6]
+                       }}
+                       transition={{ repeat: Infinity, duration: 2 }}
+                       style={{ position: "absolute", width: "100%", height: "100%", borderRadius: "50%", background: "#6C5CE744" }}
                      />
                    )}
                    <motion.div 
                      animate={{ 
                        background: step >= s.id ? "#6C5CE7" : "white", 
                        borderColor: step >= s.id ? "#6C5CE7" : "#f0eeff",
-                       scale: step === s.id ? 1.2 : 1
+                       scale: step === s.id ? 1.3 : 1,
+                       boxShadow: step === s.id ? "0 4px 15px rgba(108,92,231,0.4)" : "none"
                      }}
                      style={{ 
-                       width: 14, height: 14, borderRadius: "50%", border: "2px solid", zIndex: 3, position: "relative",
-                       boxShadow: step === s.id ? "0 0 0 4px white" : "none"
+                       width: 14, height: 14, borderRadius: "50%", border: "2px solid", 
+                       zIndex: 3, position: "relative", transition: "all 0.3s ease",
+                       display: "flex", alignItems: "center", justifyContent: "center"
                      }} 
-                   />
+                   >
+                      {step > s.id && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ color: "white", fontSize: 8 }}>✓</motion.span>}
+                   </motion.div>
                 </div>
               </div>
             ))}
@@ -160,11 +247,94 @@ export default function ParticipationForm({
             
             {/* ÉTAPE 1: SÉLECTION */}
             {step === 1 && (
-              <div className="space-y-6">
+              <div className="space-y-8">
+                {/* Stats du lot - Rapportées ici */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>
+                  <div style={{ background: "#fff9e6", borderRadius: 16, padding: "12px 8px", textAlign: "center", border: "1.5px solid #FDCB6E33" }}>
+                    <div style={{ fontSize: 16, marginBottom: 2 }}>💰</div>
+                    <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#e6a817", lineHeight: 1 }}>{Number(prixTicket).toFixed(2)} €</div>
+                    <div style={{ fontSize: 9, color: "#636E72", fontWeight: 800, marginTop: 4, textTransform: "uppercase" }}>Prix / ticket</div>
+                  </div>
+                  <div style={{ background: "#f0eeff", borderRadius: 16, padding: "12px 8px", textAlign: "center", border: "1.5px solid #A29BFE33" }}>
+                    <div style={{ fontSize: 16, marginBottom: 2 }}>📊</div>
+                    <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#6C5CE7", lineHeight: 1 }}>{totalTickets}</div>
+                    <div style={{ fontSize: 9, color: "#636E72", fontWeight: 800, marginTop: 4, textTransform: "uppercase" }}>Total tickets</div>
+                  </div>
+                  <div style={{ background: "#fff9e6", borderRadius: 16, padding: "12px 8px", textAlign: "center", border: "1.5px solid #FDCB6E33" }}>
+                    <div style={{ fontSize: 16, marginBottom: 2 }}>💎</div>
+                    <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#e6a817", lineHeight: 1 }}>{Number(valeurEstimee || 0).toFixed(0)} €</div>
+                    <div style={{ fontSize: 9, color: "#636E72", fontWeight: 800, marginTop: 4, textTransform: "uppercase" }}>Valeur lot</div>
+                  </div>
+                </div>
+
+                {/* Packs VIP */}
+                {packs && packs.length > 0 && (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                      <span style={{ fontSize: 24 }}>💎</span>
+                      <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: "#2D3436", margin: 0 }}>VIP PACK</h3>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+                      {packs.map((p, i) => {
+                        const chance = Math.round(totalTickets / p.qte);
+                        const isSelected = quantite === p.qte;
+                        return (
+                          <motion.div
+                            key={i}
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              setQuantite(p.qte);
+                              setSelectedPackIdx(i);
+                            }}
+                            style={{
+                              background: isSelected ? "linear-gradient(135deg, #6C5CE7, #A29BFE)" : "white",
+                              borderRadius: 20,
+                              padding: "20px 15px",
+                              textAlign: "center",
+                              cursor: "pointer",
+                              border: isSelected ? "none" : "2px solid #f0eeff",
+                              boxShadow: isSelected ? "0 10px 25px rgba(108,92,231,0.3)" : "none",
+                              transition: "all 0.2s ease",
+                            }}
+                          >
+                            <div style={{ fontSize: 28, fontFamily: "'Fredoka One', cursive", color: isSelected ? "white" : "#2D3436", marginBottom: 4 }}>
+                              {p.qte}
+                            </div>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: isSelected ? "rgba(255,255,255,0.9)" : "#6C5CE7", textTransform: "uppercase", marginBottom: 8 }}>
+                              {p.reduction}% OFF
+                            </div>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: isSelected ? "rgba(255,255,255,0.7)" : "#b2bec3" }}>
+                              1/{chance} chance de gagner
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Séparateur conditionnel */}
+                {packs && packs.length > 0 && (
+                  <div style={{ textAlign: "center", position: "relative", margin: "40px 0" }}>
+                     <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 2, background: "#f0eeff", zIndex: 0 }} />
+                     <span style={{ 
+                       position: "relative", zIndex: 1, background: "white", padding: "0 20px", 
+                       fontSize: 12, fontWeight: 900, color: "#b2bec3", 
+                       textTransform: "uppercase", letterSpacing: "2px" 
+                     }}>
+                       OU MANUEL
+                     </span>
+                  </div>
+                )}
+
                 <TicketSelector
                   max={Math.min(50, maxTickets)}
                   value={quantite}
-                  onChange={setQuantite}
+                  onChange={(val) => {
+                    setQuantite(val);
+                    setSelectedPackIdx(null);
+                  }}
                   prixTicket={prixTicket}
                 />
                 <motion.button 
@@ -179,20 +349,105 @@ export default function ParticipationForm({
               </div>
             )}
 
-            {/* ÉTAPE 2: FORMULAIRE + RÉCAPITULATIF */}
-            {step === 2 && (
-              <div className="space-y-8">
-                
+            {/* ÉTAPE 2: QUESTION */}
+            {step === 2 && currentQuestion && (
+              <motion.div 
+                key="step2" 
+                custom={direction}
+                initial={{ x: direction > 0 ? 50 : -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction < 0 ? 50 : -50, opacity: 0 }}
+                transition={transition}
+                className="space-y-8"
+              >
+                <div style={{ textAlign: "center", marginBottom: 30 }}>
+                  <div style={{ 
+                    display: "inline-block", background: "#f0eeff", color: "#6C5CE7", 
+                    padding: "6px 16px", borderRadius: 99, fontSize: 12, fontWeight: 900, 
+                    marginBottom: 16, textTransform: "uppercase", letterSpacing: "1px" 
+                  }}>
+                    Vérification de participation
+                  </div>
+                  <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 24, color: "#2D3436", margin: 0 }}>
+                    {currentQuestion.q}
+                  </h3>
+                  <p style={{ color: "#636E72", fontSize: 14, marginTop: 10 }}>
+                    Répondez correctement pour valider votre éligibilité.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {currentQuestion.choices.map((choice, idx) => {
+                    const isSelected = userAnswer === choice;
+                    return (
+                      <motion.button
+                        key={idx}
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setUserAnswer(choice);
+                          setIsWrong(false);
+                          setError(null);
+                        }}
+                        style={{
+                          background: isSelected ? "#6C5CE7" : "white",
+                          color: isSelected ? "white" : "#2D3436",
+                          border: isSelected ? "none" : "2px solid #f0eeff",
+                          padding: "20px",
+                          borderRadius: 20,
+                          fontSize: 16,
+                          fontWeight: 700,
+                          textAlign: "center",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          boxShadow: isSelected ? "0 8px 20px rgba(108,92,231,0.25)" : "none"
+                        }}
+                      >
+                        {choice}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    style={{ background: "#fff5f5", color: "#e17055", padding: "12px 20px", borderRadius: 12, fontSize: 14, fontWeight: 700, textAlign: "center", border: "1px solid #ff000022" }}
+                  >
+                    ⚠️ {error}
+                  </motion.div>
+                )}
+
+                <div className="flex gap-4 pt-4">
+                  <button type="button" onClick={handleBack} className="btn-fun-secondary" style={{ flex: 1, height: 55 }}>Retour</button>
+                  <button type="button" onClick={handleNext} className="btn-fun shadow-lg" style={{ flex: 2, height: 55 }}>Suivant</button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ÉTAPE 3: FINALISATION */}
+            {step === 3 && (
+              <motion.div 
+                key="step3" 
+                custom={direction}
+                initial={{ x: direction > 0 ? 50 : -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction < 0 ? 50 : -50, opacity: 0 }}
+                transition={transition}
+                className="space-y-8"
+              >
                 {/* Formulaire */}
                 <div style={{ background: "white", borderRadius: 32, padding: "32px", border: "1px solid #f0eeff", boxShadow: "0 22px 60px rgba(108,92,231,0.06)" }}>
                   <h3 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 24, color: "#2D3436", marginBottom: 24, textAlign: "center" }}>
                     Vos informations 👤
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <input type="text" placeholder="Prénom" value={prenom} onChange={(e) => setPrenom(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%" }} required />
-                    <input type="text" placeholder="Nom" value={nom} onChange={(e) => setNom(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%" }} required />
+                    <input type="text" placeholder="Prénom" value={prenom} onChange={(e) => setPrenom(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%" }} required={step === 3} />
+                    <input type="text" placeholder="Nom" value={nom} onChange={(e) => setNom(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%" }} required={step === 3} />
                   </div>
-                  <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%", marginBottom: 12 }} required />
+                  <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%", marginBottom: 12 }} required={step === 3} />
                   <input type="tel" placeholder="Téléphone (Optionnel)" value={telephone} onChange={(e) => setTelephone(e.target.value)} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #f0eeff", width: "100%" }} />
                 </div>
 
@@ -221,9 +476,27 @@ export default function ParticipationForm({
                      </div>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40, paddingTop: 24, borderTop: "1px dashed #f0eeff" }}>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: "#636E72" }}>TOTAL :</span>
-                    <span style={{ fontSize: 36, fontWeight: 900, color: "#2D3436" }}>{total} €</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40, paddingTop: 24, borderTop: "1px dashed #f0eeff" }}>
+                    <div>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: "#636E72", display: "block", marginBottom: 4 }}>TOTAL À PAYER :</span>
+                      {reduction > 0 && (
+                        <span style={{ fontSize: 16, fontWeight: 700, color: "#b2bec3", textDecoration: "line-through", marginRight: 10 }}>
+                          {originalTotal.toFixed(0)} €
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      {reduction > 0 && (
+                        <span style={{ 
+                          background: "#E17055", color: "white", padding: "4px 10px", 
+                          borderRadius: 8, fontSize: 11, fontWeight: 900, 
+                          verticalAlign: "middle", marginRight: 10
+                        }}>
+                          -{reduction}% OFF
+                        </span>
+                      )}
+                      <span style={{ fontSize: 38, fontWeight: 900, color: "#2D3436", lineHeight: 1 }}>{total} €</span>
+                    </div>
                   </div>
 
                   <motion.button
@@ -282,40 +555,18 @@ export default function ParticipationForm({
                       </svg>
                     </div>
 
-                    {/* GOOGLE PAY */}
-                    <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", display: "flex", alignItems: "center", gap: 5, height: 36 }}>
-                      <svg viewBox="0 0 24 24" width="16" height="16" style={{ display: "block" }}>
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                      </svg>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "#3c4043", fontFamily: "Arial, sans-serif" }}>Pay</span>
-                    </div>
-
-                    {/* APPLE PAY */}
-                    <div style={{ background: "black", border: "1px solid #1a1a1a", borderRadius: 8, padding: "6px 12px", display: "flex", alignItems: "center", gap: 5, height: 36 }}>
-                      <svg viewBox="0 0 24 24" width="14" height="14" style={{ display: "block" }}>
-                        <path fill="white" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                      </svg>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "Arial, sans-serif" }}>Pay</span>
-                    </div>
-
-                    {/* STRIPE */}
-                    <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", display: "flex", alignItems: "center", height: 36 }}>
-                      <svg viewBox="0 0 60 25" width="40" height="17" style={{ display: "block" }}>
-                        <text x="0" y="18" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="18" fill="#635BFF">stripe</text>
-                      </svg>
+                    <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", display: "flex", alignItems: "center", height: 36, gap: 4 }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: "#636E72" }}>+ Apple / Google Pay</span>
                     </div>
                   </div>
                 </div>
 
                 <div style={{ textAlign: "center" }}>
                   <button type="button" onClick={handleBack} style={{ color: "#6C5CE7", fontWeight: 800, fontSize: 14, background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-                    ← Modifier ma sélection
+                    ← Retour à la question
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         </AnimatePresence>
