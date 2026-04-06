@@ -25,7 +25,7 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
         <div style={{ position: "absolute", top: 14, left: 14, zIndex: 10, display: "flex", gap: 6 }}>
           {isProchain && (
             <span style={{
-              background: "#8a6000", color: "#ffffff",
+              background: "#0071e3", color: "#ffffff",
               fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
               textTransform: "uppercase", padding: "4px 10px", borderRadius: 6,
             }}>
@@ -185,7 +185,7 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
             <div style={{ height: 3, background: "rgba(0,0,0,0.07)", borderRadius: 99, overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 99,
-                background: pct >= 90 ? "#ff3b30" : "#1d1d1f",
+                background: pct >= 90 ? "#ff3b30" : "#0071e3",
                 width: `${pct}%`,
                 transition: "width .6s cubic-bezier(0.16,1,0.3,1)",
               }} />
@@ -214,8 +214,8 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
               </div>
             ) : (
               <div style={{
-                width: "100%", padding: "12px", borderRadius: 10, textAlign: "center",
-                background: "#1d1d1f", color: "#ffffff",
+                width: "100%", padding: "12px", borderRadius: 980, textAlign: "center",
+                background: "#0071e3", color: "#ffffff",
                 fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
                 transition: "background .2s",
               }}>

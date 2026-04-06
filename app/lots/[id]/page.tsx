@@ -114,7 +114,7 @@ export default function LotDetailPage({ params }: Props) {
                   style={{
                     position: "relative", width: 72, height: 72, borderRadius: 12, overflow: "hidden",
                     cursor: "pointer",
-                    border: `2px solid ${activeMedia === lot.image_url ? "#1d1d1f" : "rgba(0,0,0,0.07)"}`,
+                    border: `2px solid ${activeMedia === lot.image_url ? "#0071e3" : "rgba(0,0,0,0.07)"}`,
                     background: "#f5f5f7", transition: "border-color .2s",
                     flexShrink: 0,
                   }}
@@ -129,7 +129,7 @@ export default function LotDetailPage({ params }: Props) {
                   style={{
                     position: "relative", width: 72, height: 72, borderRadius: 12, overflow: "hidden",
                     cursor: "pointer", flexShrink: 0,
-                    border: `2px solid ${activeMedia === url ? "#1d1d1f" : "rgba(0,0,0,0.07)"}`,
+                    border: `2px solid ${activeMedia === url ? "#0071e3" : "rgba(0,0,0,0.07)"}`,
                     background: "#f5f5f7", transition: "border-color .2s",
                   }}
                 >
@@ -158,7 +158,7 @@ export default function LotDetailPage({ params }: Props) {
 
             {lot.valeur_estimee && (
               <p style={{ fontSize: 13, color: "#6e6e73", marginBottom: 16 }}>
-                Valeur estimée — <span style={{ color: "#8a6000", fontWeight: 600 }}>{Number(lot.valeur_estimee).toLocaleString("fr-FR")} €</span>
+                Valeur estimée — <span style={{ color: "#0071e3", fontWeight: 600 }}>{Number(lot.valeur_estimee).toLocaleString("fr-FR")} €</span>
               </p>
             )}
 

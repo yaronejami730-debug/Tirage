@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabaseClient, Lot } from "@/lib/supabase";
 import { CATEGORIES } from "@/lib/categories";
 import LotGrid from "@/components/LotGrid";
 
 export default function HomePage() {
+  return (
+    <Suspense>
+      <HomePageContent />
+    </Suspense>
+  );
+}
+
+function HomePageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [lots, setLots] = useState<Lot[]>([]);
@@ -63,7 +71,7 @@ export default function HomePage() {
             border: "1px solid rgba(0,0,0,0.07)",
             borderRadius: 99,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#8a6000", display: "inline-block" }} />
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#0071e3", display: "inline-block" }} />
             <span style={{ fontSize: 12, fontWeight: 500, color: "#6e6e73", letterSpacing: "0.04em" }}>
               Tirage certifié · Paiement sécurisé
             </span>
@@ -93,13 +101,14 @@ export default function HomePage() {
 
           <a href="#lots" style={{
             display: "inline-flex", alignItems: "center", gap: 10,
-            background: "#1d1d1f", color: "#ffffff",
+            background: "#0071e3", color: "#ffffff",
             fontWeight: 600, fontSize: 15, letterSpacing: "-0.02em",
             padding: "15px 32px", borderRadius: 980, textDecoration: "none",
             transition: "all .2s cubic-bezier(0.16,1,0.3,1)",
+            boxShadow: "0 4px 16px rgba(0,113,227,0.3)",
           }}
-            onMouseEnter={e => { e.currentTarget.style.background = "#3a3a3c"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,0.15)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "#1d1d1f"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+            onMouseEnter={e => { e.currentTarget.style.background = "#0077ed"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,113,227,0.4)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "#0071e3"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,113,227,0.3)"; }}
           >
             Voir les lots
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -150,9 +159,9 @@ export default function HomePage() {
                         fontFamily: "inherit", fontWeight: 500, fontSize: 13,
                         cursor: "pointer",
                         border: "1px solid",
-                        borderColor: activeCategory === null ? "rgba(138,96,0,0.35)" : "rgba(0,0,0,0.1)",
-                        background: activeCategory === null ? "rgba(138,96,0,0.07)" : "transparent",
-                        color: activeCategory === null ? "#8a6000" : "#6e6e73",
+                        borderColor: activeCategory === null ? "rgba(0,113,227,0.35)" : "rgba(0,0,0,0.1)",
+                        background: activeCategory === null ? "rgba(0,113,227,0.07)" : "transparent",
+                        color: activeCategory === null ? "#0071e3" : "#6e6e73",
                         transition: "all .15s",
                       }}
                     >
