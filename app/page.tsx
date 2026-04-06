@@ -7,46 +7,14 @@ import { CATEGORIES } from "@/lib/categories";
 import LotGrid from "@/components/LotGrid";
 
 const FLOATING_ITEMS = [
-  { emoji: "📱", size: 52, top: 5,  left: 2  },
-  { emoji: "🚗", size: 60, top: 60, left: 0  },
-  { emoji: "✈️", size: 56, top: 14, left: 82 },
-  { emoji: "💻", size: 54, top: 71, left: 85 },
-  { emoji: "📺", size: 50, top: 3,  left: 43 },
-  { emoji: "🎧", size: 48, top: 79, left: 42 },
-  { emoji: "⌚", size: 46, top: 37, left: 89 },
-  { emoji: "🎮", size: 52, top: 43, left: 1  },
-  { emoji: "💎", size: 44, top: 86, left: 13 },
-  { emoji: "🏎️", size: 58, top: 91, left: 69 },
-  { emoji: "🎟️", size: 44, top: 21, left: 62 },
-  { emoji: "📷", size: 48, top: 56, left: 92 },
-  { emoji: "🖥️", size: 50, top: 9,  left: 21 },
-  { emoji: "🎸", size: 46, top: 74, left: 57 },
-  { emoji: "🚀", size: 44, top: 29, left: 74 },
-  { emoji: "👜", size: 46, top: 93, left: 34 },
-  { emoji: "🛥️", size: 50, top: 19, left: 9  },
-  { emoji: "🏠", size: 48, top: 67, left: 21 },
-  { emoji: "💰", size: 44, top: 44, left: 51 },
-  { emoji: "🍾", size: 46, top: 32, left: 6  },
-  { emoji: "🚁", size: 50, top: 8,  left: 66 },
-  { emoji: "👟", size: 44, top: 83, left: 76 },
-  { emoji: "🧳", size: 46, top: 52, left: 88 },
-  { emoji: "🏆", size: 50, top: 16, left: 30 },
-  { emoji: "🎯", size: 42, top: 97, left: 52 },
-  { emoji: "🪙", size: 40, top: 48, left: 77 },
-  { emoji: "🎀", size: 42, top: 63, left: 6  },
-  { emoji: "💳", size: 44, top: 26, left: 48 },
-  { emoji: "🎪", size: 48, top: 88, left: 28 },
-  { emoji: "🛍️", size: 44, top: 40, left: 15 },
-  { emoji: "🏋️", size: 46, top: 76, left: 93 },
-  { emoji: "🎨", size: 44, top: 12, left: 55 },
-  { emoji: "🚤", size: 48, top: 58, left: 33 },
-  { emoji: "🎺", size: 44, top: 95, left: 8  },
-  { emoji: "🧿", size: 40, top: 35, left: 58 },
-  { emoji: "🛸", size: 46, top: 22, left: 18 },
-  { emoji: "🎭", size: 44, top: 70, left: 48 },
-  { emoji: "🌟", size: 42, top: 50, left: 68 },
-  { emoji: "🏝️", size: 46, top: 82, left: 61 },
-  { emoji: "🎠", size: 44, top: 6,  left: 37 },
+  { emoji: "🚗", size: 52, top: 12, left: 3  },
+  { emoji: "✈️", size: 50, top: 10, left: 80 },
+  { emoji: "💻", size: 48, top: 65, left: 88 },
+  { emoji: "🎧", size: 44, top: 72, left: 5  },
+  { emoji: "💎", size: 42, top: 80, left: 50 },
+  { emoji: "🏆", size: 46, top: 20, left: 55 },
+  { emoji: "⌚", size: 42, top: 45, left: 92 },
+  { emoji: "📱", size: 44, top: 55, left: 1  },
 ];
 
 export default function HomePage() {
@@ -89,10 +57,10 @@ export default function HomePage() {
             fontSize: item.size,
             top: `${item.top}%`,
             left: `${item.left}%`,
-            opacity: 0.3,
-            animation: `float ${3 + i * 0.35}s ease-in-out ${i * 0.25}s infinite`,
+            opacity: 0.12,
+            animation: `float ${4 + i * 0.5}s ease-in-out ${i * 0.4}s infinite`,
             pointerEvents: "none",
-            filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.25))",
+            filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))",
             userSelect: "none",
           }}>{item.emoji}</div>
         ))}
@@ -120,6 +88,23 @@ export default function HomePage() {
           </p>
 
 
+        </div>
+      </div>
+
+      {/* TRUST BAR */}
+      <div style={{ background: "white", borderBottom: "1px solid #f0eeff" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", justifyContent: "center", alignItems: "center", gap: 40, flexWrap: "wrap" }}>
+          {[
+            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00B894" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>, label: "Paiement 100% sécurisé" },
+            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, label: "Tirage certifié huissier" },
+            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7043" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "Confirmation email immédiate" },
+            { icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FDCB6E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, label: "Des milliers de gagnants" },
+          ].map(item => (
+            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 700, color: "#636E72", whiteSpace: "nowrap" }}>
+              {item.icon}
+              {item.label}
+            </div>
+          ))}
         </div>
       </div>
 

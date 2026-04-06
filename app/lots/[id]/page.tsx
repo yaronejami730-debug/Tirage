@@ -16,12 +16,16 @@ export default function LotDetailPage({ params }: Props) {
   const [lot, setLot] = useState<Lot | null>(null);
   const [loading, setLoading] = useState(true);
   const [gone, setGone] = useState(false);
+  const [activeMedia, setActiveMedia] = useState<string | null>(null);
 
   useEffect(() => {
     supabaseClient().from("lots").select("*").eq("id", id).single()
       .then(({ data, error }) => {
         if (error || !data) setGone(true);
-        else setLot(data);
+        else {
+          setLot(data);
+          setActiveMedia(data.image_url || (data.medias?.[0] || null));
+        }
         setLoading(false);
       });
   }, [id]);
@@ -41,6 +45,8 @@ export default function LotDetailPage({ params }: Props) {
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
   const barColor = pct >= 90 ? "#E17055" : pct >= 70 ? "#FDCB6E" : "#00B894";
 
+  const isVideo = (url: string) => /\.(mp4|webm|mov|avi)(\?|$)/i.test(url);
+
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "36px 20px 80px" }}>
 
@@ -58,62 +64,76 @@ export default function LotDetailPage({ params }: Props) {
 
         {/* LEFT */}
         <div>
-          {/* Image */}
-          <div style={{ position: "relative", height: 480, borderRadius: 32, overflow: "hidden", marginBottom: 24, boxShadow: "0 22px 70px rgba(108,92,231,0.22)", background: "linear-gradient(135deg, #f0eeff, #fff0f6)" }}>
-            {lot.image_url ? (
-              <Image src={lot.image_url} alt={lot.nom} fill style={{ objectFit: "cover" }} priority />
+          {/* Image Principale Rehaussée */}
+          <div style={{ position: "relative", height: 500, borderRadius: 32, overflow: "hidden", marginBottom: 20, boxShadow: "0 22px 70px rgba(108,92,231,0.18)", background: "#F8F9FF", border: "1px solid #f0eeff" }}>
+            {activeMedia ? (
+              isVideo(activeMedia) ? (
+                <video src={activeMedia} autoPlay muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <Image src={activeMedia} alt={lot.nom} fill style={{ objectFit: "cover" }} priority />
+              )
             ) : (
               <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 100 }}>
                 🎁
               </div>
             )}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 40%)" }} />
 
-            {/* Countdown */}
-            {lot.date_fin && !isSoldOut && (
+            {/* Countdown Banner - Premium Dark Aesthetic matching screenshot */}
+            {lot.date_fin && !isSoldOut && !isArchived && (
               <div style={{
-                position: "absolute", bottom: 16, left: 16,
-                background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)",
-                borderRadius: 16, padding: "8px 14px", border: "1px solid rgba(255,255,255,0.15)",
-                display: "flex", alignItems: "center", gap: 8
+                position: "absolute", bottom: 20, left: 20, right: 20,
+                background: "rgba(15,15,15,0.85)", backdropFilter: "blur(12px)",
+                borderRadius: 22, padding: "12px 20px", border: "1px solid rgba(255,255,255,0.1)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+                boxShadow: "0 10px 40px rgba(0,0,0,0.4)"
               }}>
-                <span>⏰</span>
-                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 700 }}>Tirage dans :</span>
+                <div style={{ fontSize: 24 }}>⏰</div>
+                <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px" }}>Tirage dans :</div>
                 <CountdownTimer dateFin={lot.date_fin} />
               </div>
             )}
-
-            {/* Ref */}
-            <div style={{
-              position: "absolute", top: 16, right: 16,
-              background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)",
-              borderRadius: 12, padding: "5px 12px", color: "#A29BFE",
-              fontSize: 12, fontWeight: 800, border: "1px solid rgba(255,255,255,0.15)"
-            }}>
-              🏷️ {lot.reference_lot}
-            </div>
           </div>
 
-          {/* Galerie médias */}
-          {lot.medias && lot.medias.length > 0 && (
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                {lot.medias.map((url, i) => {
-                  const vid = /\.(mp4|webm|mov|avi)(\?|$)/i.test(url);
-                  return (
-                    <div key={i} style={{ position: "relative", width: 100, height: 100, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: "2px solid #f0eeff", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                      {vid ? (
-                        <video src={url} controls style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      ) : (
-                        <img src={url} alt={`media-${i}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      )}
-                      {vid && (
-                        <div style={{ position: "absolute", bottom: 4, left: 4, background: "rgba(0,0,0,0.6)", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "white", fontWeight: 700 }}>▶</div>
-                      )}
+          {/* Galerie médias Interactive */}
+          {(lot.image_url || (lot.medias && lot.medias.length > 0)) && (
+            <div style={{ marginBottom: 24, display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {/* Main Image in gallery */}
+              {lot.image_url && (
+                <div 
+                  onClick={() => setActiveMedia(lot.image_url)}
+                  style={{ 
+                    position: "relative", width: 90, height: 90, borderRadius: 18, overflow: "hidden", 
+                    cursor: "pointer", border: activeMedia === lot.image_url ? "3px solid #6C5CE7" : "1px solid #f0eeff",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  <img src={lot.image_url} alt="Main" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+              )}
+              {/* Other Medias */}
+              {lot.medias?.map((url, i) => (
+                <div 
+                  key={i} 
+                  onClick={() => setActiveMedia(url)}
+                  style={{ 
+                    position: "relative", width: 90, height: 90, borderRadius: 18, overflow: "hidden", 
+                    cursor: "pointer", border: activeMedia === url ? "3px solid #6C5CE7" : "1px solid #f0eeff",
+                    transition: "all 0.2s ease", transform: activeMedia === url ? "scale(1.05)" : "scale(1)"
+                  }}
+                >
+                  {isVideo(url) ? (
+                    <video src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <img src={url} alt={`media-${i}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  )}
+                  {isVideo(url) && (
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.2)" }}>
+                      <div style={{ color: "white", fontSize: 20 }}>▶</div>
                     </div>
-                  );
-                })}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 
@@ -122,9 +142,41 @@ export default function LotDetailPage({ params }: Props) {
             <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 26, color: "#2D3436", marginBottom: 10, lineHeight: 1.2 }}>
               {lot.nom}
             </h1>
-            {lot.description && (
+
+            {/* 🔥 URGENCY TICKET BADGE — Only show if < 15 tickets */}
+            {!isSoldOut && !isProgramme && remaining > 0 && remaining < 15 && (
+              <div style={{
+                display: "flex", 
+                alignItems: "center", 
+                gap: 7,
+                background: "linear-gradient(135deg, #fff3f0, #fff8f6)",
+                padding: "8px 12px",
+                width: "fit-content",
+                borderRadius: 12,
+                border: "1px solid #ffe0d8",
+                marginBottom: 20,
+                animation: "detailsPulse 2s infinite"
+              }}>
+                <span style={{ fontSize: 18 }}>🔥</span>
+                <span style={{ 
+                  fontSize: 14, 
+                  fontWeight: 800, 
+                  color: "#E17055",
+                  fontFamily: "'Nunito', sans-serif"
+                }}>
+                  Il reste plus que <strong style={{ color: "#D63031", fontSize: 16 }}>{remaining}</strong> tickets !
+                </span>
+                <style>{`@keyframes detailsPulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.8; transform:scale(1.02)} }`}</style>
+              </div>
+            )}
+
+            {lot.description ? (
               <p style={{ fontFamily: "'Nunito', sans-serif", color: "#636E72", lineHeight: 1.75, fontSize: 15, marginBottom: 20, fontWeight: 600 }}>
                 {lot.description}
+              </p>
+            ) : (
+              <p style={{ fontFamily: "'Nunito', sans-serif", color: "#b2bec3", fontSize: 14, marginBottom: 20, fontStyle: "italic" }}>
+                Aucune description disponible pour ce lot.
               </p>
             )}
 
@@ -247,6 +299,7 @@ export default function LotDetailPage({ params }: Props) {
               <ParticipationForm
                 lotId={lot.id}
                 lotNom={lot.nom}
+                lotImage={lot.image_url}
                 prixTicket={Number(lot.prix_ticket)}
                 maxTickets={Math.min(remaining, 50)}
               />

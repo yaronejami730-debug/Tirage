@@ -83,6 +83,11 @@ export default function AdminLotsPage() {
                         <button onClick={() => setSelectedLot(lot)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
                           <p className="font-semibold text-primary-600 hover:underline">{lot.nom}</p>
                           <p className="text-xs text-gray-500 font-mono mt-0.5">{lot.reference_lot}</p>
+                          {!lot.description && (
+                            <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                              ⚠️ Description manquante
+                            </span>
+                          )}
                         </button>
                       </td>
                       <td className="px-6 py-4 text-gray-900 font-medium">{Number(lot.prix_ticket).toFixed(2)} €</td>
@@ -123,6 +128,11 @@ export default function AdminLotsPage() {
                       <button onClick={() => setSelectedLot(lot)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }} className="w-full">
                         <p className="font-semibold text-primary-600 text-sm leading-tight">{lot.nom}</p>
                         <p className="text-xs text-gray-400 font-mono mt-0.5">{lot.reference_lot}</p>
+                        {!lot.description && (
+                          <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                            ⚠️ Description manquante
+                          </span>
+                        )}
                       </button>
                     </div>
                     {(() => { const s = getStatutDisplay(lot); return <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statutBadge[s.key]}`}>{s.label}</span>; })()}

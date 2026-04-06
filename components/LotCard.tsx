@@ -12,12 +12,11 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
   const remaining = lot.total_tickets - lot.tickets_vendus;
   const isSoldOut = remaining <= 0;
   const pct = Math.min((lot.tickets_vendus / lot.total_tickets) * 100, 100);
-  const isUrgent = remaining <= 15 && remaining > 0;
+  const isUrgent = remaining <= 10 && remaining > 0;
   const cat = lot.categorie || "autre";
   const catInfo = CATEGORY_MAP[cat as keyof typeof CATEGORY_MAP] ?? CATEGORY_MAP["autre"];
   const catColor = catInfo.color;
   const isProgramme = !!(lot.date_ouverture && new Date(lot.date_ouverture) > new Date());
-  const barColor = pct >= 90 ? "#E17055" : pct >= 70 ? "#FDCB6E" : "#00B894";
   const isNew = lot.created_at
     ? Date.now() - new Date(lot.created_at).getTime() < 48 * 60 * 60 * 1000
     : false;
@@ -107,35 +106,42 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
         </h3>
 
         {/* 3. Description avec fondu */}
-        {lot.description && (
-          <div style={{ position: "relative", maxHeight: 54, overflow: "hidden", marginBottom: 14 }}>
-            <p style={{ fontSize: 13, color: "#636E72", lineHeight: 1.65, margin: 0, fontFamily: "'Nunito', sans-serif" }}>
-              {lot.description}
-            </p>
+        <div style={{ position: "relative", maxHeight: 54, overflow: "hidden", marginBottom: 14 }}>
+          <p style={{ fontSize: 13, color: lot.description ? "#636E72" : "#b2bec3", lineHeight: 1.65, margin: 0, fontFamily: "'Nunito', sans-serif", fontStyle: lot.description ? "normal" : "italic" }}>
+            {lot.description || "Aucune description disponible"}
+          </p>
+          {lot.description && (
             <div style={{
               position: "absolute", bottom: 0, left: 0, right: 0, height: 30,
               background: "linear-gradient(to bottom, transparent, white)"
             }} />
-          </div>
-        )}
-
-        {/* 4. Urgent */}
-        {isUrgent && !isSoldOut && (
-          <div style={{ color: "#E17055", fontWeight: 800, fontSize: 11, marginBottom: 10, animation: "pulse 1.5s infinite" }}>
-            🔥 Plus que {remaining} tickets !
-          </div>
-        )}
-
-        {/* 5. Barre de progression */}
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 11, fontWeight: 700 }}>
-            <span style={{ color: "#6C5CE7" }}>🎫 {remaining} restants</span>
-            <span style={{ color: barColor }}>{Math.round(pct)}% vendus</span>
-          </div>
-          <div style={{ height: 8, background: "#f0eeff", borderRadius: 999, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${pct}%`, background: barColor, borderRadius: 999, transition: "width .5s" }} />
-          </div>
+          )}
         </div>
+
+        {/* 3b. Tickets restants — Uniquement si < 15 tickets (Sentiment d'Urgence) */}
+        {!isSoldOut && !isProgramme && remaining > 0 && remaining < 15 && (
+          <div style={{
+            display: "flex", 
+            alignItems: "center", 
+            gap: 7,
+            background: "linear-gradient(135deg, #fff3f0, #fff8f6)",
+            padding: "8px 12px",
+            borderRadius: 12,
+            border: "1px solid #ffe0d8",
+            marginBottom: 14,
+            animation: "pulse 2s infinite"
+          }}>
+            <span style={{ fontSize: 16 }}>🔥</span>
+            <span style={{ 
+              fontSize: 13, 
+              fontWeight: 800, 
+              color: "#E17055",
+              fontFamily: "'Nunito', sans-serif"
+            }}>
+              Il reste plus que <strong style={{ color: "#D63031", fontSize: 15 }}>{remaining}</strong> tickets !
+            </span>
+          </div>
+        )}
 
         {/* 6. Catégorie + NOUVEAU + numéro de lot */}
         <div style={{ marginTop: "auto", borderTop: "1px solid #f0eeff", paddingTop: 12, marginBottom: 14 }}>
@@ -204,6 +210,7 @@ export default function LotCard({ lot, isProchain = false }: LotCardProps) {
         @keyframes badgeFloat { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-5px)} }
       `}</style>
     </div>
+    </Link>
   );
 
   if (!isProchain) return cardInner;

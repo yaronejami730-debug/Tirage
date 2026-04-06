@@ -195,6 +195,7 @@ export default function LotForm({ lot, mode }: LotFormProps) {
       nom: s.nom,
       categorie: s.categorie,
       ...(s.valeur ? { valeur_estimee: String(s.valeur) } : {}),
+      ...(s.description ? { description: s.description } : {}),
     }));
     setSuggestions([]);
     setShowSuggestions(false);

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import AgeVerificationModal from "@/components/AgeVerificationModal";
+import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "GoWinGo 🎰 — Tentez votre chance !",
@@ -17,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ fontFamily: "'Nunito', sans-serif", background: "#F8F9FF", minHeight: "100vh" }}>
 
+        <AgeVerificationModal />
         <AnnouncementBanner />
+        <Header />
         <main>{children}</main>
 
         {/* FOOTER */}
