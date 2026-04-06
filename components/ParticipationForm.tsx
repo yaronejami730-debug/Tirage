@@ -77,7 +77,6 @@ export default function ParticipationForm({
       if (userAnswer !== currentQuestion?.a) { setError("Mauvaise réponse. Réessayez."); return; }
       setStep(3);
     }
-    window.scrollTo({ top: 300, behavior: "smooth" });
   };
 
   const handleBack = () => {
@@ -85,7 +84,6 @@ export default function ParticipationForm({
     setError(null);
     if (step === 3) setStep(2);
     else if (step === 2) setStep(1);
-    window.scrollTo({ top: 300, behavior: "smooth" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -400,22 +398,35 @@ export default function ParticipationForm({
                     color: "#ffffff", padding: "16px 24px", borderRadius: 12,
                     border: "none", cursor: loading ? "wait" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                    fontFamily: "inherit", fontSize: 15, fontWeight: 600,
-                    letterSpacing: "-0.01em", transition: "background .2s",
+                    fontFamily: "inherit", fontSize: 15, fontWeight: 700,
+                    letterSpacing: "-0.01em", transition: "all .2s",
+                    boxShadow: "0 10px 20px -10px rgba(123,77,255,0.4)",
                   }}
                 >
                   {loading ? (
                     <>
                       <svg style={{ animation: "spin .8s linear infinite" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeOpacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
-                      Redirection en cours…
+                      Redirection...
                     </>
                   ) : (
                     <>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      Payer — {total} €
+                      Procéder au paiement sécurisé — {total} €
                     </>
                   )}
                 </motion.button>
+
+                {/* Secure Payment Icons */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginTop: -4 }}>
+                   <div style={{ display: "flex", alignItems: "center", gap: 12, opacity: 0.8 }}>
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" style={{ height: 10, filter: "grayscale(1) brightness(0.5)" }} />
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style={{ height: 16, filter: "grayscale(1) brightness(0.5)" }} />
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: 14, filter: "grayscale(1) brightness(0.5)" }} />
+                   </div>
+                   <div style={{ fontSize: 10, color: "#a0a0a0", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                     Tirage sécurisé par Stripe
+                   </div>
+                </div>
 
                 <button type="button" onClick={handleBack}
                   style={{ textAlign: "center", color: "#a0a0a0", fontSize: 13, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", paddingTop: 4 }}>

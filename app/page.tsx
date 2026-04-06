@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { supabaseClient, Lot } from "@/lib/supabase";
 import { CATEGORIES } from "@/lib/categories";
 import LotGrid from "@/components/LotGrid";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function HomePage() {
   return (
@@ -23,7 +24,6 @@ function HomePageContent() {
     searchParams.get("cat")
   );
 
-  // Sync avec le param URL quand on revient du menu hamburger
   useEffect(() => {
     setActiveCategory(searchParams.get("cat"));
   }, [searchParams]);
@@ -54,8 +54,19 @@ function HomePageContent() {
     return [prochainTirage, ...lots.filter(l => l.id !== prochainTirage.id)];
   }, [lots, prochainTirage]);
 
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const href = e.currentTarget.getAttribute("href");
+    if (href?.startsWith("#")) {
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
-    <div>
+    <div style={{ scrollBehavior: "smooth" }}>
       {/* ─── HERO ─────────────────────────────────────── */}
       <div style={{
         position: "relative",
@@ -65,147 +76,148 @@ function HomePageContent() {
         color: "#ffffff",
       }}>
         {/* Abstract Background Image */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: "url('/hero-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.5,
-          zIndex: 0,
-        }} />
+        <motion.div 
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 0.5, scale: 1 }}
+          transition={{ duration: 1.5 }}
+          style={{
+            position: "absolute",
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundImage: "url('/hero-bg.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            zIndex: 0,
+          }} 
+        />
 
         {/* Decorative mask */}
         <div style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
+          position: "absolute", bottom: 0, left: 0, right: 0,
           height: "40%",
           background: "linear-gradient(to top, #ffffff 0%, transparent 100%)",
           zIndex: 1,
         }} />
 
         <div style={{ 
-          maxWidth: 900, 
-          margin: "0 auto", 
-          textAlign: "center",
-          position: "relative",
-          zIndex: 10,
+          maxWidth: 900, margin: "0 auto", textAlign: "center",
+          position: "relative", zIndex: 10,
         }}>
 
-          {/* Eyebrow / Trust Badge */}
-          <div className="fade-up" style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            marginBottom: 32, padding: "8px 20px",
-            background: "rgba(255,255,255,0.08)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 99,
-          }}>
-            <span style={{ 
-              width: 8, height: 8, borderRadius: "50%", 
-              background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", 
-              display: "inline-block",
-              boxShadow: "0 0 12px #4F8CFF"
-            }} />
-            <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.85)", letterSpacing: "0.03em" }}>
-              Tirages certifiés · Paiement 100% sécurisé
-            </span>
-          </div>
-
-          <h1 className="fade-up" style={{
-            fontSize: "clamp(44px, 7vw, 84px)",
-            fontWeight: 800,
-            lineHeight: 0.95,
-            letterSpacing: "-0.05em",
-            marginBottom: 24,
-            animationDelay: "0.1s"
-          }}>
-            Tentez votre chance
-            <br />
-            <span style={{ 
-              background: "linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.4) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontWeight: 400
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            {/* Eyebrow / Trust Badge */}
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              marginBottom: 32, padding: "8px 20px",
+              background: "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 99,
             }}>
-              sur des lots d'exception
-            </span>
-          </h1>
+              <span style={{ 
+                width: 8, height: 8, borderRadius: "50%", 
+                background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", 
+                display: "inline-block",
+                boxShadow: "0 0 12px #4F8CFF"
+              }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.85)", letterSpacing: "0.03em" }}>
+                Tirages certifiés · Paiement 100% sécurisé
+              </span>
+            </div>
 
-          <p className="fade-up" style={{
-            color: "rgba(255,255,255,0.6)", 
-            fontSize: "clamp(16px, 2.5vw, 19px)",
-            fontWeight: 400, 
-            lineHeight: 1.6, 
-            maxWidth: 580, 
-            margin: "0 auto 48px",
-            animationDelay: "0.2s"
-          }}>
-            Vivez l'adrénaline de nos tirages exclusifs. 
-            Une sélection rigoureuse de produits premium, encadrée par huissier.
-          </p>
+            <h1 style={{
+              fontSize: "clamp(44px, 7vw, 84px)",
+              fontWeight: 800,
+              lineHeight: 0.95,
+              letterSpacing: "-0.05em",
+              marginBottom: 24,
+            }}>
+              Tentez votre chance
+              <br />
+              <span style={{ 
+                background: "linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.4) 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 400
+              }}>
+                sur des lots d'exception
+              </span>
+            </h1>
 
-          <div className="fade-up" style={{ animationDelay: "0.3s" }}>
-            <a href="#lots" style={{
-              display: "inline-flex", alignItems: "center", gap: 12,
-              background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff",
-              fontWeight: 700, fontSize: 16, letterSpacing: "-0.01em",
-              padding: "18px 40px", borderRadius: 980, textDecoration: "none",
-              transition: "all .3s cubic-bezier(0.16,1,0.3,1)",
-              boxShadow: "0 10px 40px rgba(79,140,255,0.35)",
-            }}
-              onMouseEnter={e => { 
-                e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"; 
-                e.currentTarget.style.boxShadow = "0 15px 50px rgba(79,140,255,0.5)"; 
-              }}
-              onMouseLeave={e => { 
-                e.currentTarget.style.transform = "translateY(0) scale(1)"; 
-                e.currentTarget.style.boxShadow = "0 10px 40px rgba(79,140,255,0.35)"; 
-              }}
-            >
-              Découvrir les lots
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </a>
-          </div>
+            <p style={{
+              color: "rgba(255,255,255,0.6)", 
+              fontSize: "clamp(16px, 2.5vw, 19px)",
+              fontWeight: 400, lineHeight: 1.6, 
+              maxWidth: 580, margin: "0 auto 48px",
+            }}>
+              Vivez l'adrénaline de nos tirages exclusifs. 
+              Une sélection rigoureuse de produits premium, encadrée par huissier.
+            </p>
 
-          {/* Trust indicators */}
-          <div className="fade-up" style={{ 
-            marginTop: 64, 
-            display: "flex", 
-            justifyContent: "center", 
-            gap: 40,
-            animationDelay: "0.4s",
-            opacity: 0.7
-          }}>
-            {[
-              { label: "Certifié par Huissier", icon: "⚖️" },
-              { label: "Paiement Stripe", icon: "💳" },
-              { label: "Support 7j/7", icon: "💬" }
-            ].map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500 }}>
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </div>
-            ))}
-          </div>
+            <div>
+              <a 
+                href="#lots" 
+                onClick={handleSmoothScroll}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 12,
+                  background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff",
+                  fontWeight: 700, fontSize: 16, letterSpacing: "-0.01em",
+                  padding: "18px 40px", borderRadius: 980, textDecoration: "none",
+                  transition: "all .3s cubic-bezier(0.16,1,0.3,1)",
+                  boxShadow: "0 10px 40px rgba(79,140,255,0.35)",
+                }}
+                onMouseEnter={e => { 
+                  e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"; 
+                  e.currentTarget.style.boxShadow = "0 15px 50px rgba(79,140,255,0.5)"; 
+                }}
+                onMouseLeave={e => { 
+                  e.currentTarget.style.transform = "translateY(0) scale(1)"; 
+                  e.currentTarget.style.boxShadow = "0 10px 40px rgba(79,140,255,0.35)"; 
+                }}
+              >
+                Découvrir les lots
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+
+            {/* Trust indicators */}
+            <div style={{ 
+              marginTop: 64, 
+              display: "flex", justifyContent: "center", gap: 40,
+              opacity: 0.7
+            }}>
+              {[
+                { label: "Certifié par Huissier", icon: "⚖️" },
+                { label: "Paiement Stripe", icon: "💳" },
+                { label: "Support 7j/7", icon: "💬" }
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500 }}>
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
 
       {/* ─── LOTS ─────────────────────────────────────── */}
-      <div id="lots" className="fade-up" style={{ 
-        maxWidth: 1200, 
-        margin: "0 auto", 
-        padding: "80px 28px 100px",
-        animationDelay: "0.5s"
-      }}>
-
+      <motion.div 
+        id="lots" 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        style={{ 
+          maxWidth: 1200, margin: "0 auto", 
+          padding: "80px 28px 100px",
+        }}
+      >
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 100 }}>
             <div className="spin" style={{ width: 32, height: 32, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#4F8CFF", borderRadius: "50%" }} />
@@ -254,8 +266,7 @@ function HomePageContent() {
                       style={{
                         padding: "8px 18px", borderRadius: 10,
                         fontFamily: "inherit", fontWeight: 600, fontSize: 13,
-                        cursor: "pointer",
-                        border: "none",
+                        cursor: "pointer", border: "none",
                         background: activeCategory === null ? "#ffffff" : "transparent",
                         color: activeCategory === null ? "#111111" : "#6b6b6b",
                         boxShadow: activeCategory === null ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
@@ -277,8 +288,7 @@ function HomePageContent() {
                           style={{
                             padding: "8px 18px", borderRadius: 10,
                             fontFamily: "inherit", fontWeight: 600, fontSize: 13,
-                            cursor: "pointer",
-                            border: "none",
+                            cursor: "pointer", border: "none",
                             background: active ? "#ffffff" : "transparent",
                             color: active ? "#111111" : "#6b6b6b",
                             boxShadow: active ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
@@ -300,7 +310,7 @@ function HomePageContent() {
             />
           </>
         )}
-      </div>
+      </motion.div>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>

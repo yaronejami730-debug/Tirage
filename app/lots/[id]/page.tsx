@@ -17,6 +17,7 @@ export default function LotDetailPage({ params }: Props) {
   const [loading, setLoading] = useState(true);
   const [gone, setGone] = useState(false);
   const [activeMedia, setActiveMedia] = useState<string | null>(null);
+  const [otherLots, setOtherLots] = useState<Lot[]>([]);
 
   useEffect(() => {
     supabaseClient.from("lots")
@@ -28,6 +29,14 @@ export default function LotDetailPage({ params }: Props) {
         else {
           setLot(data);
           setActiveMedia(data.image_url || (data.medias?.[0] || null));
+          
+          // Fetch other lots
+          supabaseClient.from("lots")
+            .select("*")
+            .neq("id", id)
+            .in("statut", ["actif", "programme"])
+            .limit(3)
+            .then(({ data: others }) => setOtherLots(others || []));
         }
         setLoading(false);
       });
@@ -54,16 +63,24 @@ export default function LotDetailPage({ params }: Props) {
 
       <LotOnlineBadge lotId={id} />
 
-      {/* Breadcrumb */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 36, fontSize: 13 }}>
-        <Link href="/" style={{ color: "#a0a0a0", textDecoration: "none", transition: "color .2s" }}
-          onMouseEnter={e => e.currentTarget.style.color = "#1d1d1f"}
-          onMouseLeave={e => e.currentTarget.style.color = "#a1a1a6"}
+      {/* Breadcrumb / Return Button */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 36 }}>
+        <Link href="/" style={{ 
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "8px 16px", borderRadius: 10,
+          background: "#f8f8fa", color: "#6b6b6b",
+          fontSize: 13, fontWeight: 600, textDecoration: "none",
+          border: "1px solid rgba(0,0,0,0.06)",
+          transition: "all .2s"
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.12)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "#f8f8fa"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.06)"; }}
         >
-          Lots
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          Accueil
         </Link>
-        <span style={{ color: "rgba(0,0,0,0.2)" }}>›</span>
-        <span style={{ color: "#6b6b6b", fontWeight: 500 }}>{lot.nom}</span>
+        <span style={{ color: "rgba(0,0,0,0.15)", fontSize: 16 }}>/</span>
+        <span style={{ color: "#a0a0a0", fontSize: 13, fontWeight: 500 }}>{lot.nom}</span>
       </div>
 
       <div className="lot-detail-grid">
@@ -166,13 +183,13 @@ export default function LotDetailPage({ params }: Props) {
             {!isSoldOut && !isProgramme && remaining > 0 && remaining < 15 && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 8,
-                background: "rgba(255,59,48,0.06)", padding: "10px 14px",
-                borderRadius: 10, border: "1px solid rgba(215,0,21,0.12)",
-                marginBottom: 20,
+                background: "rgba(123,77,255,0.06)", padding: "12px 16px",
+                borderRadius: 12, border: "1px solid rgba(123,77,255,0.15)",
+                marginBottom: 24, boxShadow: "0 2px 8px -2px rgba(123,77,255,0.1)",
               }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff3b30", flexShrink: 0, animation: "pulse-dot 1.5s infinite" }} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: "#d70015" }}>
-                  Il reste <strong>{remaining}</strong> ticket{remaining > 1 ? "s" : ""} disponible{remaining > 1 ? "s" : ""}
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#7B4DFF", flexShrink: 0, animation: "pulse-dot 1.5s infinite" }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#111111", letterSpacing: "-0.01em" }}>
+                  Dernière chance ! <span style={{ color: "#7B4DFF", fontWeight: 700 }}>{remaining}</span> ticket{remaining > 1 ? "s" : ""} disponible{remaining > 1 ? "s" : ""}
                 </span>
               </div>
             )}
@@ -247,6 +264,47 @@ export default function LotDetailPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {otherLots.length > 0 && (
+        <div style={{ marginTop: 100, borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: 60 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 40 }}>
+            <div>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", letterSpacing: "-0.03em" }}>
+                Vous aimerez aussi...
+              </h2>
+              <p style={{ fontSize: 14, color: "#a0a0a0", marginTop: 4 }}>D'autres opportunités d'exception vous attendent</p>
+            </div>
+            <Link href="/" style={{ color: "#7B4DFF", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Voir tout →</Link>
+          </div>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 32 }}>
+            {otherLots.map((l) => {
+              const remainsAtOther = l.total_tickets - l.tickets_vendus;
+              return (
+                <Link key={l.id} href={`/lots/${l.id}`} style={{ textDecoration: "none" }}>
+                  <div style={{ background: "#ffffff", borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", overflow: "hidden", transition: "transform .3s", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+                    onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+                  >
+                    <div style={{ position: "relative", height: 200 }}>
+                      <Image src={l.image_url || "/placeholder.png"} alt={l.nom} fill style={{ objectFit: "cover" }} />
+                    </div>
+                    <div style={{ padding: 20 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 600, color: "#111111", marginBottom: 6 }}>{l.nom}</h3>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: "#7B4DFF" }}>{Number(l.prix_ticket).toFixed(0)} € <span style={{ fontSize: 11, fontWeight: 400, color: "#a0a0a0" }}>/ticket</span></span>
+                        <span style={{ fontSize: 12, color: remainsAtOther < 10 ? "#ff3b30" : "#a0a0a0", fontWeight: 500 }}>
+                          {remainsAtOther} restants
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}

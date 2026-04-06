@@ -47,16 +47,16 @@ export default function Header() {
         <div style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "0 28px",
+          padding: "0 8px",
           height: 60,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 24,
+          gap: 12,
         }}>
           {/* Logo */}
-          <Link href="/" style={{ textDecoration: "none", flexShrink: 0, display: "flex", alignItems: "center" }}>
-            <Image src="/logo.png" alt="GoWinGo" width={240} height={80} style={{ objectFit: "contain" }} priority />
+          <Link href="/" style={{ textDecoration: "none", flexShrink: 0, display: "flex", alignItems: "center", marginLeft: -12 }}>
+            <Image src="/logo.png" alt="GoWinGo" width={170} height={56} style={{ objectFit: "contain" }} priority />
           </Link>
 
           {/* Trust — desktop uniquement */}
