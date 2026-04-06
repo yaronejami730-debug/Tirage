@@ -56,14 +56,14 @@ export default function LotDetailPage({ params }: Props) {
 
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 36, fontSize: 13 }}>
-        <Link href="/" style={{ color: "#a1a1a6", textDecoration: "none", transition: "color .2s" }}
+        <Link href="/" style={{ color: "#a0a0a0", textDecoration: "none", transition: "color .2s" }}
           onMouseEnter={e => e.currentTarget.style.color = "#1d1d1f"}
           onMouseLeave={e => e.currentTarget.style.color = "#a1a1a6"}
         >
           Lots
         </Link>
         <span style={{ color: "rgba(0,0,0,0.2)" }}>›</span>
-        <span style={{ color: "#6e6e73", fontWeight: 500 }}>{lot.nom}</span>
+        <span style={{ color: "#6b6b6b", fontWeight: 500 }}>{lot.nom}</span>
       </div>
 
       <div className="lot-detail-grid">
@@ -73,7 +73,7 @@ export default function LotDetailPage({ params }: Props) {
           {/* Image principale */}
           <div style={{
             position: "relative", height: 480, borderRadius: 20, overflow: "hidden",
-            marginBottom: 16, background: "#f5f5f7",
+            marginBottom: 16, background: "#f8f8fa",
             border: "1px solid rgba(0,0,0,0.06)",
           }}>
             {activeMedia ? (
@@ -97,7 +97,7 @@ export default function LotDetailPage({ params }: Props) {
                 border: "1px solid rgba(0,0,0,0.07)",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
               }}>
-                <span style={{ fontSize: 12, fontWeight: 500, color: "#6e6e73", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                <span style={{ fontSize: 12, fontWeight: 500, color: "#6b6b6b", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                   Tirage dans
                 </span>
                 <CountdownTimer dateFin={lot.date_fin} />
@@ -114,8 +114,8 @@ export default function LotDetailPage({ params }: Props) {
                   style={{
                     position: "relative", width: 72, height: 72, borderRadius: 12, overflow: "hidden",
                     cursor: "pointer",
-                    border: `2px solid ${activeMedia === lot.image_url ? "#0071e3" : "rgba(0,0,0,0.07)"}`,
-                    background: "#f5f5f7", transition: "border-color .2s",
+                    border: `2px solid ${activeMedia === lot.image_url ? "#7B4DFF" : "rgba(0,0,0,0.07)"}`,
+                    background: "#f8f8fa", transition: "border-color .2s",
                     flexShrink: 0,
                   }}
                 >
@@ -129,8 +129,8 @@ export default function LotDetailPage({ params }: Props) {
                   style={{
                     position: "relative", width: 72, height: 72, borderRadius: 12, overflow: "hidden",
                     cursor: "pointer", flexShrink: 0,
-                    border: `2px solid ${activeMedia === url ? "#0071e3" : "rgba(0,0,0,0.07)"}`,
-                    background: "#f5f5f7", transition: "border-color .2s",
+                    border: `2px solid ${activeMedia === url ? "#7B4DFF" : "rgba(0,0,0,0.07)"}`,
+                    background: "#f8f8fa", transition: "border-color .2s",
                   }}
                 >
                   {isVideo(url) ? (
@@ -150,15 +150,15 @@ export default function LotDetailPage({ params }: Props) {
             boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
           }}>
             <h1 style={{
-              fontSize: 22, fontWeight: 600, color: "#1d1d1f",
+              fontSize: 22, fontWeight: 600, color: "#111111",
               letterSpacing: "-0.03em", marginBottom: 6, lineHeight: 1.3,
             }}>
               {lot.nom}
             </h1>
 
             {lot.valeur_estimee && (
-              <p style={{ fontSize: 13, color: "#6e6e73", marginBottom: 16 }}>
-                Valeur estimée — <span style={{ color: "#0071e3", fontWeight: 600 }}>{Number(lot.valeur_estimee).toLocaleString("fr-FR")} €</span>
+              <p style={{ fontSize: 13, color: "#6b6b6b", marginBottom: 16 }}>
+                Valeur estimée — <span style={{ color: "#7B4DFF", fontWeight: 600 }}>{Number(lot.valeur_estimee).toLocaleString("fr-FR")} €</span>
               </p>
             )}
 
@@ -178,7 +178,7 @@ export default function LotDetailPage({ params }: Props) {
             )}
 
             {lot.description && (
-              <p style={{ color: "#6e6e73", fontSize: 14, lineHeight: 1.8, fontWeight: 400 }}>
+              <p style={{ color: "#6b6b6b", fontSize: 14, lineHeight: 1.8, fontWeight: 400 }}>
                 {lot.description}
               </p>
             )}
@@ -189,13 +189,13 @@ export default function LotDetailPage({ params }: Props) {
         <div className="lot-form-sticky" style={{ position: "sticky", top: 80 }}>
           {isProgramme ? (
             <div style={{ background: "#ffffff", borderRadius: 20, padding: 40, textAlign: "center", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
                 Prochainement
               </div>
-              <p style={{ color: "#6e6e73", fontSize: 14, marginBottom: 24 }}>Ce tirage n&apos;est pas encore ouvert.</p>
+              <p style={{ color: "#6b6b6b", fontSize: 14, marginBottom: 24 }}>Ce tirage n&apos;est pas encore ouvert.</p>
               {lot.date_ouverture && (
                 <div style={{ background: "rgba(0,0,0,0.03)", borderRadius: 12, padding: 20, marginBottom: 28, border: "1px solid rgba(0,0,0,0.06)" }}>
-                  <div style={{ fontSize: 11, color: "#a1a1a6", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.07em" }}>Ouverture dans</div>
+                  <div style={{ fontSize: 11, color: "#a0a0a0", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.07em" }}>Ouverture dans</div>
                   <CountdownTimer dateFin={lot.date_ouverture} />
                 </div>
               )}
@@ -203,30 +203,30 @@ export default function LotDetailPage({ params }: Props) {
             </div>
           ) : isArchived ? (
             <div style={{ background: "#ffffff", borderRadius: 20, padding: 40, textAlign: "center", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
                 Tirage terminé
               </div>
-              <p style={{ color: "#6e6e73", fontSize: 14, marginBottom: 28 }}>La période de participation est clôturée.</p>
+              <p style={{ color: "#6b6b6b", fontSize: 14, marginBottom: 28 }}>La période de participation est clôturée.</p>
               <Link href="/" className="btn-outline" style={{ display: "inline-flex" }}>← Retour aux lots</Link>
             </div>
           ) : isSoldOut ? (
             <div style={{ background: "#ffffff", borderRadius: 20, padding: 40, textAlign: "center", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
                 Complet
               </div>
-              <p style={{ color: "#6e6e73", fontSize: 14, marginBottom: 28 }}>Tous les tickets ont été vendus.</p>
+              <p style={{ color: "#6b6b6b", fontSize: 14, marginBottom: 28 }}>Tous les tickets ont été vendus.</p>
               <Link href="/" className="btn-outline" style={{ display: "inline-flex" }}>← Retour aux lots</Link>
             </div>
           ) : (
             <div style={{ background: "#ffffff", borderRadius: 20, padding: 28, border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
                   GoWinGo
                 </div>
-                <h2 style={{ fontSize: 18, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.02em", marginBottom: 2 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 600, color: "#111111", letterSpacing: "-0.02em", marginBottom: 2 }}>
                   Choisissez vos tickets
                 </h2>
-                <p style={{ color: "#a1a1a6", fontSize: 12 }}>Paiement sécurisé · Confirmation par email</p>
+                <p style={{ color: "#a0a0a0", fontSize: 12 }}>Paiement sécurisé · Confirmation par email</p>
               </div>
               <ParticipationForm
                 lotId={lot.id}
@@ -240,7 +240,7 @@ export default function LotDetailPage({ params }: Props) {
               />
               <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 20 }}>
                 {["Paiement sécurisé", "Certifié huissier", "Email immédiat"].map(b => (
-                  <span key={b} style={{ fontSize: 11, color: "#a1a1a6", fontWeight: 500 }}>{b}</span>
+                  <span key={b} style={{ fontSize: 11, color: "#a0a0a0", fontWeight: 500 }}>{b}</span>
                 ))}
               </div>
             </div>

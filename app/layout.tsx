@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <head />
-      <body className={inter.className} style={{ background: "#fbfbfd", minHeight: "100vh" }}>
+      <body className={inter.className} style={{ background: "#ffffff", minHeight: "100vh" }}>
         <PresenceProvider>
           <AgeVerificationModal />
           <AnnouncementBanner />
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <footer style={{
           borderTop: "1px solid rgba(0,0,0,0.07)",
-          background: "#f5f5f7",
+          background: "#f8f8fa",
           padding: "56px 24px 40px",
           marginTop: 100,
         }}>
@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {/* Brand */}
               <div>
                 <Image src="/logo.png" alt="GoWinGo" width={160} height={54} style={{ objectFit: "contain", marginBottom: 10 }} />
-                <p style={{ color: "#6e6e73", fontSize: 13, lineHeight: 1.7, maxWidth: 280 }}>
+                <p style={{ color: "#6b6b6b", fontSize: 13, lineHeight: 1.7, maxWidth: 280 }}>
                   Une sélection exclusive de lots d'exception.<br />
                   Paiement sécurisé. Tirage certifié.
                 </p>
@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {/* Links */}
               <div style={{ display: "flex", gap: 60, flexWrap: "wrap" }}>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Légal</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Légal</div>
                   {["Mentions légales", "CGV", "Règlement", "Confidentialité"].map(l => (
                     <div key={l} style={{ marginBottom: 10 }}>
                       <a href="#" className="footer-link">{l}</a>
@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ))}
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Contact</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Contact</div>
                   {["Support", "Partenariats"].map(l => (
                     <div key={l} style={{ marginBottom: 10 }}>
                       <a href="#" className="footer-link">{l}</a>
@@ -71,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             {/* Bottom bar */}
             <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-              <p style={{ color: "#a1a1a6", fontSize: 12 }}>
+              <p style={{ color: "#a0a0a0", fontSize: 12 }}>
                 © {new Date().getFullYear()} GoWinGo — Tous droits réservés
               </p>
               <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   { label: "Paiement sécurisé", icon: "🔒" },
                   { label: "Certifié huissier", icon: "⚖️" },
                 ].map(item => (
-                  <span key={item.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#a1a1a6" }}>
+                  <span key={item.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#a0a0a0" }}>
                     <span style={{ fontSize: 11 }}>{item.icon}</span>
                     {item.label}
                   </span>

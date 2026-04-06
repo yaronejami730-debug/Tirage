@@ -13,7 +13,7 @@ export default function TicketSelector({ max, value, onChange, prixTicket }: Tic
   const total = value * prixTicket;
 
   return (
-    <div style={{ background: "#f5f5f7", borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", gap: 18, border: "1px solid rgba(0,0,0,0.06)" }}>
+    <div style={{ background: "#f8f8fa", borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", gap: 18, border: "1px solid rgba(0,0,0,0.06)" }}>
 
       {/* Compteur − valeur + */}
       <div>

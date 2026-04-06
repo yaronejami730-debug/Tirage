@@ -71,8 +71,8 @@ function HomePageContent() {
             border: "1px solid rgba(0,0,0,0.07)",
             borderRadius: 99,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#0071e3", display: "inline-block" }} />
-            <span style={{ fontSize: 12, fontWeight: 500, color: "#6e6e73", letterSpacing: "0.04em" }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", display: "inline-block" }} />
+            <span style={{ fontSize: 12, fontWeight: 500, color: "#6b6b6b", letterSpacing: "0.04em" }}>
               Tirage certifié · Paiement sécurisé
             </span>
           </div>
@@ -80,7 +80,7 @@ function HomePageContent() {
           <h1 style={{
             fontSize: "clamp(40px, 6vw, 72px)",
             fontWeight: 700,
-            color: "#1d1d1f",
+            color: "#111111",
             lineHeight: 1.05,
             letterSpacing: "-0.04em",
             marginBottom: 20,
@@ -91,7 +91,7 @@ function HomePageContent() {
           </h1>
 
           <p style={{
-            color: "#6e6e73", fontSize: "clamp(14px, 2vw, 17px)",
+            color: "#6b6b6b", fontSize: "clamp(14px, 2vw, 17px)",
             fontWeight: 400, lineHeight: 1.7, maxWidth: 500, margin: "0 auto 44px",
           }}>
             Sélection exclusive de produits haut de gamme.
@@ -101,14 +101,14 @@ function HomePageContent() {
 
           <a href="#lots" style={{
             display: "inline-flex", alignItems: "center", gap: 10,
-            background: "#0071e3", color: "#ffffff",
+            background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff",
             fontWeight: 600, fontSize: 15, letterSpacing: "-0.02em",
             padding: "15px 32px", borderRadius: 980, textDecoration: "none",
             transition: "all .2s cubic-bezier(0.16,1,0.3,1)",
-            boxShadow: "0 4px 16px rgba(0,113,227,0.3)",
+            boxShadow: "0 4px 16px rgba(123,77,255,0.3)",
           }}
             onMouseEnter={e => { e.currentTarget.style.background = "#0077ed"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,113,227,0.4)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "#0071e3"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,113,227,0.3)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "#0071e3"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(123,77,255,0.3)"; }}
           >
             Voir les lots
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -123,7 +123,7 @@ function HomePageContent() {
 
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 100 }}>
-            <div style={{ width: 32, height: 32, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#1d1d1f", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+            <div style={{ width: 32, height: 32, border: "2px solid rgba(0,0,0,0.08)", borderTopColor: "#111111", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
           </div>
         ) : lots.length === 0 ? (
           <div style={{ textAlign: "center", padding: 100 }}>
@@ -137,7 +137,7 @@ function HomePageContent() {
             {/* Header section */}
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 40, flexWrap: "wrap", gap: 16 }}>
               <div>
-                <h2 style={{ fontSize: 22, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.03em", marginBottom: 4 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 600, color: "#111111", letterSpacing: "-0.03em", marginBottom: 4 }}>
                   Lots disponibles
                 </h2>
                 <p style={{ fontSize: 13, color: "#a1a1a6", fontWeight: 400 }}>
@@ -161,7 +161,7 @@ function HomePageContent() {
                         border: "1px solid",
                         borderColor: activeCategory === null ? "rgba(0,113,227,0.35)" : "rgba(0,0,0,0.1)",
                         background: activeCategory === null ? "rgba(0,113,227,0.07)" : "transparent",
-                        color: activeCategory === null ? "#0071e3" : "#6e6e73",
+                        color: activeCategory === null ? "#0071e3" : "#6b6b6b",
                         transition: "all .15s",
                       }}
                     >
@@ -184,7 +184,7 @@ function HomePageContent() {
                             border: "1px solid",
                             borderColor: active ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)",
                             background: active ? "rgba(0,0,0,0.05)" : "transparent",
-                            color: active ? "#1d1d1f" : "#6e6e73",
+                            color: active ? "#111111" : "#6b6b6b",
                             transition: "all .15s",
                           }}
                         >

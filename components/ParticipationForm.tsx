@@ -123,7 +123,7 @@ export default function ParticipationForm({
     input: {
       width: "100%", padding: "13px 16px", borderRadius: 10,
       border: "1px solid rgba(0,0,0,0.1)", background: "#ffffff",
-      fontFamily: "inherit", fontSize: 14, color: "#1d1d1f", outline: "none",
+      fontFamily: "inherit", fontSize: 14, color: "#111111", outline: "none",
       transition: "border-color .2s, box-shadow .2s",
       boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
     } as React.CSSProperties,
@@ -140,11 +140,11 @@ export default function ParticipationForm({
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: "50%",
-                  border: `1px solid ${step >= s.id ? "rgba(0,113,227,0.4)" : "rgba(0,0,0,0.1)"}`,
-                  background: step > s.id ? "#0071e3" : step === s.id ? "rgba(0,113,227,0.08)" : "transparent",
+                  border: `1px solid ${step >= s.id ? "rgba(123,77,255,0.4)" : "rgba(0,0,0,0.1)"}`,
+                  background: step > s.id ? "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)" : step === s.id ? "rgba(123,77,255,0.08)" : "transparent",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 11, fontWeight: 600,
-                  color: step > s.id ? "#ffffff" : step === s.id ? "#0071e3" : "#a1a1a6",
+                  color: step > s.id ? "#ffffff" : step === s.id ? "#7B4DFF" : "#a1a1a6",
                   transition: "all .3s",
                 }}>
                   {step > s.id ? (
@@ -156,7 +156,7 @@ export default function ParticipationForm({
                 </span>
               </div>
               {i < steps.length - 1 && (
-                <div style={{ flex: 1, height: 1, margin: "0 8px", marginBottom: 20, background: step > s.id ? "rgba(0,113,227,0.25)" : "rgba(0,0,0,0.07)", transition: "background .3s" }} />
+                <div style={{ flex: 1, height: 1, margin: "0 8px", marginBottom: 20, background: step > s.id ? "rgba(123,77,255,0.25)" : "rgba(0,0,0,0.07)", transition: "background .3s" }} />
               )}
             </div>
           ))}
@@ -187,11 +187,11 @@ export default function ParticipationForm({
                     { label: "Valeur lot", val: valeurEstimee ? `${Number(valeurEstimee).toFixed(0)} €` : "—" },
                   ].map(s => (
                     <div key={s.label} style={{
-                      background: "#f5f5f7", borderRadius: 10, padding: "12px 10px",
+                      background: "#f8f8fa", borderRadius: 10, padding: "12px 10px",
                       textAlign: "center", border: "1px solid rgba(0,0,0,0.06)",
                     }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.02em" }}>{s.val}</div>
-                      <div style={{ fontSize: 10, color: "#a1a1a6", fontWeight: 500, marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#111111", letterSpacing: "-0.02em" }}>{s.val}</div>
+                      <div style={{ fontSize: 10, color: "#a0a0a0", fontWeight: 500, marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -199,7 +199,7 @@ export default function ParticipationForm({
                 {/* Packs VIP */}
                 {packs && packs.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
                       Packs — Meilleur prix
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
@@ -212,27 +212,27 @@ export default function ParticipationForm({
                             whileTap={{ scale: 0.99 }}
                             onClick={() => setQuantite(p.qte)}
                             style={{
-                              background: isSelected ? "rgba(0,113,227,0.07)" : "#f5f5f7",
+                              background: isSelected ? "rgba(123,77,255,0.07)" : "#f8f8fa",
                               borderRadius: 12, padding: "16px 14px", textAlign: "center",
                               cursor: "pointer",
-                              border: `1px solid ${isSelected ? "rgba(0,113,227,0.3)" : "rgba(0,0,0,0.07)"}`,
+                              border: `1px solid ${isSelected ? "rgba(123,77,255,0.3)" : "rgba(0,0,0,0.07)"}`,
                               transition: "all .2s",
                             }}
                           >
-                            <div style={{ fontSize: 22, fontWeight: 700, color: isSelected ? "#0071e3" : "#1d1d1f", letterSpacing: "-0.02em" }}>
+                            <div style={{ fontSize: 22, fontWeight: 700, color: isSelected ? "#7B4DFF" : "#1d1d1f", letterSpacing: "-0.02em" }}>
                               {p.qte}
                             </div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: isSelected ? "#0071e3" : "#6e6e73", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 2 }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: isSelected ? "#7B4DFF" : "#6e6e73", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 2 }}>
                               -{p.reduction}%
                             </div>
-                            <div style={{ fontSize: 10, color: "#a1a1a6", marginTop: 4 }}>
+                            <div style={{ fontSize: 10, color: "#a0a0a0", marginTop: 4 }}>
                               1/{Math.round(totalTickets / p.qte)} chance
                             </div>
                           </motion.div>
                         );
                       })}
                     </div>
-                    <div style={{ textAlign: "center", margin: "16px 0", fontSize: 12, color: "#a1a1a6" }}>ou choisir manuellement</div>
+                    <div style={{ textAlign: "center", margin: "16px 0", fontSize: 12, color: "#a0a0a0" }}>ou choisir manuellement</div>
                   </div>
                 )}
 
@@ -248,7 +248,7 @@ export default function ParticipationForm({
                   whileTap={{ scale: 0.99 }}
                   type="button" onClick={handleNext}
                   style={{
-                    width: "100%", background: "#0071e3", color: "#ffffff",
+                    width: "100%", background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff",
                     padding: "15px", borderRadius: 980, border: "none",
                     fontFamily: "inherit", fontSize: 15, fontWeight: 600,
                     letterSpacing: "-0.01em", cursor: "pointer",
@@ -264,10 +264,10 @@ export default function ParticipationForm({
             {step === 2 && currentQuestion && (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ textAlign: "center", paddingBottom: 4 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a1a1a6", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a0a0a0", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
                     Question de qualification
                   </div>
-                  <h3 style={{ fontSize: 17, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.02em", lineHeight: 1.4, margin: 0 }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 600, color: "#111111", letterSpacing: "-0.02em", lineHeight: 1.4, margin: 0 }}>
                     {currentQuestion.q}
                   </h3>
                 </div>
@@ -282,9 +282,9 @@ export default function ParticipationForm({
                         whileTap={{ scale: 0.99 }}
                         onClick={() => { setUserAnswer(choice); setError(null); }}
                         style={{
-                          background: isSelected ? "rgba(0,113,227,0.07)" : "#f5f5f7",
-                          color: isSelected ? "#0071e3" : "#6e6e73",
-                          border: `1px solid ${isSelected ? "rgba(0,113,227,0.3)" : "rgba(0,0,0,0.07)"}`,
+                          background: isSelected ? "rgba(123,77,255,0.07)" : "#f8f8fa",
+                          color: isSelected ? "#7B4DFF" : "#6e6e73",
+                          border: `1px solid ${isSelected ? "rgba(123,77,255,0.3)" : "rgba(0,0,0,0.07)"}`,
                           padding: "16px 12px", borderRadius: 12,
                           fontSize: 14, fontWeight: 500, textAlign: "center",
                           cursor: "pointer", transition: "all .2s", fontFamily: "inherit",
@@ -305,11 +305,11 @@ export default function ParticipationForm({
 
                 <div style={{ display: "flex", gap: 10 }}>
                   <button type="button" onClick={handleBack}
-                    style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.1)", background: "transparent", color: "#6e6e73", fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+                    style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.1)", background: "transparent", color: "#6b6b6b", fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
                     Retour
                   </button>
                   <button type="button" onClick={handleNext}
-                    style={{ flex: 2, padding: "13px", borderRadius: 980, border: "none", background: "#0071e3", color: "#ffffff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", letterSpacing: "-0.01em" }}>
+                    style={{ flex: 2, padding: "13px", borderRadius: 980, border: "none", background: "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)", color: "#ffffff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", letterSpacing: "-0.01em" }}>
                     Continuer
                   </button>
                 </div>
@@ -327,14 +327,14 @@ export default function ParticipationForm({
                       type="text" placeholder="Prénom" value={prenom}
                       onChange={e => setPrenom(e.target.value)}
                       style={S.input} required
-                      onFocus={e => { e.target.style.borderColor = "rgba(0,113,227,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(0,113,227,0.07)"; }}
+                      onFocus={e => { e.target.style.borderColor = "rgba(123,77,255,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(123,77,255,0.07)"; }}
                       onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.1)"; e.target.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)"; }}
                     />
                     <input
                       type="text" placeholder="Nom" value={nom}
                       onChange={e => setNom(e.target.value)}
                       style={S.input} required
-                      onFocus={e => { e.target.style.borderColor = "rgba(0,113,227,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(0,113,227,0.07)"; }}
+                      onFocus={e => { e.target.style.borderColor = "rgba(123,77,255,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(123,77,255,0.07)"; }}
                       onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.1)"; e.target.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)"; }}
                     />
                   </div>
@@ -342,20 +342,20 @@ export default function ParticipationForm({
                     type="email" placeholder="Adresse e-mail" value={email}
                     onChange={e => setEmail(e.target.value)}
                     style={S.input} required
-                    onFocus={e => { e.target.style.borderColor = "rgba(0,113,227,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(0,113,227,0.07)"; }}
+                    onFocus={e => { e.target.style.borderColor = "rgba(123,77,255,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(123,77,255,0.07)"; }}
                     onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.1)"; e.target.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)"; }}
                   />
                   <input
                     type="tel" placeholder="Téléphone (optionnel)" value={telephone}
                     onChange={e => setTelephone(e.target.value)}
                     style={S.input}
-                    onFocus={e => { e.target.style.borderColor = "rgba(0,113,227,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(0,113,227,0.07)"; }}
+                    onFocus={e => { e.target.style.borderColor = "rgba(123,77,255,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(123,77,255,0.07)"; }}
                     onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.1)"; e.target.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)"; }}
                   />
                 </div>
 
                 {/* Récapitulatif */}
-                <div style={{ background: "#f5f5f7", borderRadius: 12, padding: "16px 18px", border: "1px solid rgba(0,0,0,0.06)" }}>
+                <div style={{ background: "#f8f8fa", borderRadius: 12, padding: "16px 18px", border: "1px solid rgba(0,0,0,0.06)" }}>
                   <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
                     {lotImage && (
                       <div style={{ width: 48, height: 48, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#e8e8ed" }}>
@@ -363,22 +363,22 @@ export default function ParticipationForm({
                       </div>
                     )}
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.01em" }}>{lotNom}</div>
-                      <div style={{ fontSize: 12, color: "#6e6e73", marginTop: 2 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#111111", letterSpacing: "-0.01em" }}>{lotNom}</div>
+                      <div style={{ fontSize: 12, color: "#6b6b6b", marginTop: 2 }}>
                         {quantite} ticket{quantite > 1 ? "s" : ""} × {prixTicket.toFixed(2)} €
                       </div>
                     </div>
                   </div>
                   <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#6e6e73", fontWeight: 500 }}>Total</span>
+                    <span style={{ fontSize: 12, color: "#6b6b6b", fontWeight: 500 }}>Total</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       {reduction > 0 && (
                         <>
-                          <span style={{ fontSize: 12, color: "#a1a1a6", textDecoration: "line-through" }}>{originalTotal.toFixed(0)} €</span>
-                          <span style={{ fontSize: 10, fontWeight: 600, color: "#0071e3", background: "rgba(0,113,227,0.08)", padding: "2px 8px", borderRadius: 4 }}>-{reduction}%</span>
+                          <span style={{ fontSize: 12, color: "#a0a0a0", textDecoration: "line-through" }}>{originalTotal.toFixed(0)} €</span>
+                          <span style={{ fontSize: 10, fontWeight: 600, color: "#7B4DFF", background: "rgba(123,77,255,0.08)", padding: "2px 8px", borderRadius: 4 }}>-{reduction}%</span>
                         </>
                       )}
-                      <span style={{ fontSize: 20, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.02em" }}>{total} €</span>
+                      <span style={{ fontSize: 20, fontWeight: 700, color: "#111111", letterSpacing: "-0.02em" }}>{total} €</span>
                     </div>
                   </div>
                 </div>
@@ -396,7 +396,7 @@ export default function ParticipationForm({
                   type="submit"
                   disabled={loading}
                   style={{
-                    width: "100%", background: loading ? "rgba(0,113,227,0.5)" : "#0071e3",
+                    width: "100%", background: loading ? "rgba(123,77,255,0.5)" : "linear-gradient(135deg, #4F8CFF 0%, #7B4DFF 100%)",
                     color: "#ffffff", padding: "16px 24px", borderRadius: 12,
                     border: "none", cursor: loading ? "wait" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
@@ -418,7 +418,7 @@ export default function ParticipationForm({
                 </motion.button>
 
                 <button type="button" onClick={handleBack}
-                  style={{ textAlign: "center", color: "#a1a1a6", fontSize: 13, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", paddingTop: 4 }}>
+                  style={{ textAlign: "center", color: "#a0a0a0", fontSize: 13, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", paddingTop: 4 }}>
                   ← Retour
                 </button>
               </div>
