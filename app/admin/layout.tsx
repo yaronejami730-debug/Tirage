@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { usePresence } from "@/hooks/usePresence";
+import { useOnlineCount } from "@/components/PresenceContext";
 
 const navItems = [
   {
@@ -78,7 +78,7 @@ function SidebarContent({
         <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-3 py-2">
           <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" style={{ boxShadow: "0 0 6px #00B894" }} />
           <span className="text-xs font-700 text-green-700" style={{ fontWeight: 700 }}>
-            {onlineCount} joueur{onlineCount > 1 ? "s" : ""} en ligne
+            {onlineCount} {onlineCount > 1 ? "visiteurs" : "visiteur"}
           </span>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const onlineCount = usePresence("platform");
+  const onlineCount = useOnlineCount();
 
   if (pathname === "/admin/login") return <>{children}</>;
 
@@ -207,7 +207,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Mini compteur dans la top bar */}
           <div className="flex items-center gap-1.5 bg-green-50 border border-green-100 rounded-full px-3 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
-            <span className="text-xs font-bold text-green-700">{onlineCount} en ligne</span>
+            <span className="text-xs font-bold text-green-700">{onlineCount} {onlineCount > 1 ? "visiteurs" : "visiteur"}</span>
           </div>
         </header>
 
