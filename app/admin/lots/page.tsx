@@ -36,12 +36,16 @@ export default function AdminLotsPage() {
         setLoading(false);
       });
 
-    const supabase = supabaseClient();
+    const supabase = supabaseClient;
     const channel = supabase.channel("global-presence");
     channel
       .on("presence", { event: "sync" }, () => {
         const state = channel.presenceState();
-        setOnlineCount(Object.keys(state).length);
+        // Compter seulement les utilisateurs qui ne sont pas admin
+        const realUsers = Object.values(state).filter((presences: any) => 
+          presences.some((p: any) => p.role === "user")
+        ).length;
+        setOnlineCount(realUsers);
       })
       .subscribe();
 
@@ -68,7 +72,7 @@ export default function AdminLotsPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              <span className="text-xs font-bold whitespace-nowrap">{onlineCount} en ligne</span>
+              <span className="text-xs font-bold whitespace-nowrap">{onlineCount} {onlineCount > 1 ? "visiteurs" : "visiteur"}</span>
             </div>
             <Link href="/admin/lots/new" className="btn-primary text-sm whitespace-nowrap">+ Nouveau lot</Link>
           </div>
