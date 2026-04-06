@@ -3,6 +3,7 @@ import "./globals.css";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import AgeVerificationModal from "@/components/AgeVerificationModal";
 import Header from "@/components/Header";
+import RealtimePresence from "@/components/RealtimePresence";
 
 export const metadata: Metadata = {
   title: "GoWinGo 🎰 — Tentez votre chance !",
@@ -18,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body style={{ fontFamily: "'Nunito', sans-serif", background: "#F8F9FF", minHeight: "100vh" }}>
-
+        <RealtimePresence />
         <AgeVerificationModal />
         <AnnouncementBanner />
         <Header />

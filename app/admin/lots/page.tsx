@@ -5,7 +5,7 @@ import Link from "next/link";
 import DeleteLotButton from "./DeleteLotButton";
 import BailiffButton from "./BailiffButton";
 import LotParticipantsModal from "./LotParticipantsModal";
-import { Lot } from "@/lib/supabase";
+import { Lot, supabaseClient } from "@/lib/supabase";
 
 const statutBadge: Record<string, string> = {
   actif: "bg-green-100 text-green-700",
@@ -26,6 +26,7 @@ export default function AdminLotsPage() {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
+  const [onlineCount, setOnlineCount] = useState(1);
 
   useEffect(() => {
     fetch("/api/admin/lots")
@@ -34,6 +35,17 @@ export default function AdminLotsPage() {
         setLots(data.lots || []);
         setLoading(false);
       });
+
+    const supabase = supabaseClient();
+    const channel = supabase.channel("global-presence");
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        setOnlineCount(Object.keys(state).length);
+      })
+      .subscribe();
+
+    return () => { channel.unsubscribe(); };
   }, []);
 
   if (loading) {
@@ -48,13 +60,18 @@ export default function AdminLotsPage() {
     <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">Lots</h1>
-            <div className="relative w-28 h-10">
-              <img src="/images/logo-gowingo.png" alt="GoWinGo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          <h1 className="text-2xl font-bold text-gray-900">Lots</h1>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-100 animate-pulse">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <span className="text-xs font-bold whitespace-nowrap">{onlineCount} en ligne</span>
             </div>
+            <Link href="/admin/lots/new" className="btn-primary text-sm whitespace-nowrap">+ Nouveau lot</Link>
           </div>
-          <Link href="/admin/lots/new" className="btn-primary text-sm">+ Nouveau lot</Link>
         </div>
 
         {lots.length === 0 ? (
